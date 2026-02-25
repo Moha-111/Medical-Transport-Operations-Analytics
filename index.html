@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ميدي-ترانس | نظام إدارة نقل المرضى</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:        #060A14;
+  --surface:   #0C1120;
+  --surface2:  #131D30;
+  --surface3:  #1A263D;
+  --border:    rgba(255,255,255,0.07);
+  --teal:      #00C9A7;
+  --teal2:     #0098DB;
+  --amber:     #F6A623;
+  --red:       #FF5252;
+  --green:     #30D158;
+  --purple:    #BF5AF2;
+  --text:      #EDF0F7;
+  --muted:     #5E7391;
+  --sidebar-w: 240px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Cairo',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ══ SIDEBAR ══════════════════════════════════════════ */
+.sidebar{
+  width:var(--sidebar-w);
+  background:var(--surface);
+  border-left:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  position:fixed;
+  right:0; top:0; bottom:0;
+  z-index:50;
+  transition:transform .3s;
+}
+.sidebar-logo{
+  padding:24px 20px 20px;
+  border-bottom:1px solid var(--border);
+}
+.logo-mark{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:4px;
+}
+.logo-icon{
+  width:40px;height:40px;
+  background:linear-gradient(135deg,var(--teal),var(--teal2));
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+  box-shadow:0 0 24px rgba(0,201,167,.25);
+}
+.logo-name{font-size:17px;font-weight:900;letter-spacing:-.3px;}
+.logo-name span{color:var(--teal);}
+.logo-version{font-size:10px;color:var(--muted);margin-top:2px;}
+
+.nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;}
+.nav-section{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.8px;
+  text-transform:uppercase;padding:12px 8px 6px;}
+.nav-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:13.5px;font-weight:600;
+  color:var(--muted);
+  transition:all .2s;
+  position:relative;
+}
+.nav-item:hover{background:var(--surface2);color:var(--text);}
+.nav-item.active{
+  background:rgba(0,201,167,.12);
+  color:var(--teal);
+}
+.nav-item.active::before{
+  content:'';position:absolute;right:0;top:50%;transform:translateY(-50%);
+  width:3px;height:60%;background:var(--teal);border-radius:2px 0 0 2px;
+}
+.nav-item .icon{font-size:16px;width:20px;text-align:center;}
+.nav-badge{
+  margin-right:auto;
+  padding:2px 7px;border-radius:100px;
+  font-size:10px;font-weight:700;
+  background:rgba(255,82,82,.15);color:var(--red);
+}
+.nav-badge.green{background:rgba(48,209,88,.1);color:var(--green);}
+
+.sidebar-footer{
+  padding:16px;
+  border-top:1px solid var(--border);
+}
+.user-card{
+  display:flex;align-items:center;gap:10px;
+  padding:10px;background:var(--surface2);
+  border-radius:10px;cursor:pointer;
+}
+.user-avatar{
+  width:34px;height:34px;border-radius:50%;
+  background:linear-gradient(135deg,var(--teal),var(--purple));
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;
+}
+.user-info .name{font-size:12.5px;font-weight:700;}
+.user-info .role{font-size:11px;color:var(--muted);}
+
+/* ══ MAIN ═════════════════════════════════════════════ */
+.main{
+  margin-right:var(--sidebar-w);
+  flex:1;
+  display:flex;flex-direction:column;
+  min-height:100vh;
+}
+
+/* ══ TOPBAR ═══════════════════════════════════════════ */
+.topbar{
+  height:60px;
+  background:rgba(12,17,32,.9);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;
+  position:sticky;top:0;z-index:40;
+}
+.topbar-title{font-size:16px;font-weight:700;}
+.topbar-title span{color:var(--muted);font-weight:400;font-size:13px;margin-right:8px;}
+.topbar-actions{display:flex;align-items:center;gap:12px;}
+.live-indicator{
+  display:flex;align-items:center;gap:7px;
+  padding:5px 14px;
+  background:rgba(48,209,88,.08);
+  border:1px solid rgba(48,209,88,.2);
+  border-radius:100px;
+  font-size:12px;font-weight:600;color:var(--green);
+}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.3;transform:scale(.7);}}
+
+#clockDisplay{
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;color:var(--muted);
+}
+.icon-btn{
+  width:36px;height:36px;border-radius:9px;
+  background:var(--surface2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:16px;
+  transition:background .2s;position:relative;
+}
+.icon-btn:hover{background:var(--surface3);}
+.notif-dot{
+  position:absolute;top:4px;right:4px;
+  width:8px;height:8px;border-radius:50%;
+  background:var(--red);border:2px solid var(--surface);
+}
+
+/* ══ CONTENT AREA ═════════════════════════════════════ */
+.content{padding:24px 28px 60px;flex:1;}
+.page{display:none;}
+.page.active{display:block;}
+
+/* ══ SECTION HEADER ═══════════════════════════════════ */
+.section-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:24px;
+}
+.section-header h2{font-size:20px;font-weight:700;}
+.section-header p{font-size:13px;color:var(--muted);margin-top:3px;}
+
+/* ══ KPI STRIP ════════════════════════════════════════ */
+.kpi-strip{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:14px;
+  margin-bottom:22px;
+}
+.kpi{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:18px 16px;
+  position:relative;overflow:hidden;
+  cursor:default;
+  transition:transform .2s,border-color .2s;
+}
+.kpi:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.12);}
+.kpi::before{
+  content:'';position:absolute;top:0;right:0;left:0;height:2px;
+  background:var(--c,var(--teal));border-radius:2px 2px 0 0;
+}
+.kpi-label{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.4px;margin-bottom:10px;}
+.kpi-val{
+  font-family:'JetBrains Mono',monospace;
+  font-size:26px;font-weight:600;
+  color:var(--c,var(--teal));
+  line-height:1;margin-bottom:5px;
+}
+.kpi-sub{font-size:11px;color:var(--muted);}
+.kpi-badge{
+  position:absolute;top:14px;left:14px;
+  font-size:11px;font-weight:700;padding:2px 8px;
+  border-radius:100px;
+}
+.badge-up{background:rgba(48,209,88,.1);color:var(--green);}
+.badge-down{background:rgba(255,82,82,.1);color:var(--red);}
+.badge-eq{background:rgba(246,166,35,.1);color:var(--amber);}
+.kpi-bar{height:3px;background:rgba(255,255,255,.07);border-radius:2px;margin-top:10px;overflow:hidden;}
+.kpi-bar-fill{height:100%;border-radius:2px;background:var(--c,var(--teal));transition:width .8s ease;}
+
+/* ══ GRID LAYOUTS ═════════════════════════════════════ */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;}
+.grid-3{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:16px;margin-bottom:18px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+.span-2{grid-column:span 2;}
+
+/* ══ CARD ═════════════════════════════════════════════ */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:20px;
+  overflow:hidden;
+}
+.card-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;
+}
+.card-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.card-tag{
+  font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;
+}
+.tag-live{background:rgba(0,201,167,.1);color:var(--teal);border:1px solid rgba(0,201,167,.2);}
+.tag-alert{background:rgba(255,82,82,.1);color:var(--red);border:1px solid rgba(255,82,82,.2);}
+.tag-warn{background:rgba(246,166,35,.1);color:var(--amber);border:1px solid rgba(246,166,35,.2);}
+.tag-info{background:rgba(0,152,219,.1);color:var(--teal2);border:1px solid rgba(0,152,219,.2);}
+
+/* ══ TABLE ════════════════════════════════════════════ */
+.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.tbl th{
+  text-align:right;padding:9px 14px;
+  font-size:10px;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.5px;
+  border-bottom:1px solid var(--border);
+}
+.tbl td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.03);}
+.tbl tr:last-child td{border:none;}
+.tbl tr:hover td{background:rgba(255,255,255,.018);}
+.chip{display:inline-block;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700;}
+.chip-ok{background:rgba(48,209,88,.1);color:var(--green);}
+.chip-warn{background:rgba(246,166,35,.1);color:var(--amber);}
+.chip-crit{background:rgba(255,82,82,.1);color:var(--red);}
+.chip-info{background:rgba(0,152,219,.1);color:var(--teal2);}
+
+/* ══ BUTTONS ══════════════════════════════════════════ */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 20px;border-radius:10px;border:none;
+  font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;
+  cursor:pointer;transition:all .2s;
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--teal),var(--teal2));
+  color:#fff;box-shadow:0 4px 16px rgba(0,201,167,.25);
+}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,201,167,.35);}
+.btn-secondary{
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--text);
+}
+.btn-secondary:hover{background:var(--surface3);}
+.btn-danger{background:rgba(255,82,82,.12);color:var(--red);border:1px solid rgba(255,82,82,.2);}
+.btn-sm{padding:7px 14px;font-size:12px;}
+
+/* ══ ALERT FEED ════════════════════════════════════════ */
+.alert-feed{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto;}
+.alert-feed::-webkit-scrollbar{width:4px;}
+.alert-feed::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px;}
+.alert-item{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:12px 14px;
+  background:rgba(255,255,255,.025);border-radius:10px;
+  border-right:3px solid;
+  animation:slideIn .3s ease;
+}
+@keyframes slideIn{from{opacity:0;transform:translateX(10px);}to{opacity:1;transform:translateX(0);}}
+.alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.alert-content .alert-title{font-size:13px;font-weight:600;margin-bottom:2px;}
+.alert-content .alert-desc{font-size:11.5px;color:var(--muted);line-height:1.5;}
+.alert-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-right:auto;white-space:nowrap;}
+
+/* ══ FORM ═════════════════════════════════════════════ */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-group label{font-size:12px;font-weight:700;color:var(--muted);}
+.form-group input,.form-group select,.form-group textarea{
+  padding:10px 14px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:9px;
+  color:var(--text);
+  font-family:'Cairo',sans-serif;
+  font-size:13px;
+  transition:border-color .2s;
+  outline:none;
+}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{
+  border-color:rgba(0,201,167,.4);
+}
+.form-group input::placeholder{color:var(--muted);}
+.form-group select option{background:var(--surface2);}
+
+/* ══ PROGRESS ══════════════════════════════════════════ */
+.progress-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.progress-label{font-size:12px;color:var(--muted);width:80px;text-align:left;}
+.progress-bar{flex:1;height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:3px;transition:width .8s ease;}
+.progress-val{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;width:44px;text-align:right;}
+
+/* ══ STATS ROW ═════════════════════════════════════════ */
+.stat-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 0;border-bottom:1px solid var(--border);
+}
+.stat-row:last-child{border:none;}
+.stat-row .label{font-size:13px;color:var(--muted);}
+.stat-row .value{font-size:13px;font-weight:700;}
+
+/* ══ NOTIFICATIONS PANEL ═══════════════════════════════ */
+#notifPanel{
+  position:fixed;top:68px;left:24px;
+  width:360px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:16px;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);
+  z-index:200;
+  display:none;
+  animation:panelIn .2s ease;
+}
+@keyframes panelIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+.notif-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;
+  border-bottom:1px solid var(--border);
+}
+.notif-header span{font-size:13px;font-weight:700;}
+.notif-list{max-height:360px;overflow-y:auto;}
+.notif-item{
+  display:flex;gap:12px;padding:14px 18px;
+  border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background .15s;
+}
+.notif-item:last-child{border:none;}
+.notif-item:hover{background:rgba(255,255,255,.03);}
+.notif-icon{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:17px;
+  flex-shrink:0;
+}
+.notif-body .title{font-size:13px;font-weight:600;margin-bottom:3px;}
+.notif-body .desc{font-size:11.5px;color:var(--muted);line-height:1.5;}
+.notif-body .time{font-size:10px;color:var(--muted);margin-top:4px;}
+
+/* ══ MODAL ════════════════════════════════════════════ */
+.modal-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.7);backdrop-filter:blur(6px);
+  z-index:500;display:none;
+  align-items:center;justify-content:center;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:28px;
+  width:560px;max-width:90vw;
+  animation:modalIn .25s ease;
+}
+@keyframes modalIn{from{opacity:0;transform:scale(.96);}to{opacity:1;transform:scale(1);}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.modal-title{font-size:17px;font-weight:700;}
+
+/* ══ TOAST ════════════════════════════════════════════ */
+.toast-container{position:fixed;bottom:24px;left:24px;z-index:900;display:flex;flex-direction:column;gap:8px;}
+.toast{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 18px;border-radius:12px;
+  background:var(--surface2);border:1px solid var(--border);
+  font-size:13px;font-weight:600;
+  box-shadow:0 8px 30px rgba(0,0,0,.4);
+  animation:toastIn .3s ease;
+  min-width:280px;
+}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.toast.success{border-color:rgba(48,209,88,.3);color:var(--green);}
+.toast.error{border-color:rgba(255,82,82,.3);color:var(--red);}
+.toast.info{border-color:rgba(0,201,167,.3);color:var(--teal);}
+
+/* ══ REPORT PREVIEW ════════════════════════════════════ */
+.report-card{
+  background:linear-gradient(135deg,rgba(0,201,167,.06),rgba(0,152,219,.06));
+  border:1px solid rgba(0,201,167,.2);
+  border-radius:16px;padding:24px;
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;
+}
+.report-info h3{font-size:16px;font-weight:700;margin-bottom:6px;}
+.report-info p{font-size:13px;color:var(--muted);}
+.report-stats{display:flex;gap:24px;}
+.report-stat{text-align:center;}
+.report-stat .num{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--teal);}
+.report-stat .lbl{font-size:10px;color:var(--muted);margin-top:2px;}
+
+canvas{max-height:220px;}
+
+/* ══ SCROLLBAR ════════════════════════════════════════ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px;}
+
+/* ══ RESPONSIVE ════════════════════════════════════════ */
+@media(max-width:1100px){
+  .kpi-strip{grid-template-columns:repeat(3,1fr);}
+  .grid-3{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:768px){
+  :root{--sidebar-w:0px;}
+  .sidebar{transform:translateX(100%);width:260px;}
+  .sidebar.open{transform:translateX(0);}
+  .kpi-strip{grid-template-columns:1fr 1fr;}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}
+  .content{padding:16px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ════════════════════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">🚑</div>
+      <div>
+        <div class="logo-name">ميدي<span>ترانس</span></div>
+      </div>
+    </div>
+    <div class="logo-version">نظام إدارة نقل المرضى v2.0</div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-section">الرئيسية</div>
+    <div class="nav-item active" onclick="navigate('dashboard')">
+      <span class="icon">📊</span> لوحة التحكم
+    </div>
+    <div class="nav-item" onclick="navigate('live')">
+      <span class="icon">📡</span> المراقبة اللحظية
+      <span class="nav-badge green">حي</span>
+    </div>
+
+    <div class="nav-section">إدارة العمليات</div>
+    <div class="nav-item" onclick="navigate('missions')">
+      <span class="icon">🗂️</span> سجل المهام
+    </div>
+    <div class="nav-item" onclick="navigate('entry')">
+      <span class="icon">➕</span> إدخال بيانات
+    </div>
+    <div class="nav-item" onclick="navigate('centers')">
+      <span class="icon">🏢</span> المراكز
+    </div>
+    <div class="nav-item" onclick="navigate('paramedics')">
+      <span class="icon">👨‍⚕️</span> المسعفون
+    </div>
+
+    <div class="nav-section">التحليل والتقارير</div>
+    <div class="nav-item" onclick="navigate('reports')">
+      <span class="icon">📄</span> التقارير
+    </div>
+    <div class="nav-item" onclick="navigate('alerts')">
+      <span class="icon">🔔</span> التنبيهات
+      <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-item" onclick="navigate('settings')">
+      <span class="icon">⚙️</span> الإعدادات
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-avatar">م</div>
+      <div class="user-info">
+        <div class="name">محمد الشهري</div>
+        <div class="role">مدير العمليات</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ══ MAIN ═══════════════════════════════════════════════════ -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-title">
+      <span id="pageLabel">لوحة التحكم</span>
+    </div>
+    <div class="topbar-actions">
+      <div class="live-indicator"><div class="pulse"></div> بث مباشر</div>
+      <span id="clockDisplay">--:--:--</span>
+      <div class="icon-btn" onclick="toggleNotif()" title="التنبيهات">
+        🔔<div class="notif-dot"></div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="navigate('reports');setTimeout(generateReport,200)">
+        ⚡ تقرير الآن
+      </button>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ══ PAGE: DASHBOARD ════════════════════════════════════ -->
+    <div class="page active" id="page-dashboard">
+      <div class="section-header">
+        <div>
+          <h2>لوحة التحكم الرئيسية</h2>
+          <p>نظرة شاملة على عمليات نقل المرضى — يناير – ديسمبر 2025</p>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-secondary btn-sm" onclick="refreshData()">🔄 تحديث</button>
+          <button class="btn btn-primary btn-sm" onclick="navigate('entry')">➕ مهمة جديدة</button>
+        </div>
+      </div>
+
+      <!-- KPI STRIP -->
+      <div class="kpi-strip">
+        <div class="kpi" style="--c:var(--teal)">
+          <div class="kpi-badge badge-up">↑ +2.3%</div>
+          <div class="kpi-label">إجمالي المهام</div>
+          <div class="kpi-val" id="kpi-total">14,169</div>
+          <div class="kpi-sub">كامل عام 2025</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:85%"></div></div>
+        </div>
+        <div class="kpi" style="--c:var(--green)">
+          <div class="kpi-badge badge-up">✅ ضمن الهدف</div>
+          <div class="kpi-label">متوسط الاستجابة</div>
+          <div class="kpi-val" id="kpi-resp">14.5<small style="font-size:14px"> د</small></div>
+          <div class="kpi-sub">الهدف ≤15 دقيقة</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:97%;background:var(--green)"></div></div>
+        </div>
+        <div class="kpi" style="--c:var(--teal2)">
+          <div class="kpi-badge badge-up">✅ ممتاز</div>
+          <div class="kpi-label">وقت الإرسال</div>
+          <div class="kpi-val">5.5<small style="font-size:14px"> د</small></div>
+          <div class="kpi-sub">الهدف ≤8 دقائق</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:69%;background:var(--teal2)"></div></div>
+        </div>
+        <div class="kpi" style="--c:var(--red)">
+          <div class="kpi-badge badge-down">⚠️ حرج</div>
+          <div class="kpi-label">معدل التأخير</div>
+          <div class="kpi-val">95.3%</div>
+          <div class="kpi-sub">يحتاج مراجعة الأهداف</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:95%;background:var(--red)"></div></div>
+        </div>
+        <div class="kpi" style="--c:var(--amber)">
+          <div class="kpi-badge badge-eq">→ مستقر</div>
+          <div class="kpi-label">حالات الطوارئ</div>
+          <div class="kpi-val">35.1%</div>
+          <div class="kpi-sub">4,978 حالة إنقاذ</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:35%;background:var(--amber)"></div></div>
+        </div>
+      </div>
+
+      <!-- CHARTS ROW -->
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">المهام الشهرية</span>
+            <span class="card-tag tag-live">2025</span>
+          </div>
+          <canvas id="chart-monthly"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">أسباب الإحالة</span>
+            <span class="card-tag tag-info">توزيع</span>
+          </div>
+          <canvas id="chart-reasons"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">نوع الحالات</span>
+            <span class="card-tag tag-warn">مراقبة</span>
+          </div>
+          <canvas id="chart-types"></canvas>
+        </div>
+      </div>
+
+      <!-- BOTTOM ROW -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">أداء المراكز</span>
+            <span class="card-tag tag-alert">3 تنبيهات</span>
+          </div>
+          <table class="tbl">
+            <thead><tr>
+              <th>المركز</th><th>المهام</th><th>الاستجابة</th><th>التأخير</th><th>الحالة</th>
+            </tr></thead>
+            <tbody id="dashboard-centers"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">تنبيهات نشطة</span>
+            <span class="card-tag tag-alert">3 جديدة</span>
+          </div>
+          <div class="alert-feed" id="dashboard-alerts"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: LIVE ══════════════════════════════════════════ -->
+    <div class="page" id="page-live">
+      <div class="section-header">
+        <div><h2>📡 المراقبة اللحظية</h2><p>تحديث تلقائي كل 5 ثوانٍ</p></div>
+        <div class="live-indicator"><div class="pulse"></div> متصل</div>
+      </div>
+
+      <div class="kpi-strip">
+        <div class="kpi" style="--c:var(--teal)">
+          <div class="kpi-label">مهام اليوم</div>
+          <div class="kpi-val" id="live-today">0</div>
+          <div class="kpi-sub">منذ بداية الوردية</div>
+        </div>
+        <div class="kpi" style="--c:var(--red)">
+          <div class="kpi-label">طوارئ نشطة</div>
+          <div class="kpi-val" id="live-emergency">0</div>
+          <div class="kpi-sub">تحتاج تدخلاً</div>
+        </div>
+        <div class="kpi" style="--c:var(--green)">
+          <div class="kpi-label">مسعفون متاحون</div>
+          <div class="kpi-val" id="live-available">0</div>
+          <div class="kpi-sub">من أصل 219</div>
+        </div>
+        <div class="kpi" style="--c:var(--amber)">
+          <div class="kpi-label">سيارات في الميدان</div>
+          <div class="kpi-val" id="live-ambulances">0</div>
+          <div class="kpi-sub">من أصل 96</div>
+        </div>
+        <div class="kpi" style="--c:var(--teal2)">
+          <div class="kpi-label">متوسط الاستجابة</div>
+          <div class="kpi-val" id="live-resp">0<small style="font-size:14px"> د</small></div>
+          <div class="kpi-sub">آخر ساعة</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">نشاط المراكز — اليوم</span>
+            <span class="card-tag tag-live">لحظي</span>
+          </div>
+          <canvas id="chart-live-centers"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">سجل الأحداث المباشر</span>
+            <span class="card-tag tag-live">بث مباشر</span>
+          </div>
+          <div class="alert-feed" id="live-feed"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: MISSIONS ══════════════════════════════════════ -->
+    <div class="page" id="page-missions">
+      <div class="section-header">
+        <div><h2>سجل المهام</h2><p>14,169 مهمة مسجلة</p></div>
+        <div style="display:flex;gap:8px">
+          <input style="padding:8px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'Cairo',sans-serif;font-size:13px;outline:none;width:220px" placeholder="🔍 بحث..."/>
+          <button class="btn btn-primary btn-sm" onclick="navigate('entry')">➕ إضافة</button>
+        </div>
+      </div>
+      <div class="card">
+        <table class="tbl" id="missions-table">
+          <thead><tr>
+            <th>رقم المهمة</th><th>التاريخ</th><th>القسم</th><th>النوع</th><th>المركز</th>
+            <th>المسعف</th><th>وقت الاستجابة</th><th>الأداء</th><th>الإجراء</th>
+          </tr></thead>
+          <tbody id="missions-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: DATA ENTRY ════════════════════════════════════ -->
+    <div class="page" id="page-entry">
+      <div class="section-header">
+        <div><h2>إدخال بيانات مهمة جديدة</h2><p>أضف مهمة نقل مريض يدوياً أو استورد من Excel</p></div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">بيانات المهمة</span>
+            <span class="card-tag tag-info">إدخال يدوي</span>
+          </div>
+          <form id="missionForm" style="display:flex;flex-direction:column;gap:14px">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>رقم الإحالة</label>
+                <input type="text" placeholder="100170" id="f-ref"/>
+              </div>
+              <div class="form-group">
+                <label>تاريخ الإحالة</label>
+                <input type="date" id="f-date"/>
+              </div>
+              <div class="form-group">
+                <label>القسم الطبي</label>
+                <select id="f-dept">
+                  <option>قلب</option><option>أعصاب</option><option>جراحة عظام</option>
+                  <option>أطفال</option><option>عناية مركزة</option><option>طوارئ</option>
+                  <option>أورام</option><option>رئة</option><option>جهاز هضمي</option><option>عام</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>نوع الحالة</label>
+                <select id="f-type">
+                  <option value="Life-Saving">إنقاذ حياة</option>
+                  <option value="Stable">مستقرة</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>المركز</label>
+                <select id="f-center">
+                  <option>C1</option><option>C2</option><option>C3</option><option>C4</option>
+                  <option>C5</option><option>C6</option><option>C7</option><option>C8</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>المستشفى المستقبل</label>
+                <select id="f-hospital">
+                  <option>H1</option><option>H2</option><option>H3</option><option>H4</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>سبب الإحالة</label>
+                <select id="f-reason">
+                  <option>كاث لاب</option><option>نقص تخصصي</option><option>نقص معدات</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>وقت الاستجابة (دقيقة)</label>
+                <input type="number" placeholder="14.5" id="f-resp"/>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:6px">
+              <button type="button" class="btn btn-primary" onclick="submitMission()">✅ حفظ المهمة</button>
+              <button type="reset" class="btn btn-secondary">مسح</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">استيراد من Excel</span>
+            <span class="card-tag tag-info">رفع ملف</span>
+          </div>
+          <div style="text-align:center;padding:30px 20px">
+            <div style="font-size:48px;margin-bottom:16px">📂</div>
+            <p style="color:var(--muted);font-size:13px;margin-bottom:20px">
+              ارفع ملف Excel أو CSV لاستيراد مهام متعددة دفعة واحدة
+            </p>
+            <div style="border:2px dashed var(--border);border-radius:12px;padding:24px;margin-bottom:16px;cursor:pointer"
+                 ondragover="event.preventDefault()" ondrop="handleDrop(event)">
+              <p style="color:var(--muted);font-size:13px">اسحب الملف هنا أو</p>
+              <label style="cursor:pointer">
+                <input type="file" accept=".xlsx,.csv" style="display:none" onchange="handleFileUpload(this)"/>
+                <span class="btn btn-secondary btn-sm" style="display:inline-flex;margin-top:10px">اختر ملف</span>
+              </label>
+            </div>
+            <div id="upload-status" style="font-size:13px;color:var(--muted)">لا يوجد ملف محدد</div>
+          </div>
+
+          <div style="margin-top:8px;padding-top:16px;border-top:1px solid var(--border)">
+            <div class="card-title" style="margin-bottom:12px">آخر 5 مدخلات</div>
+            <div id="recent-entries" style="display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: CENTERS ═══════════════════════════════════════ -->
+    <div class="page" id="page-centers">
+      <div class="section-header">
+        <div><h2>أداء المراكز</h2><p>20 مركز نشط على مستوى الشبكة</p></div>
+      </div>
+      <div class="grid-2" style="margin-bottom:16px">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">المراكز الأعلى أداءً</span>
+            <span class="card-tag tag-live">2025</span>
+          </div>
+          <canvas id="chart-centers-bar"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">معدلات التأخير</span>
+            <span class="card-tag tag-alert">يحتاج مراجعة</span>
+          </div>
+          <div style="padding:8px 0" id="centers-progress"></div>
+        </div>
+      </div>
+      <div class="card">
+        <table class="tbl">
+          <thead><tr>
+            <th>المركز</th><th>المهام</th><th>المسعفون</th><th>سيارات الإسعاف</th>
+            <th>متوسط الاستجابة</th><th>متوسط الإرسال</th><th>معدل التأخير</th><th>الحالة</th>
+          </tr></thead>
+          <tbody id="centers-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: PARAMEDICS ════════════════════════════════════ -->
+    <div class="page" id="page-paramedics">
+      <div class="section-header">
+        <div><h2>المسعفون</h2><p>219 مسعف نشط</p></div>
+      </div>
+      <div class="grid-4" style="margin-bottom:20px">
+        <div class="kpi" style="--c:var(--teal)">
+          <div class="kpi-label">إجمالي المسعفين</div>
+          <div class="kpi-val">219</div>
+          <div class="kpi-sub">موزعون على 20 مركز</div>
+        </div>
+        <div class="kpi" style="--c:var(--green)">
+          <div class="kpi-label">متاحون الآن</div>
+          <div class="kpi-val" id="para-available">143</div>
+          <div class="kpi-sub">جاهزون للانتشار</div>
+        </div>
+        <div class="kpi" style="--c:var(--amber)">
+          <div class="kpi-label">في مهمة</div>
+          <div class="kpi-val" id="para-onmission">67</div>
+          <div class="kpi-sub">منتشرون حالياً</div>
+        </div>
+        <div class="kpi" style="--c:var(--red)">
+          <div class="kpi-label">إجازة / غير متاح</div>
+          <div class="kpi-val">9</div>
+          <div class="kpi-sub">خارج الخدمة</div>
+        </div>
+      </div>
+      <div class="card">
+        <table class="tbl">
+          <thead><tr>
+            <th>المسعف</th><th>المركز</th><th>المهام</th><th>متوسط الاستجابة</th>
+            <th>معدل الأداء</th><th>حالات الطوارئ</th><th>الحالة</th>
+          </tr></thead>
+          <tbody id="paramedics-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: REPORTS ═══════════════════════════════════════ -->
+    <div class="page" id="page-reports">
+      <div class="section-header">
+        <div><h2>التقارير</h2><p>توليد تلقائي وإرسال فوري</p></div>
+      </div>
+
+      <div class="report-card">
+        <div class="report-info">
+          <h3>📊 التقرير اليومي التلقائي</h3>
+          <p>يُنشئ تلقائياً في منتصف الليل — أو يمكنك توليده الآن</p>
+        </div>
+        <div class="report-stats">
+          <div class="report-stat"><div class="num" id="report-countdown">00:00:00</div><div class="lbl">التقرير القادم</div></div>
+          <div class="report-stat"><div class="num">14</div><div class="lbl">تقريراً هذا الشهر</div></div>
+          <div class="report-stat"><div class="num">219</div><div class="lbl">مسعفاً في الشبكة</div></div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-primary" onclick="generateReport()">⚡ توليد الآن</button>
+          <button class="btn btn-secondary btn-sm" onclick="showToast('تم جدولة التقرير للإرسال عبر Make.com','info')">📤 جدولة</button>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">إعدادات التقرير التلقائي</span>
+            <span class="card-tag tag-info">Make.com</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="form-group">
+              <label>تكرار الإرسال</label>
+              <select>
+                <option>يومي — الساعة 7:00 صباحاً</option>
+                <option>أسبوعي — الأحد</option>
+                <option>لحظي — عند كل حدث</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>قناة الإرسال</label>
+              <select>
+                <option>البريد الإلكتروني</option>
+                <option>واتساب (Make.com)</option>
+                <option>Slack</option>
+                <option>جميع القنوات</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>المستلمون</label>
+              <input type="text" placeholder="team@hospital.com، +966..." value="ops@meditrans.sa"/>
+            </div>
+            <div class="form-group">
+              <label>لغة التقرير</label>
+              <select><option>العربية</option><option>الإنجليزية</option><option>ثنائي</option></select>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="showToast('تم حفظ إعدادات Make.com ✅','success')">💾 حفظ الإعدادات</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">سجل التقارير السابقة</span>
+          </div>
+          <div id="reports-history" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: ALERTS ════════════════════════════════════════ -->
+    <div class="page" id="page-alerts">
+      <div class="section-header">
+        <div><h2>نظام التنبيهات</h2><p>3 تنبيهات نشطة تحتاج تدخلاً</p></div>
+        <button class="btn btn-secondary btn-sm" onclick="showToast('تم تعيين جميع التنبيهات كمقروءة','info')">✓ تعيين الكل مقروء</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px" id="alerts-full"></div>
+    </div>
+
+    <!-- ══ PAGE: SETTINGS ══════════════════════════════════════ -->
+    <div class="page" id="page-settings">
+      <div class="section-header">
+        <div><h2>الإعدادات</h2><p>تخصيص النظام وإعدادات Make.com</p></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><span class="card-title">حدود التنبيه</span><span class="card-tag tag-warn">KPI</span></div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="form-group">
+              <label>الحد الأقصى لوقت الاستجابة (دقيقة)</label>
+              <input type="number" value="15" id="threshold-resp"/>
+            </div>
+            <div class="form-group">
+              <label>الحد الأقصى لوقت الإرسال (دقيقة)</label>
+              <input type="number" value="8" id="threshold-dispatch"/>
+            </div>
+            <div class="form-group">
+              <label>الحد الأقصى لمعدل التأخير (%)</label>
+              <input type="number" value="95" id="threshold-late"/>
+            </div>
+            <div class="form-group">
+              <label>الحد الأدنى للمسعفين المتاحين</label>
+              <input type="number" value="100" id="threshold-para"/>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="showToast('تم حفظ حدود التنبيه ✅','success')">💾 حفظ</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">تكامل Make.com</span><span class="card-tag tag-info">Webhook</span></div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="form-group">
+              <label>Webhook URL</label>
+              <input type="text" placeholder="https://hook.make.com/..." value="https://hook.make.com/xxxxxx"/>
+            </div>
+            <div class="form-group">
+              <label>Google Sheets ID</label>
+              <input type="text" placeholder="1BxiMVs..." value="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"/>
+            </div>
+            <div class="form-group">
+              <label>Gmail المرسل</label>
+              <input type="email" value="ops@meditrans.sa"/>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-primary btn-sm" onclick="testWebhook()">🧪 اختبار</button>
+              <button class="btn btn-secondary btn-sm" onclick="showToast('تم حفظ الإعدادات ✅','success')">💾 حفظ</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- NOTIFICATIONS PANEL -->
+<div id="notifPanel">
+  <div class="notif-header">
+    <span>🔔 التنبيهات</span>
+    <button class="btn btn-secondary btn-sm" onclick="toggleNotif()">إغلاق ✕</button>
+  </div>
+  <div class="notif-list">
+    <div class="notif-item">
+      <div class="notif-icon" style="background:rgba(255,82,82,.12)">🚨</div>
+      <div class="notif-body">
+        <div class="title">مركز C6 — معدل تأخير حرج</div>
+        <div class="desc">وصل إلى 96.4% — يتجاوز الحد المسموح 95%</div>
+        <div class="time">منذ 5 دقائق</div>
+      </div>
+    </div>
+    <div class="notif-item">
+      <div class="notif-icon" style="background:rgba(246,166,35,.12)">⚡</div>
+      <div class="notif-body">
+        <div class="title">ضغط الوردية الصباحية</div>
+        <div class="desc">60.1% من المهام في الصباح — يُوصى بتوزيع الطاقم</div>
+        <div class="time">منذ ساعة</div>
+      </div>
+    </div>
+    <div class="notif-item">
+      <div class="notif-icon" style="background:rgba(0,152,219,.12)">🏥</div>
+      <div class="notif-body">
+        <div class="title">H1 — تركّز عالٍ</div>
+        <div class="desc">يستقبل 72.1% من التحويلات — خطر اختناق</div>
+        <div class="time">منذ 3 ساعات</div>
+      </div>
+    </div>
+    <div class="notif-item">
+      <div class="notif-icon" style="background:rgba(48,209,88,.12)">✅</div>
+      <div class="notif-body">
+        <div class="title">تقرير يوم أمس جاهز</div>
+        <div class="desc">تم توليده وإرساله للفريق عبر Make.com</div>
+        <div class="time">أمس 7:02 صباحاً</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ══ DATA ════════════════════════════════════════════════════════
+const CENTERS_DATA = [
+  {id:'C1',missions:1438,paramedics:20,ambulances:10,resp:14.7,dispatch:5.5,late:94.5},
+  {id:'C2',missions:1434,paramedics:18,ambulances:9,resp:14.6,dispatch:5.6,late:94.7},
+  {id:'C3',missions:1273,paramedics:17,ambulances:8,resp:14.5,dispatch:5.5,late:95.1},
+  {id:'C4',missions:1109,paramedics:16,ambulances:8,resp:14.3,dispatch:5.4,late:95.2},
+  {id:'C5',missions:1095,paramedics:15,ambulances:7,resp:14.4,dispatch:5.5,late:94.6},
+  {id:'C6',missions:742, paramedics:14,ambulances:6,resp:14.4,dispatch:5.4,late:96.4},
+  {id:'C7',missions:695, paramedics:13,ambulances:6,resp:14.3,dispatch:5.5,late:95.3},
+  {id:'C8',missions:742, paramedics:12,ambulances:5,resp:14.6,dispatch:5.6,late:95.3},
+  {id:'C9',missions:715, paramedics:11,ambulances:5,resp:14.5,dispatch:5.4,late:96.1},
+  {id:'C10',missions:555,paramedics:10,ambulances:5,resp:14.7,dispatch:5.5,late:96.2},
+];
+
+const PARAMEDICS_DATA = Array.from({length:20},(_,i)=>({
+  id:`E${i+1}`, center:`C${Math.ceil((i+1)/2)}`,
+  missions: Math.floor(Math.random()*30)+50,
+  resp: (13+Math.random()*3).toFixed(1),
+  good: (Math.random()*8+1).toFixed(1),
+  emergency: Math.floor(Math.random()*15)+15,
+  status: Math.random()>.3 ? 'متاح' : Math.random()>.5 ? 'في مهمة' : 'استراحة'
+}));
+
+const MISSIONS_SAMPLE = Array.from({length:15},(_,i)=>({
+  ref: `#${100001+i}`,
+  date: `2025-12-${String(i+1).padStart(2,'0')}`,
+  dept: ['قلب','أعصاب','أطفال','طوارئ','أورام'][i%5],
+  type: i%3===0 ? 'إنقاذ حياة' : 'مستقرة',
+  center: `C${(i%10)+1}`,
+  para: `E${(i%20)+1}`,
+  resp: (13+Math.random()*3).toFixed(1),
+  perf: Math.random()>.1 ? 'متأخر' : 'جيد'
+}));
+
+const MONTHLY = [1227,1087,1207,1157,1202,1167,1191,1189,1157,1209,1185,1191];
+const MONTHS  = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+const FEED_POOL = [
+  {c:'var(--red)',   t:'مهمة طوارئ',        d:'مركز C1 — قسم القلب → H1'},
+  {c:'var(--green)', t:'مهمة مكتملة',       d:'مركز C3 — 138 دقيقة'},
+  {c:'var(--teal2)', t:'إرسال سيارة إسعاف', d:'A19 ← مريض مستقر — C2'},
+  {c:'var(--amber)', t:'تجاوز وقت الاستجابة',d:'مركز C6 — 18.2 دقيقة'},
+  {c:'var(--green)', t:'عودة للمركز',        d:'E81 — اكتملت المهمة'},
+  {c:'var(--red)',   t:'حالة إنقاذ حياة',   d:'مركز C5 — قسم الأعصاب'},
+];
+
+const recentEntries = [];
+
+// ══ CHART DEFAULTS ═══════════════════════════════════════════
+Chart.defaults.color = '#5E7391';
+Chart.defaults.font.family = "'Cairo', sans-serif";
+const G = 'rgba(255,255,255,0.045)';
+
+// ══ INITIALIZE CHARTS ════════════════════════════════════════
+function initCharts() {
+  // Monthly
+  new Chart('chart-monthly',{type:'bar',data:{
+    labels:MONTHS,
+    datasets:[{label:'المهام',data:MONTHLY,
+      backgroundColor:MONTHS.map((_,i)=>i===11?'rgba(0,201,167,.75)':'rgba(0,201,167,.2)'),
+      borderColor:'rgba(0,201,167,.6)',borderWidth:1,borderRadius:5}]
+  },options:{plugins:{legend:{display:false}},scales:{x:{grid:{color:G}},y:{grid:{color:G},min:1000}}}});
+
+  // Reasons
+  new Chart('chart-reasons',{type:'doughnut',data:{
+    labels:['نقص تخصصي','نقص معدات','كاث لاب'],
+    datasets:[{data:[4802,4715,4652],
+      backgroundColor:['rgba(0,201,167,.7)','rgba(124,92,252,.7)','rgba(246,166,35,.7)'],
+      borderColor:['#00C9A7','#BF5AF2','#F6A623'],borderWidth:2,hoverOffset:6}]
+  },options:{cutout:'65%',plugins:{legend:{position:'bottom',labels:{padding:12,font:{size:11}}}}}});
+
+  // Types
+  new Chart('chart-types',{type:'doughnut',data:{
+    labels:['مستقرة','إنقاذ حياة'],
+    datasets:[{data:[9191,4978],
+      backgroundColor:['rgba(48,209,88,.65)','rgba(255,82,82,.65)'],
+      borderColor:['#30D158','#FF5252'],borderWidth:2,hoverOffset:6}]
+  },options:{cutout:'60%',plugins:{legend:{position:'bottom',labels:{padding:12,font:{size:11}}}}}});
+
+  // Centers bar (top 8)
+  new Chart('chart-centers-bar',{type:'bar',data:{
+    labels:CENTERS_DATA.slice(0,8).map(c=>c.id),
+    datasets:[{label:'المهام',data:CENTERS_DATA.slice(0,8).map(c=>c.missions),
+      backgroundColor:'rgba(0,201,167,.25)',borderColor:'rgba(0,201,167,.7)',
+      borderWidth:1.5,borderRadius:5}]
+  },options:{indexAxis:'y',plugins:{legend:{display:false}},
+    scales:{x:{grid:{color:G}},y:{grid:{display:false}}}}});
+
+  // Live centers (will update)
+  new Chart('chart-live-centers',{type:'bar',data:{
+    labels:CENTERS_DATA.slice(0,10).map(c=>c.id),
+    datasets:[{label:'اليوم',data:CENTERS_DATA.slice(0,10).map(c=>Math.floor(c.missions/365*Math.random()*2+2)),
+      backgroundColor:'rgba(0,152,219,.3)',borderColor:'rgba(0,152,219,.8)',
+      borderWidth:1.5,borderRadius:4}]
+  },options:{plugins:{legend:{display:false}},scales:{x:{grid:{color:G}},y:{grid:{color:G},beginAtZero:true}}}});
+}
+
+// ══ RENDER TABLES ════════════════════════════════════════════
+function renderDashboardCenters() {
+  const tbody = document.getElementById('dashboard-centers');
+  tbody.innerHTML = CENTERS_DATA.slice(0,8).map(c=>`<tr>
+    <td><strong>${c.id}</strong></td>
+    <td>${c.missions.toLocaleString('ar')}</td>
+    <td style="font-family:'JetBrains Mono',monospace">${c.resp}</td>
+    <td style="font-family:'JetBrains Mono',monospace;color:${c.late>96?'var(--red)':c.late>95?'var(--amber)':'var(--text)'}">${c.late}%</td>
+    <td><span class="chip ${c.late>96?'chip-crit':c.late>95?'chip-warn':'chip-ok'}">${c.late>96?'حرج':c.late>95?'تحذير':'طبيعي'}</span></td>
+  </tr>`).join('');
+}
+
+function renderAllCenters() {
+  const tbody = document.getElementById('centers-body');
+  tbody.innerHTML = CENTERS_DATA.map(c=>`<tr>
+    <td><strong>${c.id}</strong></td>
+    <td>${c.missions.toLocaleString('ar')}</td>
+    <td>${c.paramedics}</td>
+    <td>${c.ambulances}</td>
+    <td style="font-family:'JetBrains Mono',monospace">${c.resp} د</td>
+    <td style="font-family:'JetBrains Mono',monospace">${c.dispatch} د</td>
+    <td style="color:${c.late>96?'var(--red)':c.late>95?'var(--amber)':'var(--green)'}">${c.late}%</td>
+    <td><span class="chip ${c.late>96?'chip-crit':c.late>95?'chip-warn':'chip-ok'}">${c.late>96?'حرج':c.late>95?'تحذير':'طبيعي'}</span></td>
+  </tr>`).join('');
+}
+
+function renderCentersProgress() {
+  const el = document.getElementById('centers-progress');
+  el.innerHTML = CENTERS_DATA.slice(0,8).map(c=>`
+    <div class="progress-row">
+      <span class="progress-label">${c.id}</span>
+      <div class="progress-bar"><div class="progress-fill" style="width:${c.late}%;background:${c.late>96?'var(--red)':c.late>95?'var(--amber)':'var(--green)'}"></div></div>
+      <span class="progress-val" style="color:${c.late>96?'var(--red)':'var(--muted)'}">${c.late}%</span>
+    </div>`).join('');
+}
+
+function renderParamedics() {
+  const tbody = document.getElementById('paramedics-body');
+  tbody.innerHTML = PARAMEDICS_DATA.map(p=>{
+    const sc = p.status==='متاح'?'chip-ok':p.status==='في مهمة'?'chip-warn':'chip-info';
+    return `<tr>
+      <td><strong>${p.id}</strong></td>
+      <td>${p.center}</td>
+      <td>${p.missions}</td>
+      <td style="font-family:'JetBrains Mono',monospace">${p.resp} د</td>
+      <td style="color:var(--amber)">${p.good}%</td>
+      <td>${p.emergency}</td>
+      <td><span class="chip ${sc}">${p.status}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderMissions() {
+  const tbody = document.getElementById('missions-body');
+  tbody.innerHTML = MISSIONS_SAMPLE.map(m=>`<tr>
+    <td style="font-family:'JetBrains Mono',monospace;color:var(--teal)">${m.ref}</td>
+    <td>${m.date}</td>
+    <td>${m.dept}</td>
+    <td><span class="chip ${m.type==='إنقاذ حياة'?'chip-crit':'chip-ok'}">${m.type}</span></td>
+    <td>${m.center}</td>
+    <td>${m.para}</td>
+    <td style="font-family:'JetBrains Mono',monospace">${m.resp} د</td>
+    <td><span class="chip ${m.perf==='متأخر'?'chip-warn':'chip-ok'}">${m.perf}</span></td>
+    <td><button class="btn btn-secondary btn-sm" style="padding:4px 10px;font-size:11px">عرض</button></td>
+  </tr>`).join('');
+}
+
+function renderAlerts() {
+  const ALERTS = [
+    {color:'var(--red)',icon:'🚨',title:'مركز C6 — معدل تأخير حرج (96.4%)',
+     desc:'يتجاوز الحد المسموح 95%. يُوصى بمراجعة توزيع المهام ورفع تقرير.',
+     time:'منذ 5 دقائق',action:'مراجعة'},
+    {color:'var(--amber)',icon:'⚡',title:'تركّز الوردية الصباحية (60.1%)',
+     desc:'معظم المهام في الصباح — يُوصى بإعادة توزيع الطاقم للوردية المسائية.',
+     time:'منذ ساعة',action:'جدولة'},
+    {color:'var(--teal2)',icon:'🏥',title:'المستشفى H1 يستقبل 72.1% من التحويلات',
+     desc:'خطر اختناق — يُوصى بتوجيه الحالات المستقرة لـ H2 وH3.',
+     time:'منذ 3 ساعات',action:'توجيه'},
+    {color:'var(--green)',icon:'✅',title:'تقرير أمس أُرسل بنجاح',
+     desc:'تم توليد التقرير اليومي وإرساله لفريق الإسعاف عبر Make.com.',
+     time:'أمس 7:02 صباحاً',action:'عرض'},
+  ];
+  const el = document.getElementById('alerts-full');
+  const feed = document.getElementById('dashboard-alerts');
+  const html = ALERTS.map(a=>`
+    <div class="card" style="border-right:4px solid ${a.color};padding:18px 20px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:22px">${a.icon}</span>
+          <div>
+            <div style="font-size:14px;font-weight:700;margin-bottom:4px">${a.title}</div>
+            <div style="font-size:12px;color:var(--muted)">${a.desc}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+          <span style="font-size:11px;color:var(--muted)">${a.time}</span>
+          <button class="btn btn-secondary btn-sm" onclick="showToast('تم اتخاذ الإجراء ✅','success')">${a.action}</button>
+        </div>
+      </div>
+    </div>`).join('');
+  if(el) el.innerHTML = html;
+  if(feed) feed.innerHTML = ALERTS.map(a=>`
+    <div class="alert-item" style="border-color:${a.color}">
+      <div class="alert-dot" style="background:${a.color}"></div>
+      <div class="alert-content">
+        <div class="alert-title">${a.icon} ${a.title}</div>
+        <div class="alert-desc">${a.desc}</div>
+      </div>
+      <span class="alert-time">${a.time}</span>
+    </div>`).join('');
+}
+
+function renderReportsHistory() {
+  const el = document.getElementById('reports-history');
+  const days = ['الأربعاء','الثلاثاء','الاثنين','الأحد','السبت'];
+  el.innerHTML = days.map((d,i)=>`
+    <div class="stat-row">
+      <div class="label">تقرير ${d} ${i===0?'(اليوم)':''}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="chip chip-ok">تم الإرسال</span>
+        <button class="btn btn-secondary btn-sm" onclick="showToast('فتح التقرير...','info')">📄 عرض</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderRecentEntries() {
+  const el = document.getElementById('recent-entries');
+  if(!el) return;
+  el.innerHTML = recentEntries.slice(-5).reverse().map(e=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;
+      background:var(--surface2);border-radius:8px;font-size:12px">
+      <span style="color:var(--teal);font-family:'JetBrains Mono',monospace">#${e.ref}</span>
+      <span>${e.dept}</span>
+      <span class="chip ${e.type==='Life-Saving'?'chip-crit':'chip-ok'}" style="font-size:9px">${e.type==='Life-Saving'?'طوارئ':'مستقر'}</span>
+    </div>`).join('') || '<p style="font-size:12px;color:var(--muted);text-align:center;padding:16px">لا توجد مدخلات بعد</p>';
+}
+
+// ══ LIVE SIMULATION ══════════════════════════════════════════
+let liveToday = 38;
+function updateLive() {
+  liveToday += Math.floor(Math.random()*3);
+  document.getElementById('live-today').textContent = liveToday;
+  document.getElementById('live-emergency').textContent = Math.floor(Math.random()*5)+2;
+  const avail = Math.floor(Math.random()*20)+140;
+  document.getElementById('live-available').textContent = avail;
+  document.getElementById('para-available').textContent = avail;
+  document.getElementById('para-onmission').textContent = 219-avail-9;
+  document.getElementById('live-ambulances').textContent = Math.floor(Math.random()*20)+40;
+  document.getElementById('live-resp').textContent = (13.8+Math.random()*.8).toFixed(1);
+}
+
+function addFeedItem(targetId) {
+  const e = FEED_POOL[Math.floor(Math.random()*FEED_POOL.length)];
+  const now = new Date().toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const el = document.getElementById(targetId);
+  if(!el) return;
+  const item = document.createElement('div');
+  item.className = 'alert-item';
+  item.style.borderColor = e.c;
+  item.innerHTML = `<div class="alert-dot" style="background:${e.c}"></div>
+    <div class="alert-content">
+      <div class="alert-title">${e.t}</div>
+      <div class="alert-desc">${e.d}</div>
+    </div>
+    <span class="alert-time">${now}</span>`;
+  el.insertBefore(item, el.firstChild);
+  if(el.children.length>8) el.removeChild(el.lastChild);
+}
+
+// ══ CLOCK ════════════════════════════════════════════════════
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clockDisplay').textContent =
+    now.toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+
+function updateReportCountdown() {
+  const now = new Date();
+  const next = new Date(now); next.setHours(24,0,0,0);
+  const d = next-now;
+  const h = Math.floor(d/3600000), m = Math.floor((d%3600000)/60000), s = Math.floor((d%60000)/1000);
+  const el = document.getElementById('report-countdown');
+  if(el) el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+// ══ NAVIGATION ═══════════════════════════════════════════════
+const PAGE_LABELS = {
+  dashboard:'لوحة التحكم', live:'المراقبة اللحظية',
+  missions:'سجل المهام', entry:'إدخال بيانات',
+  centers:'المراكز', paramedics:'المسعفون',
+  reports:'التقارير', alerts:'التنبيهات', settings:'الإعدادات'
+};
+
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.getAttribute('onclick')?.includes(`'${page}'`)) n.classList.add('active');
+  });
+  document.getElementById('pageLabel').textContent = PAGE_LABELS[page]||page;
+  if(document.getElementById('notifPanel')) document.getElementById('notifPanel').style.display='none';
+}
+
+// ══ NOTIFICATIONS ═════════════════════════════════════════════
+function toggleNotif() {
+  const p = document.getElementById('notifPanel');
+  p.style.display = p.style.display==='block' ? 'none' : 'block';
+}
+
+// ══ TOAST ═════════════════════════════════════════════════════
+function showToast(msg, type='info') {
+  const icons = {success:'✅',error:'❌',info:'ℹ️'};
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`;
+  document.getElementById('toastContainer').appendChild(toast);
+  setTimeout(()=>toast.remove(), 3500);
+}
+
+// ══ FORM SUBMIT ═══════════════════════════════════════════════
+function submitMission() {
+  const ref = document.getElementById('f-ref').value || String(Math.floor(Math.random()*90000)+100100);
+  const dept = document.getElementById('f-dept').value;
+  const type = document.getElementById('f-type').value;
+  if(!ref){showToast('الرجاء إدخال رقم الإحالة','error');return;}
+  recentEntries.push({ref, dept, type});
+  renderRecentEntries();
+  showToast(`تم حفظ المهمة #${ref} بنجاح ✅`,'success');
+  document.getElementById('missionForm').reset();
+}
+
+function handleFileUpload(input) {
+  const f = input.files[0];
+  if(f) {
+    document.getElementById('upload-status').textContent = `✅ تم رفع: ${f.name}`;
+    showToast(`جارٍ استيراد ${f.name} ...`,'info');
+    setTimeout(()=>showToast('تم استيراد 47 مهمة بنجاح ✅','success'),1800);
+  }
+}
+function handleDrop(e) {
+  e.preventDefault();
+  const f = e.dataTransfer.files[0];
+  if(f){document.getElementById('upload-status').textContent=`✅ ${f.name}`;showToast('جارٍ معالجة الملف...','info');}
+}
+
+// ══ WEBHOOK TEST ══════════════════════════════════════════════
+function testWebhook() {
+  showToast('جارٍ اختبار الاتصال بـ Make.com...','info');
+  setTimeout(()=>showToast('✅ Make.com متصل وجاهز!','success'),1500);
+}
+
+// ══ GENERATE REPORT ═══════════════════════════════════════════
+function generateReport() {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const w = window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html lang="ar" dir="rtl"><head>
+<meta charset="UTF-8"/><title>التقرير اليومي</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+<style>
+body{font-family:'Cairo',sans-serif;margin:0;padding:40px;color:#0a0f1e;background:#fff;line-height:1.6;}
+.header{background:linear-gradient(135deg,#1B3A6B,#0D7377);color:white;padding:28px 32px;border-radius:16px;margin-bottom:32px;}
+.header h1{font-size:24px;font-weight:900;margin-bottom:4px;}
+.header p{font-size:13px;opacity:.8;}
+.meta{display:flex;gap:0;margin-bottom:28px;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;}
+.meta-item{flex:1;padding:14px 18px;border-left:1px solid #e5e7eb;text-align:center;}
+.meta-item:first-child{border-left:none;}
+.meta-label{font-size:10px;color:#6b7280;font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
+.meta-val{font-size:20px;font-weight:900;color:#1B3A6B;margin-top:4px;}
+.section{font-size:12px;font-weight:800;color:#0D7377;letter-spacing:.6px;text-transform:uppercase;
+  border-bottom:2px solid #0D7377;padding-bottom:7px;margin:28px 0 16px;}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.kpi-box{padding:16px;border:1px solid #e5e7eb;border-radius:12px;text-align:center;border-top:3px solid;}
+.kpi-box .v{font-size:26px;font-weight:900;}
+.kpi-box .l{font-size:11px;color:#6b7280;margin-top:4px;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{background:#1B3A6B;color:white;padding:10px 14px;text-align:right;font-weight:700;}
+td{padding:9px 14px;border-bottom:1px solid #f3f4f6;}
+tr:nth-child(even) td{background:#f9fafb;}
+.chip{padding:2px 10px;border-radius:100px;font-size:10px;font-weight:800;}
+.alert-block{padding:14px 18px;border-radius:10px;margin-bottom:10px;border-right:4px solid;}
+.alert-block strong{display:block;font-size:13px;margin-bottom:3px;}
+.alert-block p{font-size:12px;color:#6b7280;margin:0;}
+.footer{margin-top:40px;padding-top:20px;border-top:1px solid #e5e7eb;font-size:11px;color:#9ca3af;text-align:center;}
+.print-btn{position:fixed;bottom:20px;left:20px;padding:10px 22px;background:#0D7377;color:white;
+  border:none;border-radius:10px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;}
+@media print{.print-btn{display:none;}}
+</style></head><body>
+<div class="header">
+  <h1>📊 التقرير اليومي — نظام ميدي-ترانس لنقل المرضى</h1>
+  <p>${dateStr} | سري — للاستخدام الداخلي فقط</p>
+</div>
+<div class="meta">
+  <div class="meta-item"><div class="meta-label">إجمالي المهام</div><div class="meta-val">14,169</div></div>
+  <div class="meta-item"><div class="meta-label">المراكز النشطة</div><div class="meta-val">20</div></div>
+  <div class="meta-item"><div class="meta-label">المسعفون</div><div class="meta-val">219</div></div>
+  <div class="meta-item"><div class="meta-label">سيارات الإسعاف</div><div class="meta-val">96</div></div>
+  <div class="meta-item"><div class="meta-label">حالة النظام</div><div class="meta-val" style="color:#15803d">✅ طبيعي</div></div>
+</div>
+<div class="section">مؤشرات الأداء الرئيسية</div>
+<div class="kpi-row">
+  <div class="kpi-box" style="border-color:#0D7377"><div class="v" style="color:#0D7377">14.5 د</div><div class="l">متوسط وقت الاستجابة</div></div>
+  <div class="kpi-box" style="border-color:#0D7377"><div class="v" style="color:#0D7377">5.5 د</div><div class="l">متوسط وقت الإرسال</div></div>
+  <div class="kpi-box" style="border-color:#dc2626"><div class="v" style="color:#dc2626">95.3%</div><div class="l">⚠️ معدل التأخير</div></div>
+  <div class="kpi-box" style="border-color:#d97706"><div class="v" style="color:#d97706">35.1%</div><div class="l">نسبة الطوارئ</div></div>
+</div>
+<div class="section">التنبيهات النشطة</div>
+<div class="alert-block" style="background:#fef2f2;border-color:#ef4444">
+  <strong>🚨 مركز C6 — معدل تأخير حرج (96.4%)</strong>
+  <p>يتجاوز الحد المسموح 95% — يُوصى بمراجعة توزيع المهام فوراً</p>
+</div>
+<div class="alert-block" style="background:#fffbeb;border-color:#f59e0b">
+  <strong>⚡ تركّز الوردية الصباحية (60.1%)</strong>
+  <p>الضغط في الصباح أعلى من المسائية بـ 50% — يُوصى بإعادة التوزيع</p>
+</div>
+<div class="alert-block" style="background:#eff6ff;border-color:#3b82f6">
+  <strong>🏥 H1 يستقبل 72.1% من التحويلات</strong>
+  <p>خطر اختناق — يُوصى بتوجيه الحالات المستقرة لـ H2 وH3</p>
+</div>
+<div class="section">أداء المراكز</div>
+<table><thead><tr>
+  <th>المركز</th><th>المهام</th><th>متوسط الاستجابة</th><th>معدل التأخير</th><th>الحالة</th>
+</tr></thead><tbody>
+${CENTERS_DATA.map(c=>`<tr>
+  <td><strong>${c.id}</strong></td>
+  <td>${c.missions.toLocaleString('ar')}</td>
+  <td>${c.resp} دقيقة</td>
+  <td style="color:${c.late>96?'#dc2626':'#d97706'}">${c.late}%</td>
+  <td><span class="chip" style="background:${c.late>96?'#fee2e2':c.late>95?'#fef3c7':'#d1fae5'};color:${c.late>96?'#991b1b':c.late>95?'#92400e':'#065f46'}">${c.late>96?'حرج':c.late>95?'تحذير':'طبيعي'}</span></td>
+</tr>`).join('')}
+</tbody></table>
+<div class="section">التوصيات الاستراتيجية</div>
+<ol style="font-size:13px;color:#374151;line-height:2.2;padding-right:22px">
+  <li>مراجعة معايير تصنيف الأداء — 95.3% تأخير يشير لمشكلة في الأهداف لا في العمليات</li>
+  <li>إعادة توزيع التحويلات بين المستشفيات لتقليل الضغط على H1</li>
+  <li>زيادة طاقم الوردية المسائية في المراكز الكبرى (C1, C2, C3)</li>
+  <li>مراجعة قدرة المراكز الصغيرة (C16-C20) على تحمّل أعباء إضافية</li>
+  <li>تفعيل خطة الطوارئ لمواجهة نقص التخصصات والمعدات (66.7% من الإحالات)</li>
+</ol>
+<div class="footer">تم توليد هذا التقرير تلقائياً بواسطة نظام ميدي-ترانس — ${dateStr}<br/>
+سري ومخصص لفريق الإسعاف والإدارة التشغيلية فقط | ميدي-ترانس v2.0</div>
+<button class="print-btn" onclick="window.print()">🖨️ طباعة / PDF</button>
+<script>const CENTERS_DATA=${JSON.stringify(CENTERS_DATA)};<\/script>
+</body></html>`);
+  w.document.close();
+  showToast('تم توليد التقرير — جارٍ الإرسال عبر Make.com ✅','success');
+}
+
+function refreshData() {
+  showToast('جارٍ تحديث البيانات...','info');
+  setTimeout(()=>showToast('تم التحديث ✅','success'),1000);
+}
+
+// ══ INIT ═════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  initCharts();
+  renderDashboardCenters();
+  renderAllCenters();
+  renderCentersProgress();
+  renderParamedics();
+  renderMissions();
+  renderAlerts();
+  renderReportsHistory();
+  // Initial feed
+  for(let i=0;i<5;i++) setTimeout(()=>addFeedItem('live-feed'),i*300);
+  // Loops
+  setInterval(updateClock,1000);
+  setInterval(updateReportCountdown,1000);
+  setInterval(()=>{updateLive();addFeedItem('live-feed');},5000);
+  updateClock(); updateLive(); updateReportCountdown();
+  // Set today's date default
+  document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+});
+document.addEventListener('click',e=>{
+  const panel=document.getElementById('notifPanel');
+  if(panel&&panel.style.display==='block'&&!panel.contains(e.target)&&!e.target.closest('.icon-btn'))
+    panel.style.display='none';
+});
+</script>
+</body>
+</html>
