@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Medical Transport Analytics — Operations Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root {
+    --navy: #1B3A6B;
+    --teal: #0D7377;
+    --teal-light: #14BDBD;
+    --amber: #E67E22;
+    --green: #27AE60;
+    --red: #E74C3C;
+    --bg: #0A0F1E;
+    --surface: #111827;
+    --surface2: #1C2537;
+    --border: rgba(255,255,255,0.07);
+    --text: #E8EDF5;
+    --muted: #8896B3;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── ANIMATED BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: 
+      radial-gradient(ellipse at 10% 20%, rgba(13,115,119,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 80%, rgba(27,58,107,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(20,189,189,0.04) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page { position: relative; z-index: 1; }
+
+  /* ── HEADER ── */
+  header {
+    padding: 0 40px;
+    background: rgba(17,24,39,0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 68px;
+  }
+
+  .logo {
+    display: flex; align-items: center; gap: 12px;
+  }
+
+  .logo-icon {
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, var(--teal), var(--navy));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 16px;
+    line-height: 1.2;
+  }
+
+  .logo-text span { color: var(--teal-light); }
+
+  .header-right {
+    display: flex; align-items: center; gap: 20px;
+  }
+
+  .badge {
+    padding: 5px 14px;
+    border-radius: 100px;
+    font-size: 12px; font-weight: 500;
+    border: 1px solid;
+  }
+
+  .badge-teal { border-color: var(--teal); color: var(--teal-light); background: rgba(13,115,119,0.1); }
+  .badge-amber { border-color: var(--amber); color: var(--amber); background: rgba(230,126,34,0.08); }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 70px 40px 50px;
+    text-align: center;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 18px;
+    background: rgba(20,189,189,0.08);
+    border: 1px solid rgba(20,189,189,0.2);
+    border-radius: 100px;
+    font-size: 13px; color: var(--teal-light);
+    margin-bottom: 28px;
+    font-weight: 500;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 5vw, 58px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    background: linear-gradient(90deg, var(--teal-light), #6EE7B7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero p {
+    font-size: 17px; color: var(--muted);
+    line-height: 1.7; margin-bottom: 40px;
+  }
+
+  .stats-strip {
+    display: flex; justify-content: center; gap: 40px;
+    flex-wrap: wrap;
+  }
+
+  .stat-item { text-align: center; }
+  .stat-item .num {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px; font-weight: 800; color: var(--text);
+    display: block;
+  }
+  .stat-item .lbl { font-size: 12px; color: var(--muted); font-weight: 500; }
+
+  .divider { width: 1px; background: var(--border); }
+
+  /* ── MAIN GRID ── */
+  .main { padding: 0 40px 60px; max-width: 1360px; margin: 0 auto; }
+
+  /* ── KPI CARDS ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 22px;
+    position: relative; overflow: hidden;
+    transition: transform .2s, border-color .2s;
+    cursor: default;
+  }
+
+  .kpi-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: var(--accent, var(--teal));
+    border-radius: 2px 2px 0 0;
+  }
+
+  .kpi-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.14); }
+
+  .kpi-icon {
+    font-size: 22px; margin-bottom: 16px;
+    width: 44px; height: 44px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .kpi-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 30px; font-weight: 800;
+    line-height: 1; margin-bottom: 6px;
+    color: var(--text);
+  }
+
+  .kpi-label { font-size: 13px; color: var(--muted); font-weight: 500; }
+  .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 4px; opacity: .7; }
+
+  /* ── SECTION HEADER ── */
+  .section-hdr {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 20px; margin-top: 40px;
+  }
+
+  .section-hdr h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px; font-weight: 700;
+  }
+
+  .section-line { flex: 1; height: 1px; background: var(--border); }
+
+  /* ── CHART CARDS ── */
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .chart-grid-3 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    overflow: hidden;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px; font-weight: 700;
+    color: var(--muted); text-transform: uppercase;
+    letter-spacing: .5px; margin-bottom: 20px;
+  }
+
+  .chart-wrap { position: relative; }
+  .chart-wrap canvas { max-height: 260px; }
+
+  /* ── TABLE ── */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    text-align: left; padding: 10px 14px;
+    font-size: 11px; font-weight: 600;
+    color: var(--muted); text-transform: uppercase; letter-spacing: .5px;
+    border-bottom: 1px solid var(--border);
+  }
+  td { padding: 11px 14px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .chip {
+    display: inline-block; padding: 3px 10px;
+    border-radius: 100px; font-size: 11px; font-weight: 600;
+  }
+
+  .chip-red { background: rgba(231,76,60,0.12); color: #F87171; }
+  .chip-amber { background: rgba(230,126,34,0.12); color: #FCA95A; }
+  .chip-green { background: rgba(39,174,96,0.12); color: #6EE7B7; }
+
+  /* ── INSIGHTS PANEL ── */
+  .insights { display: flex; flex-direction: column; gap: 12px; }
+
+  .insight-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.025);
+    border-radius: 12px;
+    border-left: 3px solid;
+    transition: background .2s;
+  }
+
+  .insight-item:hover { background: rgba(255,255,255,0.04); }
+
+  .insight-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .insight-text { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .insight-text strong { color: var(--text); font-weight: 600; }
+
+  /* ── RECOMMENDATIONS ── */
+  .recs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .rec-card {
+    padding: 18px 20px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    border-top: 3px solid var(--accent, var(--teal));
+  }
+
+  .rec-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px; font-weight: 800;
+    color: var(--accent, var(--teal));
+    opacity: .3; line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .rec-title {
+    font-size: 14px; font-weight: 600; color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .rec-body { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center; padding: 40px;
+    border-top: 1px solid var(--border);
+    color: var(--muted); font-size: 13px;
+  }
+
+  footer a { color: var(--teal-light); text-decoration: none; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate { animation: fadeUp .5s ease forwards; opacity: 0; }
+  .delay-1 { animation-delay: .1s; }
+  .delay-2 { animation-delay: .2s; }
+  .delay-3 { animation-delay: .3s; }
+  .delay-4 { animation-delay: .4s; }
+
+  @media (max-width: 768px) {
+    header { padding: 0 20px; }
+    .hero { padding: 50px 20px 40px; }
+    .main { padding: 0 20px 40px; }
+    .chart-grid, .chart-grid-3, .recs { grid-template-columns: 1fr; }
+    .stats-strip { gap: 24px; }
+    .divider { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">🏥</div>
+    <div class="logo-text">Medical Transport <span>Analytics</span></div>
+  </div>
+  <div class="header-right">
+    <span class="badge badge-teal">2025 Full Year</span>
+    <span class="badge badge-amber">Tuwaiq Hackathon</span>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero animate">
+  <div class="hero-tag">
+    <span>⚡</span> Built with Vibe Coding · Claude AI
+  </div>
+  <h1>Operations Intelligence<br/>for <em>Medical Transport</em></h1>
+  <p>Transforming 14,169 patient transfer missions into actionable insights<br/>across 20 centers, 219 paramedics, and 96 ambulances</p>
+
+  <div class="stats-strip">
+    <div class="stat-item">
+      <span class="num">14,169</span>
+      <span class="lbl">Total Missions</span>
+    </div>
+    <div class="divider"></div>
+    <div class="stat-item">
+      <span class="num">20</span>
+      <span class="lbl">Active Centers</span>
+    </div>
+    <div class="divider"></div>
+    <div class="stat-item">
+      <span class="num">219</span>
+      <span class="lbl">Paramedics</span>
+    </div>
+    <div class="divider"></div>
+    <div class="stat-item">
+      <span class="num">35.1%</span>
+      <span class="lbl">Emergency Rate</span>
+    </div>
+    <div class="divider"></div>
+    <div class="stat-item">
+      <span class="num">132.9</span>
+      <span class="lbl">Avg Mission (min)</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- KPI CARDS -->
+  <div class="kpi-grid animate delay-1">
+    <div class="kpi-card" style="--accent:#14BDBD">
+      <div class="kpi-icon">🚑</div>
+      <div class="kpi-value">14,169</div>
+      <div class="kpi-label">Total Transfers</div>
+      <div class="kpi-sub">Jan – Dec 2025</div>
+    </div>
+    <div class="kpi-card" style="--accent:#27AE60">
+      <div class="kpi-icon">⏱️</div>
+      <div class="kpi-value">14.5<span style="font-size:16px;font-weight:400;color:var(--muted)"> min</span></div>
+      <div class="kpi-label">Avg Response Time</div>
+      <div class="kpi-sub">Acceptance → Departure</div>
+    </div>
+    <div class="kpi-card" style="--accent:#E67E22">
+      <div class="kpi-icon">📡</div>
+      <div class="kpi-value">5.5<span style="font-size:16px;font-weight:400;color:var(--muted)"> min</span></div>
+      <div class="kpi-label">Avg Dispatch Time</div>
+      <div class="kpi-sub">Report → Departure</div>
+    </div>
+    <div class="kpi-card" style="--accent:#6366F1">
+      <div class="kpi-icon">🛣️</div>
+      <div class="kpi-value">49.8<span style="font-size:16px;font-weight:400;color:var(--muted)"> min</span></div>
+      <div class="kpi-label">Avg Travel Time</div>
+      <div class="kpi-sub">Departure → Arrival</div>
+    </div>
+    <div class="kpi-card" style="--accent:#E74C3C">
+      <div class="kpi-icon">🔴</div>
+      <div class="kpi-value">95.3<span style="font-size:16px;font-weight:400;color:var(--muted)">%</span></div>
+      <div class="kpi-label">Late Rate</div>
+      <div class="kpi-sub">Needs recalibration</div>
+    </div>
+    <div class="kpi-card" style="--accent:#F59E0B">
+      <div class="kpi-icon">⚡</div>
+      <div class="kpi-value">35.1<span style="font-size:16px;font-weight:400;color:var(--muted)">%</span></div>
+      <div class="kpi-label">Emergency Rate</div>
+      <div class="kpi-sub">Life-Saving missions</div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW 1 -->
+  <div class="section-hdr animate delay-2">
+    <h2>Volume & Performance</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="chart-grid animate delay-2">
+    <div class="card">
+      <div class="card-title">Monthly Transfer Volume</div>
+      <div class="chart-wrap"><canvas id="monthlyChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Referral Reason Breakdown</div>
+      <div class="chart-wrap"><canvas id="reasonChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW 2 -->
+  <div class="chart-grid-3 animate delay-3">
+    <div class="card">
+      <div class="card-title">Top 10 Centers — Transfer Volume</div>
+      <div class="chart-wrap"><canvas id="centerChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Mission Type Split</div>
+      <div class="chart-wrap" style="display:flex;flex-direction:column;gap:16px;margin-top:10px;">
+        <canvas id="typeChart"></canvas>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+          <div style="display:flex;justify-content:space-between;font-size:13px">
+            <span style="color:#6EE7B7">● Stable Cases</span><span style="font-weight:600">9,191 (64.9%)</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:13px">
+            <span style="color:#FCA95A">● Life-Saving</span><span style="font-weight:600">4,978 (35.1%)</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:13px">
+            <span style="color:#7DD3FC">● Morning Shift</span><span style="font-weight:600">8,517 (60.1%)</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:13px">
+            <span style="color:#C4B5FD">● Evening Shift</span><span style="font-weight:600">5,652 (39.9%)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER TABLE -->
+  <div class="section-hdr animate delay-3">
+    <h2>Center Performance Benchmarking</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="card animate delay-3">
+    <table>
+      <thead>
+        <tr>
+          <th>Center</th>
+          <th>Missions</th>
+          <th>Avg Response</th>
+          <th>Avg Dispatch</th>
+          <th>Late Rate</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="centerTable"></tbody>
+    </table>
+  </div>
+
+  <!-- INSIGHTS + RECS -->
+  <div class="section-hdr animate delay-4">
+    <h2>Critical Insights</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="chart-grid animate delay-4">
+    <div class="card">
+      <div class="card-title">Key Findings</div>
+      <div class="insights">
+        <div class="insight-item" style="border-color:#E74C3C">
+          <div class="insight-icon">🚨</div>
+          <div class="insight-text"><strong>95.3% missions rated Late</strong> — across all 20 centers with zero Excellent ratings, suggesting performance thresholds need recalibration.</div>
+        </div>
+        <div class="insight-item" style="border-color:#F59E0B">
+          <div class="insight-icon">🏥</div>
+          <div class="insight-text"><strong>H1 absorbs 72.1%</strong> of all referrals (8,715 cases), creating a significant concentration and bottleneck risk.</div>
+        </div>
+        <div class="insight-item" style="border-color:#14BDBD">
+          <div class="insight-icon">🌅</div>
+          <div class="insight-text"><strong>60.1% of volume</strong> occurs in morning shifts — a capacity gap exists for evening operations that needs addressing.</div>
+        </div>
+        <div class="insight-item" style="border-color:#6366F1">
+          <div class="insight-icon">📊</div>
+          <div class="insight-text"><strong>Stable demand year-round</strong> — monthly variance is only ±12%, enabling accurate resource pre-planning.</div>
+        </div>
+        <div class="insight-item" style="border-color:#27AE60">
+          <div class="insight-icon">⚙️</div>
+          <div class="insight-text"><strong>Specialty & Equipment shortages</strong> account for 66.7% of all transfers — addressable via targeted investment.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Strategic Recommendations</div>
+      <div class="recs">
+        <div class="rec-card" style="--accent:#14BDBD">
+          <div class="rec-num">01</div>
+          <div class="rec-title">Recalibrate KPIs</div>
+          <div class="rec-body">Align performance thresholds with real-world operational benchmarks across the region.</div>
+        </div>
+        <div class="rec-card" style="--accent:#E74C3C">
+          <div class="rec-num">02</div>
+          <div class="rec-title">Rebalance H1 Load</div>
+          <div class="rec-body">Implement load-distribution protocol to reduce 72% concentration at a single hospital.</div>
+        </div>
+        <div class="rec-card" style="--accent:#F59E0B">
+          <div class="rec-num">03</div>
+          <div class="rec-title">Close Capacity Gaps</div>
+          <div class="rec-body">Invest in specialists and equipment at origin facilities to reduce avoidable transfers.</div>
+        </div>
+        <div class="rec-card" style="--accent:#6366F1">
+          <div class="rec-num">04</div>
+          <div class="rec-title">Smart Alert System</div>
+          <div class="rec-body">Automated weekly reports to center managers when KPIs breach defined thresholds.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p>Medical Transport Operations Analytics · 2025 Full Year Report</p>
+  <p style="margin-top:8px;opacity:.6">Built at <a href="https://tuwaiq.edu.sa/">Tuwaiq Hackathon</a> · Vibe Coding methodology · Powered by Claude AI</p>
+</footer>
+
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────
+const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const monthlyVol = [1227,1087,1207,1157,1202,1167,1191,1189,1157,1209,1185,1191];
+
+const centerRows = [
+  ['C1','1,438','14.7 min','5.5 min','94.5%'],
+  ['C2','1,434','14.6 min','5.6 min','94.7%'],
+  ['C3','1,273','14.5 min','5.5 min','95.1%'],
+  ['C4','1,109','14.3 min','5.4 min','95.2%'],
+  ['C5','1,095','14.4 min','5.5 min','94.6%'],
+  ['C6','742',  '14.4 min','5.4 min','96.4%'],
+  ['C7','695',  '14.3 min','5.5 min','95.3%'],
+  ['C8','742',  '14.6 min','5.6 min','95.3%'],
+  ['C9','715',  '14.5 min','5.4 min','96.1%'],
+  ['C10','555', '14.4 min','5.5 min','95.5%'],
+];
+
+// ── THEME ─────────────────────────────────────────────────────
+Chart.defaults.color = '#8896B3';
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+
+const gridColor = 'rgba(255,255,255,0.05)';
+const teal = '#14BDBD';
+const amber = '#E67E22';
+
+// ── MONTHLY CHART ─────────────────────────────────────────────
+new Chart(document.getElementById('monthlyChart'), {
+  type: 'bar',
+  data: {
+    labels: months,
+    datasets: [{
+      label: 'Transfers',
+      data: monthlyVol,
+      backgroundColor: monthlyVol.map((v,i) =>
+        i === 0 ? 'rgba(20,189,189,0.7)' : i === 1 ? 'rgba(231,76,60,0.6)' : 'rgba(20,189,189,0.3)'
+      ),
+      borderColor: monthlyVol.map((v,i) => i <= 1 ? teal : 'transparent'),
+      borderWidth: 1,
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: gridColor }, ticks: { font: { size: 11 } } },
+      y: { grid: { color: gridColor }, min: 1000, ticks: { font: { size: 11 } } }
+    }
+  }
+});
+
+// ── REASON CHART ──────────────────────────────────────────────
+new Chart(document.getElementById('reasonChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Specialty Shortage','Equipment Shortage','Cath Lab'],
+    datasets: [{
+      data: [4802, 4715, 4652],
+      backgroundColor: ['rgba(20,189,189,0.7)','rgba(99,102,241,0.7)','rgba(230,126,34,0.7)'],
+      borderColor: ['#14BDBD','#6366F1','#E67E22'],
+      borderWidth: 2,
+      hoverOffset: 8,
+    }]
+  },
+  options: {
+    cutout: '65%',
+    plugins: {
+      legend: { position: 'bottom', labels: { padding: 16, font: { size: 12 } } }
+    }
+  }
+});
+
+// ── CENTER CHART ──────────────────────────────────────────────
+new Chart(document.getElementById('centerChart'), {
+  type: 'bar',
+  data: {
+    labels: ['C1','C2','C3','C4','C5','C6','C8','C7','C9','C10'],
+    datasets: [{
+      label: 'Missions',
+      data: [1438,1434,1273,1109,1095,742,742,695,715,555],
+      backgroundColor: 'rgba(20,189,189,0.25)',
+      borderColor: teal,
+      borderWidth: 1.5,
+      borderRadius: 5,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: gridColor } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+// ── TYPE CHART ────────────────────────────────────────────────
+new Chart(document.getElementById('typeChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Stable','Life-Saving','Morning','Evening'],
+    datasets: [{
+      data: [9191, 4978, 8517, 5652],
+      backgroundColor: [
+        'rgba(110,231,183,0.6)',
+        'rgba(252,169,90,0.6)',
+        'rgba(125,211,252,0.6)',
+        'rgba(196,181,253,0.6)',
+      ],
+      borderWidth: 0,
+    }]
+  },
+  options: {
+    cutout: '55%',
+    plugins: { legend: { display: false } }
+  }
+});
+
+// ── TABLE ─────────────────────────────────────────────────────
+const tbody = document.getElementById('centerTable');
+centerRows.forEach(([ctr,tot,resp,disp,late], i) => {
+  const lateNum = parseFloat(late);
+  const chipClass = lateNum > 96 ? 'chip-red' : lateNum > 95 ? 'chip-amber' : 'chip-green';
+  tbody.innerHTML += `
+    <tr>
+      <td><strong style="color:#E8EDF5;font-family:'Syne',sans-serif">${ctr}</strong></td>
+      <td>${tot}</td>
+      <td>${resp}</td>
+      <td>${disp}</td>
+      <td><span class="chip ${chipClass}">${late}</span></td>
+      <td><span style="color:var(--muted);font-size:12px">#${i+1}</span></td>
+    </tr>`;
+});
+</script>
+</body>
+</html>
