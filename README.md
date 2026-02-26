@@ -198,6 +198,31 @@ This approach reduced development time from weeks to hours while maintaining pro
 
 ---
 
+## 🔒 Privacy & Security
+
+> **Current Status:** All data in this repository is **synthetic/demo data** generated for hackathon purposes only. No real patient information is included.
+
+### Data Protection Roadmap
+
+| Phase | Measure | Status |
+|-------|---------|--------|
+| 🟡 **Data Anonymization** | All patient identifiers replaced with anonymous IDs | Planned |
+| 🟡 **Access Control** | Role-based access — operators see only their center's data | Planned |
+| 🟡 **Audit Logging** | Every data access logged with timestamp and user | Planned |
+| 🔴 **PDPL Compliance** | Full compliance with Saudi Personal Data Protection Law | Roadmap |
+| 🔴 **Data Encryption** | End-to-end encryption for patient transfer records | Roadmap |
+| 🔴 **Data Residency** | Data stored exclusively within Saudi Arabia (KSA servers) | Roadmap |
+
+### Commitment
+
+When deployed in real healthcare environments, **Wasl** is committed to:
+- ✅ Full compliance with **Saudi PDPL** (نظام حماية البيانات الشخصية)
+- ✅ **Zero storage** of identifiable patient data on public repositories
+- ✅ **Encrypted transmission** of all sensitive operational data
+- ✅ **Minimum data** principle — collect only what's operationally necessary
+
+---
+
 ## 📬 Contact
 
 <div align="center">
