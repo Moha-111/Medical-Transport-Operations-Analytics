@@ -198,6 +198,71 @@ This approach reduced development time from weeks to hours while maintaining pro
 
 ---
 
+## 🚀 Vision — From Hackathon to Real Product
+
+> **Wasl is not just a hackathon project — it is the foundation of a commercial healthcare SaaS platform targeting Saudi Arabia's growing private healthcare sector.**
+
+### The Market Opportunity
+
+```
+🏥  450+  Private hospitals in Saudi Arabia
+🏢  2,000+ Specialized clinics
+🚑  30+   Medical transport companies
+📈  $4.2B  Saudi healthcare IT market by 2030
+```
+
+### Business Model
+
+| Plan | Target | Price | Features |
+|------|--------|-------|---------|
+| 🔵 **Basic** | Small clinics | 500 SAR/month | Dashboard + Reports |
+| 🟡 **Pro** | Hospitals | 1,500 SAR/month | + WhatsApp Alerts + AI Reports |
+| 🔴 **Enterprise** | Hospital chains | Custom | + Multi-branch + API Access |
+
+> **10 hospitals = 15,000 SAR/month recurring revenue**
+
+### Commercial Roadmap
+
+```
+NOW ✅              Q3 2026 🔵           Q1 2027 🟡           Q4 2027 🔴
+────────────        ──────────────       ──────────────       ──────────────
+Hackathon MVP       Pilot Program        First Paying         Full SaaS
+Working System      1 Hospital Free      Customer             Platform
+AI Reports Live     Collect Feedback     Prove Value          10+ Clients
+```
+
+### Why Wasl Will Win
+
+| Advantage | Wasl | Traditional Systems |
+|-----------|------|-------------------|
+| Full Arabic UI | ✅ | ❌ Rarely |
+| AI-powered Arabic reports | ✅ | ❌ |
+| WhatsApp instant alerts | ✅ | ❌ |
+| Affordable pricing | ✅ | ❌ Expensive |
+| Easy to use | ✅ | ❌ Complex |
+| Saudi PDPL compliant | ✅ Roadmap | ⚠️ Varies |
+
+### Funding & Support Targets
+
+We are actively seeking support from Saudi Arabia's leading innovation programs:
+
+[![Monshaat](https://img.shields.io/badge/Monsha'at-SME%20Support-1B3A6B?style=for-the-badge)](https://www.monshaat.gov.sa)
+[![STV](https://img.shields.io/badge/STV-Saudi%20Tech%20Ventures-00C9A7?style=for-the-badge)](https://stv.vc)
+[![Flat6Labs](https://img.shields.io/badge/Flat6Labs-Accelerator-E67E22?style=for-the-badge)](https://flat6labs.com)
+[![Vision2030](https://img.shields.io/badge/Vision%202030-Health%20Sector-30D158?style=for-the-badge)](https://vision2030.gov.sa)
+
+### Next Milestones
+
+- [ ] 🔵 Deploy pilot with 1 hospital (free) — collect real feedback
+- [ ] 🔵 Add live Google Sheets database integration
+- [ ] 🟡 Launch WhatsApp instant KPI alerts
+- [ ] 🟡 Register company & apply for Monsha'at support
+- [ ] 🟡 Convert to PWA mobile app
+- [ ] 🔴 Multi-hospital SaaS platform
+- [ ] 🔴 Saudi Ministry of Health certification
+
+---
+
 ## 🔒 Privacy & Security
 
 > **Current Status:** All data in this repository is **synthetic/demo data** generated for hackathon purposes only. No real patient information is included.
