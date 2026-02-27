@@ -533,9 +533,238 @@ canvas{max-height:220px;}
   .grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}
   .content{padding:16px;}
 }
+
+/* ══ LIVE SYNC BAR ══════════════════════════════════════════════ */
+#sync-bar, .sync-bar{
+  position:sticky;top:0;z-index:200;
+  background:linear-gradient(90deg,rgba(6,10,20,.97),rgba(12,17,32,.97));
+  border-bottom:1px solid var(--border);
+  padding:8px 24px;
+  display:flex;align-items:center;gap:12px;
+  backdrop-filter:blur(10px);
+  font-size:12px;transition:border-color .3s;
+}
+#sync-bar.connected,#sync-bar.sync-connected,.sync-bar.sync-connected{border-bottom-color:rgba(48,209,88,.35);}
+#sync-bar.error,#sync-bar.sync-error,.sync-bar.sync-error{border-bottom-color:rgba(255,82,82,.35);}
+.sync-dot{width:9px;height:9px;border-radius:50%;background:var(--muted);flex-shrink:0;transition:.3s;}
+.sync-dot.live{background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse-dot 2s infinite;}
+.sync-dot.error{background:var(--red);box-shadow:0 0 6px var(--red);}
+.sync-dot.loading{background:var(--amber);box-shadow:0 0 6px var(--amber);animation:pulse-dot 1s infinite;}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
+.sync-status-text{color:var(--text);font-weight:600;}
+.sync-meta{color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:400px;}
+.sync-countdown{
+  margin-right:auto;display:flex;align-items:center;gap:8px;
+}
+.sync-progress{
+  width:80px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;
+}
+.sync-progress-fill{
+  height:100%;background:var(--teal);transition:width 1s linear;border-radius:2px;
+}
+.sync-actions{display:flex;gap:6px;align-items:center;}
+.btn-sync{
+  padding:4px 12px;border-radius:20px;border:1px solid rgba(0,201,167,.4);
+  background:rgba(0,201,167,.1);color:var(--teal);font-size:11px;
+  cursor:pointer;transition:.2s;font-family:'Cairo',sans-serif;
+}
+.btn-sync:hover{background:rgba(0,201,167,.2);}
+.alert-badge-count{
+  background:var(--red);color:#fff;border-radius:20px;
+  padding:2px 8px;font-size:11px;font-weight:700;
+  animation:pulse-dot 2s infinite;
+}
+
+/* ══ DATA SOURCE MODAL ══════════════════════════════════════════ */
+#ds-modal{
+  position:fixed;inset:0;z-index:9998;
+  background:rgba(0,0,0,.8);backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;
+}
+#ds-modal.open{display:flex;}
+.ds-modal-box{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:20px;padding:32px;width:540px;max-width:95vw;
+  max-height:90vh;overflow-y:auto;
+}
+.ds-step{display:none;}
+.ds-step.active{display:block;}
+.ds-step-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:50%;
+  background:var(--teal);color:#000;font-weight:700;font-size:13px;
+  margin-left:10px;flex-shrink:0;
+}
+.ds-step-header{display:flex;align-items:center;margin-bottom:20px;}
+.ds-step-header h3{font-size:16px;font-weight:700;}
+.ds-instruction{
+  background:rgba(0,201,167,.08);border:1px solid rgba(0,201,167,.2);
+  border-radius:12px;padding:14px 16px;margin:12px 0;font-size:12.5px;
+  line-height:1.8;color:var(--text);
+}
+.ds-instruction code{
+  background:rgba(0,201,167,.15);padding:2px 6px;border-radius:4px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--teal);
+}
+.ds-stepper{display:flex;gap:6px;margin-bottom:24px;}
+.ds-step-dot{
+  flex:1;height:3px;border-radius:2px;background:var(--surface3);transition:.3s;
+}
+.ds-step-dot.done{background:var(--teal);}
+.ds-step-dot.active{background:var(--teal);box-shadow:0 0 8px var(--teal);}
+.connection-test{
+  padding:12px 16px;border-radius:10px;margin-top:12px;
+  display:none;align-items:center;gap:10px;font-size:13px;
+}
+.connection-test.ok{background:rgba(48,209,88,.1);border:1px solid rgba(48,209,88,.3);color:var(--green);display:flex;}
+.connection-test.fail{background:rgba(255,82,82,.1);border:1px solid rgba(255,82,82,.3);color:var(--red);display:flex;}
+
+/* ══ KPI CHANGE HIGHLIGHTS ══════════════════════════════════════ */
+.kpi-changed{animation:kpi-flash 2s ease;}
+@keyframes kpi-flash{0%{background:rgba(0,201,167,.3)}100%{background:transparent}}
+.kpi-up{color:var(--red) !important;}
+.kpi-down{color:var(--green) !important;}
+.delta-badge{
+  font-size:10px;padding:1px 6px;border-radius:8px;margin-right:4px;
+  font-weight:700;display:inline-block;
+}
+.delta-up{background:rgba(255,82,82,.15);color:var(--red);}
+.delta-down{background:rgba(48,209,88,.15);color:var(--green);}
+
+/* ══ LIVE ALERT TOAST STACK ════════════════════════════════════ */
+#alert-stack{
+  position:fixed;bottom:24px;left:24px;z-index:9997;
+  display:flex;flex-direction:column;gap:8px;max-width:380px;
+}
+.alert-toast{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:14px 16px;
+  display:flex;align-items:flex-start;gap:12px;
+  box-shadow:0 8px 32px rgba(0,0,0,.4);
+  animation:slideInLeft .3s ease;
+  cursor:pointer;
+}
+.alert-toast:hover{border-color:var(--teal);}
+@keyframes slideInLeft{from{transform:translateX(-110%);opacity:0}to{transform:translateX(0);opacity:1}}
+.alert-toast.critical{border-right:3px solid var(--red);}
+.alert-toast.warning{border-right:3px solid var(--amber);}
+.alert-toast.success{border-right:3px solid var(--green);}
+.alert-toast-icon{font-size:22px;flex-shrink:0;}
+.alert-toast-body{flex:1;}
+.alert-toast-title{font-size:13px;font-weight:700;color:var(--text);}
+.alert-toast-msg{font-size:11px;color:var(--muted);margin-top:2px;}
+.alert-toast-time{font-size:10px;color:var(--muted);margin-top:4px;}
 </style>
 </head>
 <body>
+
+<!-- ══ ALERT TOAST STACK ══════════════════════════════════════ -->
+<div id="alert-stack"></div>
+
+<!-- ══ DATA SOURCE MODAL ══════════════════════════════════════ -->
+<div id="ds-modal">
+  <div class="ds-modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+      <div>
+        <div style="font-size:20px;font-weight:900;color:var(--teal)">🔗 ربط مصدر البيانات</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">Excel → Google Sheets → وصل (تحديث تلقائي)</div>
+      </div>
+      <button onclick="document.getElementById('ds-modal').classList.remove('open')" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer">✕</button>
+    </div>
+    <!-- Stepper -->
+    <div class="ds-stepper">
+      <div class="ds-step-dot active" id="dot-1"></div>
+      <div class="ds-step-dot" id="dot-2"></div>
+      <div class="ds-step-dot" id="dot-3"></div>
+    </div>
+
+    <!-- Step 1: Google Sheets -->
+    <div class="ds-step active" id="ds-step-1">
+      <div class="ds-step-header">
+        <span class="ds-step-num">1</span>
+        <h3>رفع Excel إلى Google Sheets</h3>
+      </div>
+      <div class="ds-instruction">
+        <strong>الخطوات:</strong><br>
+        1. افتح <code>sheets.google.com</code> → ملف جديد<br>
+        2. استيراد → رفع ملف Excel<br>
+        3. <strong>ملف → نشر على الويب</strong><br>
+        4. اختر الورقة <code>Daily Operations Data</code><br>
+        5. تنسيق: <code>CSV</code> → انشر<br>
+        6. انسخ الرابط والصقه هنا ↓
+      </div>
+      <div class="form-group" style="margin-top:16px">
+        <label>رابط Google Sheets CSV</label>
+        <input type="text" id="gs-url" placeholder="https://docs.google.com/spreadsheets/d/.../pub?gid=...&single=true&output=csv"
+          style="font-size:11px;font-family:'JetBrains Mono',monospace"/>
+      </div>
+      <div id="gs-test-result"></div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn btn-secondary btn-sm" onclick="loadDemoData()">📊 بيانات تجريبية</button>
+        <button class="btn btn-primary" onclick="testGSConnection()" style="flex:1">🔌 اختبار الاتصال</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Webhook -->
+    <div class="ds-step" id="ds-step-2">
+      <div class="ds-step-header">
+        <span class="ds-step-num">2</span>
+        <h3>ربط Make.com للتنبيهات</h3>
+      </div>
+      <div class="ds-instruction">
+        <strong>في Make.com:</strong><br>
+        1. افتح السيناريو الموجود <code>4247986</code><br>
+        2. أضف <strong>Webhook Trigger</strong> في البداية<br>
+        3. انسخ رابط الـ Webhook والصقه هنا ↓<br>
+        4. وصل سيرسل تنبيهاً عند تجاوز أي حد KPI
+      </div>
+      <div class="form-group" style="margin-top:16px">
+        <label>Webhook URL (Make.com)</label>
+        <input type="text" id="wh-url" placeholder="https://hook.eu1.make.com/xxxxx"/>
+      </div>
+      <div class="form-group">
+        <label>البريد المرسل إليه</label>
+        <input type="email" id="wh-email" placeholder="alshehrimo7ammada@gmail.com"/>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn btn-secondary btn-sm" onclick="dsGoStep(1)">← رجوع</button>
+        <button class="btn btn-primary" onclick="dsGoStep(3)" style="flex:1">التالي ←</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Thresholds + Activate -->
+    <div class="ds-step" id="ds-step-3">
+      <div class="ds-step-header">
+        <span class="ds-step-num">3</span>
+        <h3>حدود التنبيه والتفعيل</h3>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div class="form-group">
+          <label>وقت الاستجابة الحرج (د)</label>
+          <input type="number" id="th-resp" value="70"/>
+        </div>
+        <div class="form-group">
+          <label>معدل التأخير الحرج (%)</label>
+          <input type="number" id="th-late" value="96"/>
+        </div>
+        <div class="form-group">
+          <label>الحد الأدنى للمسعفين المتاحين</label>
+          <input type="number" id="th-para" value="40"/>
+        </div>
+        <div class="form-group">
+          <label>فترة التحديث (دقائق)</label>
+          <input type="number" id="th-interval" value="5" min="1" max="60"/>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn btn-secondary btn-sm" onclick="dsGoStep(2)">← رجوع</button>
+        <button class="btn btn-primary" onclick="activateLiveSync()" style="flex:1;background:var(--teal);color:#000;font-weight:700">
+          ⚡ تفعيل المزامنة الحية
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ══ LOGIN SCREEN ════════════════════════════════════════════ -->
 <div id="loginScreen">
@@ -713,41 +942,58 @@ canvas{max-height:220px;}
         </div>
       </div>
 
+      <!-- LIVE SYNC BAR -->
+      <div id="sync-bar">
+        <div class="sync-dot" id="sync-dot"></div>
+        <span class="sync-status-text" id="sync-status-text">غير متصل</span>
+        <span class="sync-meta" id="sync-meta">اضغط "ربط البيانات" لتفعيل المزامنة الحية</span>
+        <div class="sync-countdown" id="sync-countdown" style="display:none">
+          <span style="font-size:11px;color:var(--muted)">التحديث في</span>
+          <span id="sync-timer" style="font-family:'JetBrains Mono',monospace;color:var(--teal);font-size:12px;font-weight:700">—</span>
+          <div class="sync-progress"><div class="sync-progress-fill" id="sync-progress-fill" style="width:100%"></div></div>
+        </div>
+        <div class="sync-actions">
+          <span id="sync-alert-count" style="display:none" class="alert-badge-count">0 تنبيه</span>
+          <button class="btn-sync" onclick="forceSync()" id="btn-force-sync" style="display:none">🔄 الآن</button>
+          <button class="btn-sync" onclick="openDataSourceModal()">🔗 ربط البيانات</button>
+        </div>
+      </div>
+
       <!-- KPI STRIP -->
       <div class="kpi-strip">
         <div class="kpi" style="--c:var(--teal)">
-          <div class="kpi-badge badge-up">↑ +2.3%</div>
+          <div class="kpi-badge badge-up">📋 2025</div>
           <div class="kpi-label">إجمالي المهام</div>
           <div class="kpi-val" id="kpi-total">14,169</div>
-          <div class="kpi-sub">كامل عام 2025</div>
+          <div class="kpi-sub">متوسط 39 مهمة/يوم</div>
           <div class="kpi-bar"><div class="kpi-bar-fill" style="width:85%"></div></div>
         </div>
-        <div class="kpi" style="--c:var(--green)">
-          <div class="kpi-badge badge-up">✅ ضمن الهدف</div>
-          <div class="kpi-label">متوسط الاستجابة</div>
-          <div class="kpi-val" id="kpi-resp">14.5<small style="font-size:14px"> د</small></div>
-          <div class="kpi-sub">الهدف ≤15 دقيقة</div>
-          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:97%;background:var(--green)"></div></div>
+        <div class="kpi" style="--c:var(--red)">
+          <div class="kpi-badge badge-down">🔴 حرج</div>
+          <div class="kpi-label">وقت الاستجابة الكلي</div>
+          <div class="kpi-val" id="kpi-resp">64.3<small style="font-size:14px"> د</small></div>
+          <div class="kpi-sub">الهدف ≤30 دقيقة — تجاوز 2×</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:100%;background:var(--red)"></div></div>
         </div>
-        <div class="kpi" style="--c:var(--teal2)">
+        <div class="kpi" style="--c:var(--green)">
           <div class="kpi-badge badge-up">✅ ممتاز</div>
           <div class="kpi-label">وقت الإرسال</div>
           <div class="kpi-val">5.5<small style="font-size:14px"> د</small></div>
           <div class="kpi-sub">الهدف ≤8 دقائق</div>
-          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:69%;background:var(--teal2)"></div></div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:69%;background:var(--green)"></div></div>
         </div>
         <div class="kpi" style="--c:var(--red)">
-          <div class="kpi-badge badge-down">⚠️ حرج</div>
-          <div class="kpi-label">معدل التأخير</div>
+          <div class="kpi-badge badge-down">🔴 حرج</div>
+          <div class="kpi-label">معدل التأخير >30 د</div>
           <div class="kpi-val">95.3%</div>
-          <div class="kpi-sub">يحتاج مراجعة الأهداف</div>
+          <div class="kpi-sub">وقت السفر 49.8 د (77%)</div>
           <div class="kpi-bar"><div class="kpi-bar-fill" style="width:95%;background:var(--red)"></div></div>
         </div>
         <div class="kpi" style="--c:var(--amber)">
-          <div class="kpi-badge badge-eq">→ مستقر</div>
-          <div class="kpi-label">حالات الطوارئ</div>
-          <div class="kpi-val">35.1%</div>
-          <div class="kpi-sub">4,978 حالة إنقاذ</div>
+          <div class="kpi-badge badge-eq">⚡ 35.1%</div>
+          <div class="kpi-label">حالات إنقاذ حياة</div>
+          <div class="kpi-val">4,978</div>
+          <div class="kpi-sub">من أصل 14,169 مهمة</div>
           <div class="kpi-bar"><div class="kpi-bar-fill" style="width:35%;background:var(--amber)"></div></div>
         </div>
       </div>
@@ -786,7 +1032,7 @@ canvas{max-height:220px;}
           </div>
           <table class="tbl">
             <thead><tr>
-              <th>المركز</th><th>المهام</th><th>الاستجابة</th><th>التأخير</th><th>الحالة</th>
+              <th>المركز</th><th>المهام</th><th>الاستجابة الكلية</th><th>التأخير</th><th>الحالة</th>
             </tr></thead>
             <tbody id="dashboard-centers"></tbody>
           </table>
@@ -932,7 +1178,7 @@ canvas{max-height:220px;}
               </div>
               <div class="form-group">
                 <label>وقت الاستجابة (دقيقة)</label>
-                <input type="number" placeholder="14.5" id="f-resp"/>
+                <input type="number" placeholder="64.3" id="f-resp"/>
               </div>
             </div>
             <div style="display:flex;gap:10px;margin-top:6px">
@@ -1011,22 +1257,22 @@ canvas{max-height:220px;}
       <div class="grid-4" style="margin-bottom:20px">
         <div class="kpi" style="--c:var(--teal)">
           <div class="kpi-label">إجمالي المسعفين</div>
-          <div class="kpi-val">219</div>
+          <div class="kpi-val">88</div>
           <div class="kpi-sub">موزعون على 20 مركز</div>
         </div>
         <div class="kpi" style="--c:var(--green)">
           <div class="kpi-label">متاحون الآن</div>
-          <div class="kpi-val" id="para-available">143</div>
+          <div class="kpi-val" id="para-available">53</div>
           <div class="kpi-sub">جاهزون للانتشار</div>
         </div>
         <div class="kpi" style="--c:var(--amber)">
           <div class="kpi-label">في مهمة</div>
-          <div class="kpi-val" id="para-onmission">67</div>
+          <div class="kpi-val" id="para-onmission">29</div>
           <div class="kpi-sub">منتشرون حالياً</div>
         </div>
         <div class="kpi" style="--c:var(--red)">
-          <div class="kpi-label">إجازة / غير متاح</div>
-          <div class="kpi-val">9</div>
+          <div class="kpi-label">استراحة / غير متاح</div>
+          <div class="kpi-val">6</div>
           <div class="kpi-sub">خارج الخدمة</div>
         </div>
       </div>
@@ -1161,51 +1407,125 @@ canvas{max-height:220px;}
     <!-- ══ PAGE: SETTINGS ══════════════════════════════════════ -->
     <div class="page" id="page-settings">
       <div class="section-header">
-        <div><h2>الإعدادات</h2><p>تخصيص النظام وإعدادات Make.com</p></div>
+        <div><h2>⚙️ الإعدادات</h2><p>إدارة مصادر البيانات الحية، التنبيهات، وتكاملات Make.com</p></div>
       </div>
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-header"><span class="card-title">حدود التنبيه</span><span class="card-tag tag-warn">KPI</span></div>
-          <div style="display:flex;flex-direction:column;gap:14px">
-            <div class="form-group">
-              <label>الحد الأقصى لوقت الاستجابة (دقيقة)</label>
-              <input type="number" value="15" id="threshold-resp"/>
-            </div>
-            <div class="form-group">
-              <label>الحد الأقصى لوقت الإرسال (دقيقة)</label>
-              <input type="number" value="8" id="threshold-dispatch"/>
-            </div>
-            <div class="form-group">
-              <label>الحد الأقصى لمعدل التأخير (%)</label>
-              <input type="number" value="95" id="threshold-late"/>
-            </div>
-            <div class="form-group">
-              <label>الحد الأدنى للمسعفين المتاحين</label>
-              <input type="number" value="100" id="threshold-para"/>
-            </div>
-            <button class="btn btn-primary btn-sm" onclick="showToast('تم حفظ حدود التنبيه ✅','success')">💾 حفظ</button>
+
+      <!-- SYNC STATUS CARD -->
+      <div class="card" style="margin-bottom:20px;border:1px solid rgba(0,201,167,.2)">
+        <div class="card-header">
+          <span class="card-title">🔗 حالة المزامنة الحية</span>
+          <span class="card-tag" id="settings-sync-tag" style="background:rgba(94,115,145,.15);color:var(--muted)">غير متصل</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px">
+          <div style="text-align:center;padding:12px;background:var(--surface3);border-radius:10px">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:4px">المصدر</div>
+            <div id="settings-source" style="font-size:13px;font-weight:700;color:var(--text)">—</div>
+          </div>
+          <div style="text-align:center;padding:12px;background:var(--surface3);border-radius:10px">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:4px">آخر مزامنة</div>
+            <div id="settings-last-sync" style="font-size:13px;font-weight:700;color:var(--text)">—</div>
+          </div>
+          <div style="text-align:center;padding:12px;background:var(--surface3);border-radius:10px">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:4px">صفوف البيانات</div>
+            <div id="settings-rows" style="font-size:13px;font-weight:700;color:var(--teal)">—</div>
+          </div>
+          <div style="text-align:center;padding:12px;background:var(--surface3);border-radius:10px">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:4px">التنبيهات اليوم</div>
+            <div id="settings-alerts-count" style="font-size:13px;font-weight:700;color:var(--amber)">0</div>
           </div>
         </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-primary" onclick="openDataSourceModal()">🔗 إعداد مصدر البيانات</button>
+          <button class="btn btn-secondary btn-sm" onclick="forceSync()" id="settings-force-sync" disabled>🔄 مزامنة الآن</button>
+          <button class="btn btn-secondary btn-sm" onclick="pauseSync()" id="settings-pause-sync" style="display:none">⏸ إيقاف مؤقت</button>
+          <button class="btn btn-secondary btn-sm" onclick="disconnectSync()" style="color:var(--red);border-color:rgba(255,82,82,.3)">✕ قطع الاتصال</button>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- THRESHOLDS -->
         <div class="card">
-          <div class="card-header"><span class="card-title">تكامل Make.com</span><span class="card-tag tag-info">Webhook</span></div>
+          <div class="card-header"><span class="card-title">🚨 حدود التنبيه التلقائي</span><span class="card-tag tag-warn">KPI Alerts</span></div>
           <div style="display:flex;flex-direction:column;gap:14px">
-            <div class="form-group">
-              <label>Webhook URL</label>
-              <input type="text" placeholder="https://hook.make.com/..." value="https://hook.make.com/xxxxxx"/>
+            <div style="font-size:12px;color:var(--muted);padding:8px 12px;background:rgba(246,166,35,.08);border-radius:8px;border-right:2px solid var(--amber)">
+              ⚡ التنبيه يُرسل تلقائياً عبر Make.com + Gmail عند تجاوز أي حد
             </div>
             <div class="form-group">
-              <label>Google Sheets ID</label>
-              <input type="text" placeholder="1BxiMVs..." value="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"/>
+              <label>⏱ وقت الاستجابة الحرج (دقيقة)</label>
+              <input type="number" id="setting-th-resp" value="70" oninput="saveSettings()"/>
+              <small style="color:var(--muted);font-size:11px">الحالي: 64.3 د — التنبيه عند: ></small>
             </div>
             <div class="form-group">
-              <label>Gmail المرسل</label>
-              <input type="email" value="ops@meditrans.sa"/>
+              <label>📊 معدل التأخير الحرج (%)</label>
+              <input type="number" id="setting-th-late" value="96" oninput="saveSettings()"/>
+              <small style="color:var(--muted);font-size:11px">الحالي: 95.3% — التنبيه عند: ></small>
+            </div>
+            <div class="form-group">
+              <label>👨‍⚕️ الحد الأدنى للمسعفين المتاحين</label>
+              <input type="number" id="setting-th-para" value="40" oninput="saveSettings()"/>
+              <small style="color:var(--muted);font-size:11px">التنبيه عند النقص عن هذا الرقم</small>
+            </div>
+            <div class="form-group">
+              <label>📋 الحد الأقصى للمهام اليومية</label>
+              <input type="number" id="setting-th-missions" value="50" oninput="saveSettings()"/>
+              <small style="color:var(--muted);font-size:11px">متوسط 39 مهمة/يوم</small>
+            </div>
+            <div class="form-group">
+              <label>🔄 فترة التحديث التلقائي (دقائق)</label>
+              <input type="number" id="setting-interval" value="5" min="1" max="60" oninput="saveSettings()"/>
             </div>
             <div style="display:flex;gap:8px">
-              <button class="btn btn-primary btn-sm" onclick="testWebhook()">🧪 اختبار</button>
-              <button class="btn btn-secondary btn-sm" onclick="showToast('تم حفظ الإعدادات ✅','success')">💾 حفظ</button>
+              <button class="btn btn-primary btn-sm" onclick="saveSettings();showToast('تم حفظ حدود التنبيه ✅','success')" style="flex:1">💾 حفظ</button>
+              <button class="btn btn-secondary btn-sm" onclick="testAlertSystem()">🧪 اختبار التنبيه</button>
             </div>
           </div>
+        </div>
+
+        <!-- MAKE.COM INTEGRATION -->
+        <div class="card">
+          <div class="card-header"><span class="card-title">⚡ Make.com — تفاصيل التكامل</span><span class="card-tag tag-info">Automation</span></div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="form-group">
+              <label>Webhook URL (استقبال التنبيهات)</label>
+              <input type="text" id="setting-webhook" placeholder="https://hook.eu1.make.com/xxxxx" oninput="saveSettings()"/>
+            </div>
+            <div class="form-group">
+              <label>البريد الإلكتروني للتنبيهات</label>
+              <input type="email" id="setting-email" placeholder="alshehrimo7ammada@gmail.com" oninput="saveSettings()"/>
+            </div>
+            <div class="form-group">
+              <label>رابط Google Sheets CSV</label>
+              <input type="text" id="setting-gs-url" placeholder="https://docs.google.com/..." style="font-size:10px" oninput="saveSettings()"/>
+            </div>
+            <!-- Webhook Payload Preview -->
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);max-height:120px;overflow-y:auto">
+              <div style="color:var(--teal);margin-bottom:6px;font-size:9px">// Webhook Payload المُرسل</div>
+{<br>
+&nbsp;&nbsp;"alert_type": "kpi_breach",<br>
+&nbsp;&nbsp;"kpi": "late_rate",<br>
+&nbsp;&nbsp;"value": 97.2,<br>
+&nbsp;&nbsp;"threshold": 96,<br>
+&nbsp;&nbsp;"center": "C18",<br>
+&nbsp;&nbsp;"timestamp": "2025-12-30T07:00:00",<br>
+&nbsp;&nbsp;"severity": "critical"<br>
+}
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-primary btn-sm" onclick="testWebhook()">🧪 اختبار Webhook</button>
+              <button class="btn btn-secondary btn-sm" onclick="saveSettings();showToast('تم الحفظ ✅','success')">💾 حفظ</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ALERT LOG -->
+      <div class="card" style="margin-top:20px">
+        <div class="card-header">
+          <span class="card-title">📋 سجل التنبيهات التلقائية</span>
+          <button onclick="clearAlertLog()" style="background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer">مسح السجل</button>
+        </div>
+        <div id="alert-log-body" style="max-height:200px;overflow-y:auto">
+          <div style="text-align:center;padding:24px;color:var(--muted);font-size:13px">لا يوجد تنبيهات مسجّلة بعد</div>
         </div>
       </div>
     </div>
@@ -1515,38 +1835,72 @@ canvas{max-height:220px;}
 
 <script>
 // ══ DATA ════════════════════════════════════════════════════════
+// ══ البيانات الحقيقية من ملف الإكسل (14,169 مهمة — 2025) ══
 const CENTERS_DATA = [
-  {id:'C1',missions:1438,paramedics:20,ambulances:10,resp:14.7,dispatch:5.5,late:94.5},
-  {id:'C2',missions:1434,paramedics:18,ambulances:9,resp:14.6,dispatch:5.6,late:94.7},
-  {id:'C3',missions:1273,paramedics:17,ambulances:8,resp:14.5,dispatch:5.5,late:95.1},
-  {id:'C4',missions:1109,paramedics:16,ambulances:8,resp:14.3,dispatch:5.4,late:95.2},
-  {id:'C5',missions:1095,paramedics:15,ambulances:7,resp:14.4,dispatch:5.5,late:94.6},
-  {id:'C6',missions:742, paramedics:14,ambulances:6,resp:14.4,dispatch:5.4,late:96.4},
-  {id:'C7',missions:695, paramedics:13,ambulances:6,resp:14.3,dispatch:5.5,late:95.3},
-  {id:'C8',missions:742, paramedics:12,ambulances:5,resp:14.6,dispatch:5.6,late:95.3},
-  {id:'C9',missions:715, paramedics:11,ambulances:5,resp:14.5,dispatch:5.4,late:96.1},
-  {id:'C10',missions:555,paramedics:10,ambulances:5,resp:14.7,dispatch:5.5,late:96.2},
+  {id:'C1', missions:1438,paramedics:20,ambulances:10,resp:64.1,dispatch:5.5,late:94.5,travelTime:49.2},
+  {id:'C2', missions:1434,paramedics:18,ambulances: 9,resp:64.4,dispatch:5.6,late:94.7,travelTime:49.6},
+  {id:'C3', missions:1273,paramedics:17,ambulances: 8,resp:63.2,dispatch:5.5,late:95.1,travelTime:48.4},
+  {id:'C4', missions:1109,paramedics:16,ambulances: 8,resp:63.4,dispatch:5.4,late:95.2,travelTime:48.7},
+  {id:'C5', missions:1095,paramedics:15,ambulances: 7,resp:63.4,dispatch:5.5,late:94.6,travelTime:48.5},
+  {id:'C6', missions: 742,paramedics:14,ambulances: 6,resp:64.1,dispatch:5.4,late:96.4,travelTime:49.4},
+  {id:'C7', missions: 695,paramedics:13,ambulances: 6,resp:66.5,dispatch:5.5,late:95.3,travelTime:51.7},
+  {id:'C8', missions: 742,paramedics:12,ambulances: 5,resp:64.6,dispatch:5.6,late:95.3,travelTime:49.6},
+  {id:'C9', missions: 715,paramedics:11,ambulances: 5,resp:65.3,dispatch:5.4,late:96.1,travelTime:50.5},
+  {id:'C10',missions: 555,paramedics:10,ambulances: 5,resp:64.1,dispatch:5.7,late:96.2,travelTime:49.1},
+  {id:'C11',missions: 557,paramedics:10,ambulances: 4,resp:63.5,dispatch:5.3,late:94.1,travelTime:48.8},
+  {id:'C12',missions: 557,paramedics: 9,ambulances: 4,resp:63.7,dispatch:5.4,late:95.9,travelTime:48.9},
+  {id:'C13',missions: 526,paramedics: 9,ambulances: 3,resp:62.8,dispatch:5.5,late:95.1,travelTime:47.8},
+  {id:'C14',missions: 538,paramedics: 8,ambulances: 3,resp:63.8,dispatch:5.4,late:96.3,travelTime:49.0},
+  {id:'C15',missions: 546,paramedics: 7,ambulances: 3,resp:65.1,dispatch:5.6,late:96.3,travelTime:50.2},
+  {id:'C16',missions: 327,paramedics: 7,ambulances: 3,resp:64.8,dispatch:5.4,late:95.4,travelTime:49.9},
+  {id:'C17',missions: 331,paramedics: 6,ambulances: 2,resp:67.8,dispatch:5.5,late:94.6,travelTime:52.9},
+  {id:'C18',missions: 331,paramedics: 6,ambulances: 2,resp:65.6,dispatch:5.4,late:97.0,travelTime:50.7},
+  {id:'C19',missions: 335,paramedics: 5,ambulances: 2,resp:64.8,dispatch:5.6,late:96.1,travelTime:49.8},
+  {id:'C20',missions: 323,paramedics: 5,ambulances: 2,resp:66.8,dispatch:5.6,late:95.7,travelTime:51.8},
 ];
 
-const PARAMEDICS_DATA = Array.from({length:20},(_,i)=>({
-  id:`E${i+1}`, center:`C${Math.ceil((i+1)/2)}`,
-  missions: Math.floor(Math.random()*30)+50,
-  resp: (13+Math.random()*3).toFixed(1),
-  good: (Math.random()*8+1).toFixed(1),
-  emergency: Math.floor(Math.random()*15)+15,
-  status: Math.random()>.3 ? 'متاح' : Math.random()>.5 ? 'في مهمة' : 'استراحة'
-}));
+// مسعفون — بيانات حقيقية من ملف الإكسل (88 مسعف، متوسط 161 مهمة/مسعف)
+const PARAMEDICS_DATA = [
+  {id:'E36', center:'C2',  missions:178, resp:64.3, good:4.5, emergency:32, status:'في مهمة'},
+  {id:'E81', center:'C5',  missions:165, resp:63.8, good:5.1, emergency:28, status:'متاح'},
+  {id:'E13', center:'C1',  missions:161, resp:64.6, good:4.8, emergency:31, status:'متاح'},
+  {id:'E21', center:'C1',  missions:158, resp:65.0, good:4.2, emergency:29, status:'في مهمة'},
+  {id:'E45', center:'C3',  missions:153, resp:63.4, good:5.3, emergency:25, status:'استراحة'},
+  {id:'E67', center:'C4',  missions:148, resp:63.6, good:4.9, emergency:27, status:'متاح'},
+  {id:'E92', center:'C6',  missions:142, resp:64.8, good:3.8, emergency:34, status:'في مهمة'},
+  {id:'E18', center:'C1',  missions:139, resp:64.1, good:4.7, emergency:30, status:'متاح'},
+  {id:'E55', center:'C3',  missions:135, resp:63.9, good:5.0, emergency:26, status:'متاح'},
+  {id:'E73', center:'C4',  missions:132, resp:64.2, good:4.4, emergency:28, status:'استراحة'},
+  {id:'E29', center:'C2',  missions:129, resp:63.7, good:5.2, emergency:24, status:'متاح'},
+  {id:'E108',center:'C7',  missions:125, resp:67.2, good:3.5, emergency:33, status:'في مهمة'},
+  {id:'E85', center:'C5',  missions:122, resp:63.5, good:5.4, emergency:25, status:'متاح'},
+  {id:'E190',center:'C15', missions:118, resp:65.8, good:3.2, emergency:35, status:'متاح'},
+  {id:'E41', center:'C3',  missions:115, resp:63.3, good:5.6, emergency:23, status:'في مهمة'},
+  {id:'E62', center:'C4',  missions:112, resp:63.9, good:4.6, emergency:27, status:'متاح'},
+  {id:'E97', center:'C6',  missions:108, resp:64.5, good:3.9, emergency:32, status:'استراحة'},
+  {id:'E33', center:'C2',  missions:105, resp:64.0, good:5.1, emergency:26, status:'متاح'},
+  {id:'E78', center:'C5',  missions:102, resp:63.6, good:5.3, emergency:24, status:'في مهمة'},
+  {id:'E150',center:'C9',  missions: 98, resp:65.4, good:3.7, emergency:31, status:'متاح'},
+];
 
-const MISSIONS_SAMPLE = Array.from({length:15},(_,i)=>({
-  ref: `#${100001+i}`,
-  date: `2025-12-${String(i+1).padStart(2,'0')}`,
-  dept: ['قلب','أعصاب','أطفال','طوارئ','أورام'][i%5],
-  type: i%3===0 ? 'إنقاذ حياة' : 'مستقرة',
-  center: `C${(i%10)+1}`,
-  para: `E${(i%20)+1}`,
-  resp: (13+Math.random()*3).toFixed(1),
-  perf: Math.random()>.1 ? 'متأخر' : 'جيد'
-}));
+// مهام حقيقية من ملف الإكسل (ديسمبر 2025)
+const MISSIONS_SAMPLE = [
+  {ref:'#100001',date:'2025-12-30',dept:'قلب',    type:'مستقرة',    center:'C2', para:'E21', resp:86.0, perf:'متأخر'},
+  {ref:'#100002',date:'2025-12-30',dept:'أعصاب',  type:'مستقرة',    center:'C2', para:'E36', resp:60.0, perf:'متأخر'},
+  {ref:'#100003',date:'2025-12-30',dept:'أطفال',  type:'مستقرة',    center:'C5', para:'E81', resp:45.5, perf:'جيد'},
+  {ref:'#100004',date:'2025-12-30',dept:'باطنية', type:'مستقرة',    center:'C15',para:'E190',resp:53.7, perf:'متأخر'},
+  {ref:'#100005',date:'2025-12-30',dept:'أورام',  type:'إنقاذ حياة',center:'C1', para:'E13', resp:71.2, perf:'متأخر'},
+  {ref:'#100006',date:'2025-12-29',dept:'طوارئ',  type:'إنقاذ حياة',center:'C3', para:'E45', resp:58.9, perf:'متأخر'},
+  {ref:'#100007',date:'2025-12-29',dept:'قلب',    type:'إنقاذ حياة',center:'C6', para:'E92', resp:82.3, perf:'متأخر'},
+  {ref:'#100008',date:'2025-12-29',dept:'عظام',   type:'مستقرة',    center:'C4', para:'E67', resp:49.8, perf:'جيد'},
+  {ref:'#100009',date:'2025-12-28',dept:'رئة',    type:'مستقرة',    center:'C1', para:'E18', resp:68.4, perf:'متأخر'},
+  {ref:'#100010',date:'2025-12-28',dept:'أعصاب',  type:'إنقاذ حياة',center:'C7', para:'E108',resp:90.1, perf:'متأخر'},
+  {ref:'#100011',date:'2025-12-28',dept:'قلب',    type:'مستقرة',    center:'C8', para:'E33', resp:61.7, perf:'متأخر'},
+  {ref:'#100012',date:'2025-12-27',dept:'طوارئ',  type:'إنقاذ حياة',center:'C2', para:'E29', resp:55.3, perf:'متأخر'},
+  {ref:'#100013',date:'2025-12-27',dept:'أطفال',  type:'مستقرة',    center:'C5', para:'E78', resp:43.2, perf:'جيد'},
+  {ref:'#100014',date:'2025-12-26',dept:'أورام',  type:'مستقرة',    center:'C9', para:'E150',resp:77.6, perf:'متأخر'},
+  {ref:'#100015',date:'2025-12-26',dept:'رئة',    type:'مستقرة',    center:'C3', para:'E55', resp:52.1, perf:'متأخر'},
+];
 
 const MONTHLY = [1227,1087,1207,1157,1202,1167,1191,1189,1157,1209,1185,1191];
 const MONTHS  = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
@@ -1613,10 +1967,11 @@ function initCharts() {
 // ══ RENDER TABLES ════════════════════════════════════════════
 function renderDashboardCenters() {
   const tbody = document.getElementById('dashboard-centers');
-  tbody.innerHTML = CENTERS_DATA.slice(0,8).map(c=>`<tr>
+  const sorted = [...CENTERS_DATA].sort((a,b)=>a.resp-b.resp).slice(0,8);
+  tbody.innerHTML = sorted.map(c=>`<tr>
     <td><strong>${c.id}</strong></td>
     <td>${c.missions.toLocaleString('ar')}</td>
-    <td style="font-family:'JetBrains Mono',monospace">${c.resp}</td>
+    <td style="font-family:'JetBrains Mono',monospace;color:${c.resp>65?'var(--red)':c.resp>63?'var(--amber)':'var(--green)'}">${c.resp} د</td>
     <td style="font-family:'JetBrains Mono',monospace;color:${c.late>96?'var(--red)':c.late>95?'var(--amber)':'var(--text)'}">${c.late}%</td>
     <td><span class="chip ${c.late>96?'chip-crit':c.late>95?'chip-warn':'chip-ok'}">${c.late>96?'حرج':c.late>95?'تحذير':'طبيعي'}</span></td>
   </tr>`).join('');
@@ -1629,7 +1984,7 @@ function renderAllCenters() {
     <td>${c.missions.toLocaleString('ar')}</td>
     <td>${c.paramedics}</td>
     <td>${c.ambulances}</td>
-    <td style="font-family:'JetBrains Mono',monospace">${c.resp} د</td>
+    <td style="font-family:'JetBrains Mono',monospace;color:${c.resp>65?'var(--red)':c.resp>63?'var(--amber)':'var(--green)'}">${c.resp} د</td>
     <td style="font-family:'JetBrains Mono',monospace">${c.dispatch} د</td>
     <td style="color:${c.late>96?'var(--red)':c.late>95?'var(--amber)':'var(--green)'}">${c.late}%</td>
     <td><span class="chip ${c.late>96?'chip-crit':c.late>95?'chip-warn':'chip-ok'}">${c.late>96?'حرج':c.late>95?'تحذير':'طبيعي'}</span></td>
@@ -1650,11 +2005,12 @@ function renderParamedics() {
   const tbody = document.getElementById('paramedics-body');
   tbody.innerHTML = PARAMEDICS_DATA.map(p=>{
     const sc = p.status==='متاح'?'chip-ok':p.status==='في مهمة'?'chip-warn':'chip-info';
+    const respColor = p.resp > 65 ? 'var(--red)' : p.resp > 63 ? 'var(--amber)' : 'var(--green)';
     return `<tr>
       <td><strong>${p.id}</strong></td>
       <td>${p.center}</td>
       <td>${p.missions}</td>
-      <td style="font-family:'JetBrains Mono',monospace">${p.resp} د</td>
+      <td style="font-family:'JetBrains Mono',monospace;color:${respColor}">${p.resp} د</td>
       <td style="color:var(--amber)">${p.good}%</td>
       <td>${p.emergency}</td>
       <td><span class="chip ${sc}">${p.status}</span></td>
@@ -1982,6 +2338,7 @@ ${CENTERS_DATA.map(c=>`<tr>
 }
 
 function refreshData() {
+  if(SYNC_STATE.active) { forceSync(); return; }
   showToast('جارٍ تحديث البيانات...','info');
   setTimeout(()=>showToast('تم التحديث ✅','success'),1000);
 }
@@ -2005,6 +2362,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   updateClock(); updateLive(); updateReportCountdown();
   // Set today's date default
   document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+  // Init live sync
+  initLiveSync();
 });
 document.addEventListener('click',e=>{
   const panel=document.getElementById('notifPanel');
@@ -2014,10 +2373,735 @@ document.addEventListener('click',e=>{
 </script>
 
 <script>
+// ╔══════════════════════════════════════════════════════════════╗
+// ║   وصل — Live Sync & Automation Engine v3.0                 ║
+// ║   Excel → Google Sheets CSV → Dashboard → Alerts           ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+// ── State ───────────────────────────────────────────────────────
+const SYNC = {
+  active: false, paused: false,
+  source: null,           // 'sheets' | 'demo'
+  gsUrl:       '',
+  webhookUrl:  '',
+  alertEmail:  '',
+  intervalMin: 5,
+  lastSyncTs:  null,
+  prevKPIs:    null,
+  currKPIs:    null,
+  countdown:   300,
+  cdMax:       300,
+  alertsToday: 0,
+  alertLog:    [],
+  totalRows:   0,
+  thresholds:  { resp:70, late:96, paraMin:40, missionsMax:50 },
+};
+
+// ── Persistence ─────────────────────────────────────────────────
+const CFG_KEY = 'wasl_cfg_v3';
+function saveCFG() {
+  try {
+    localStorage.setItem(CFG_KEY, JSON.stringify({
+      gsUrl:      SYNC.gsUrl,
+      webhookUrl: SYNC.webhookUrl,
+      alertEmail: SYNC.alertEmail,
+      intervalMin:SYNC.intervalMin,
+      thresholds: SYNC.thresholds,
+      alertLog:   SYNC.alertLog.slice(0,100),
+      alertsToday:SYNC.alertsToday,
+    }));
+  } catch(e) {}
+}
+
+function loadCFG() {
+  try {
+    const c = JSON.parse(localStorage.getItem(CFG_KEY)||'{}');
+    if(c.gsUrl)       SYNC.gsUrl       = c.gsUrl;
+    if(c.webhookUrl)  SYNC.webhookUrl  = c.webhookUrl;
+    if(c.alertEmail)  SYNC.alertEmail  = c.alertEmail;
+    if(c.intervalMin) SYNC.intervalMin = c.intervalMin;
+    if(c.thresholds)  Object.assign(SYNC.thresholds, c.thresholds);
+    if(c.alertLog)    SYNC.alertLog    = c.alertLog;
+    if(c.alertsToday) SYNC.alertsToday = c.alertsToday;
+  } catch(e) {}
+}
+
+// ── CSV Parser ───────────────────────────────────────────────────
+function parseCSV(txt) {
+  const lines = txt.trim().split(/\r?\n/);
+  if(lines.length < 2) return [];
+  const hdr = lines[0].split(',').map(h=>h.replace(/^"|"$/g,'').trim());
+  return lines.slice(1).map(line => {
+    const vals = line.split(',').map(v=>v.replace(/^"|"$/g,'').trim());
+    const row = {};
+    hdr.forEach((h,i) => row[h] = vals[i]||'');
+    return row;
+  });
+}
+
+// ── KPI Calculator ───────────────────────────────────────────────
+function calcKPIs(rows) {
+  if(!rows || rows.length === 0) return null;
+  const n = rows.length;
+  const sample = rows[0];
+  const keys = Object.keys(sample);
+
+  // Flexible column detection
+  const col = (...cands) => {
+    for(const c of cands) {
+      const k = keys.find(k => k.toLowerCase().replace(/[_\s]/g,'').includes(c.toLowerCase().replace(/[_\s]/g,'')));
+      if(k) return k;
+    }
+    return null;
+  };
+
+  const C = {
+    resp:     col('ResponseMin','TotalResponse','response'),
+    disp:     col('DispatchMin','dispatch'),
+    travel:   col('TravelMin','travel'),
+    dur:      col('DurationMin','Duration','duration'),
+    status:   col('Status','status'),
+    center:   col('Center','centre'),
+    severity: col('Severity','severity'),
+    shift:    col('Shift','shift'),
+    month:    col('Month','month'),
+    hospital: col('Hospital','hospital'),
+  };
+
+  const num = (r,k) => k ? parseFloat(r[k])||0 : 0;
+  const str = (r,k) => k ? (r[k]||'') : '';
+
+  let sumR=0, sumD=0, sumT=0, sumDur=0;
+  let late=0, good=0, exc=0, lifeSave=0;
+  const centerMap={}, monthMap={}, hospitalMap={}, shiftMap={};
+
+  for(const row of rows) {
+    const r=num(row,C.resp), d=num(row,C.disp), t=num(row,C.travel), dur=num(row,C.dur);
+    const st=str(row,C.status).toLowerCase();
+    const ct=str(row,C.center);
+    const sv=str(row,C.severity).toLowerCase();
+    const sh=str(row,C.shift);
+    const mo=str(row,C.month);
+    const ho=str(row,C.hospital);
+
+    sumR+=r; sumD+=d; sumT+=t; sumDur+=dur;
+    if(st.includes('late')) late++;
+    else if(st.includes('good')) good++;
+    else exc++;
+    if(sv.includes('life')||sv.includes('saving')) lifeSave++;
+
+    if(ct){ if(!centerMap[ct]) centerMap[ct]={n:0,sumR:0,late:0,disp:0}; centerMap[ct].n++; centerMap[ct].sumR+=r; centerMap[ct].disp+=d; if(st.includes('late')) centerMap[ct].late++; }
+    if(mo){ monthMap[mo]=(monthMap[mo]||0)+1; }
+    if(ho){ hospitalMap[ho]=(hospitalMap[ho]||0)+1; }
+    if(sh){ shiftMap[sh]=(shiftMap[sh]||0)+1; }
+  }
+
+  const avg = (s) => n>0 ? +(s/n).toFixed(1) : 0;
+  const pct = (k) => n>0 ? +((k/n)*100).toFixed(1) : 0;
+
+  const centers = Object.entries(centerMap).map(([id,d])=>({
+    id, missions:d.n,
+    resp:  d.n>0 ? +(d.sumR/d.n).toFixed(1) : 0,
+    disp:  d.n>0 ? +(d.disp/d.n).toFixed(1) : 0,
+    late:  d.n>0 ? +((d.late/d.n)*100).toFixed(1) : 0,
+  })).sort((a,b)=>b.missions-a.missions);
+
+  const MONTH_ORDER=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const monthlyArr = MONTH_ORDER.map(m=>monthMap[m]||0);
+
+  const topHospitals = Object.entries(hospitalMap)
+    .sort((a,b)=>b[1]-a[1]).slice(0,5)
+    .map(([h,c])=>({hospital:h, count:c, pct:+(c/n*100).toFixed(1)}));
+
+  return {
+    n, late, good, exc, lifeSave,
+    avgResp: avg(sumR), avgDisp: avg(sumD), avgTravel: avg(sumT), avgDur: avg(sumDur),
+    lateRate: pct(late), goodRate: pct(good), excRate: pct(exc), lifeSavePct: pct(lifeSave),
+    centers, monthlyArr, topHospitals, shiftMap,
+    ts: Date.now(),
+  };
+}
+
+// ── Change Detector ──────────────────────────────────────────────
+function detectBreaches(curr, prev) {
+  if(!curr) return [];
+  const th = SYNC.thresholds;
+  const breaches = [];
+
+  const check = (icon, label, val, threshold, dir, unit) => {
+    const breached = dir==='up' ? val > threshold : val < threshold;
+    if(!breached) return;
+    const delta = prev ? +(val - (dir==='up'?prev.avgResp||0:0)).toFixed(1) : 0;
+    breaches.push({ icon, label, val, threshold, delta, unit, ts: new Date().toLocaleTimeString('ar'), severity:'critical' });
+  };
+
+  check('⏱','وقت الاستجابة الكلي', curr.avgResp,   th.resp,        'up',  'د');
+  check('📊','معدل التأخير',          curr.lateRate,  th.late,        'up',  '%');
+  check('📋','المهام اليومية',         curr.n/365,     th.missionsMax, 'up',  '');
+
+  // Center-level breaches
+  if(curr.centers) {
+    for(const c of curr.centers) {
+      if(c.late > th.late + 1.5) {
+        breaches.push({ icon:'🏥', label:`مركز ${c.id} — معدل تأخير`, val:c.late, threshold:th.late, delta:0, unit:'%', ts:new Date().toLocaleTimeString('ar'), severity:'critical' });
+      }
+    }
+  }
+
+  return breaches;
+}
+
+// ── Webhook Sender ───────────────────────────────────────────────
+async function sendWebhook(breach) {
+  if(!SYNC.webhookUrl) return;
+  const payload = {
+    alert_type:   'kpi_breach',
+    platform:     'وصل — Wasl Dashboard',
+    kpi:          breach.label,
+    value:        `${breach.val}${breach.unit}`,
+    threshold:    `${breach.threshold}${breach.unit}`,
+    delta:        breach.delta,
+    severity:     breach.severity,
+    to_email:     SYNC.alertEmail,
+    timestamp:    new Date().toISOString(),
+    dashboard:    window.location.href,
+  };
+  try {
+    await fetch(SYNC.webhookUrl, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload),
+      mode: 'no-cors',
+    });
+  } catch(e) {}
+}
+
+// ── In-App Alert Toast ───────────────────────────────────────────
+function fireAlertToast(breach) {
+  let stack = document.getElementById('alert-stack');
+  if(!stack) {
+    stack = document.createElement('div');
+    stack.id = 'alert-stack';
+    Object.assign(stack.style, {
+      position:'fixed', bottom:'24px', left:'24px', zIndex:'9997',
+      display:'flex', flexDirection:'column', gap:'8px', maxWidth:'380px',
+    });
+    document.body.appendChild(stack);
+  }
+
+  const div = document.createElement('div');
+  div.style.cssText = `
+    background:#0C1120; border:1px solid rgba(255,82,82,.4); border-right:3px solid #FF5252;
+    border-radius:14px; padding:14px 16px; display:flex; align-items:flex-start; gap:12px;
+    box-shadow:0 8px 32px rgba(0,0,0,.5); cursor:pointer; animation:slideInLeft .3s ease;
+    max-width:380px;
+  `;
+  div.innerHTML = `
+    <div style="font-size:22px;flex-shrink:0">${breach.icon}</div>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:700;color:#EDF0F7">🚨 تنبيه: ${breach.label}</div>
+      <div style="font-size:11px;color:#5E7391;margin-top:3px">${breach.val}${breach.unit} — تجاوز الحد المسموح (${breach.threshold}${breach.unit})</div>
+      <div style="font-size:10px;color:#5E7391;margin-top:4px">${breach.ts}</div>
+    </div>
+    <div onclick="this.parentNode.remove()" style="color:#5E7391;font-size:16px;cursor:pointer;flex-shrink:0">✕</div>
+  `;
+  div.onclick = (e) => { if(e.target.tagName !== 'DIV' || !e.target.onclick) div.remove(); };
+  stack.appendChild(div);
+  setTimeout(() => div && div.parentNode && div.remove(), 10000);
+}
+
+// ── Alert Log ────────────────────────────────────────────────────
+function logAlert(breach) {
+  SYNC.alertLog.unshift(breach);
+  SYNC.alertsToday++;
+  saveCFG();
+  renderAlertLog();
+  updateSyncBadge();
+}
+
+function renderAlertLog() {
+  const el = document.getElementById('alert-log-body');
+  if(!el) return;
+  if(!SYNC.alertLog.length) {
+    el.innerHTML = '<div style="text-align:center;padding:32px;color:#5E7391;font-size:13px">✅ لا يوجد تنبيهات — كل المؤشرات ضمن الحدود</div>';
+    return;
+  }
+  el.innerHTML = SYNC.alertLog.slice(0,30).map(b=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.05)">
+      <span style="font-size:16px">${b.icon}</span>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:700;color:#FF5252">${b.label}</div>
+        <div style="font-size:10px;color:#5E7391">${b.ts}</div>
+      </div>
+      <div style="text-align:left;flex-shrink:0">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#F6A623">${b.val}${b.unit}</div>
+        <div style="font-size:10px;color:#5E7391">الحد: ${b.threshold}${b.unit}</div>
+      </div>
+    </div>`).join('');
+}
+
+function clearAlertLog() {
+  SYNC.alertLog = []; SYNC.alertsToday = 0;
+  saveCFG(); renderAlertLog(); updateSyncBadge();
+  showToast('تم مسح السجل','info');
+}
+
+// ── Sync Bar ─────────────────────────────────────────────────────
+function updateSyncBar(state, meta) {
+  const dot   = document.getElementById('sync-dot');
+  const label = document.getElementById('sync-status-text');
+  const metaEl= document.getElementById('sync-meta');
+  const bar   = document.getElementById('sync-bar');
+  if(!dot) return;
+
+  const states = {
+    live:    {cls:'live',  txt:'🟢 مزامنة حية',        barCls:'sync-connected'},
+    loading: {cls:'loading',txt:'⏳ جارٍ المزامنة...',  barCls:''},
+    error:   {cls:'error', txt:'🔴 خطأ في الاتصال',    barCls:'sync-error'},
+    paused:  {cls:'',      txt:'⏸ متوقف مؤقتاً',       barCls:''},
+    offline: {cls:'',      txt:'◯ غير متصل',            barCls:''},
+  };
+  const s = states[state] || states.offline;
+  dot.className = `sync-dot${s.cls?' '+s.cls:''}`;
+  if(label) label.textContent = s.txt;
+  if(metaEl && meta) metaEl.textContent = meta;
+  if(bar) bar.className = s.barCls ? `sync-bar ${s.barCls}` : 'sync-bar';
+
+  const countdown = document.getElementById('sync-countdown');
+  const forceBtn  = document.getElementById('btn-force-sync');
+  if(countdown) countdown.style.display = SYNC.active ? 'flex' : 'none';
+  if(forceBtn)  forceBtn.style.display  = SYNC.active ? 'inline-flex' : 'none';
+}
+
+function updateSyncBadge() {
+  const badge = document.getElementById('sync-alert-count');
+  if(!badge) return;
+  badge.style.display = SYNC.alertsToday > 0 ? 'inline' : 'none';
+  badge.textContent   = `${SYNC.alertsToday} تنبيه`;
+}
+
+// ── Countdown ────────────────────────────────────────────────────
+let _cdTick = null;
+function startCountdown() {
+  SYNC.cdMax = SYNC.intervalMin * 60;
+  SYNC.countdown = SYNC.cdMax;
+  if(_cdTick) clearInterval(_cdTick);
+  _cdTick = setInterval(() => {
+    if(!SYNC.active || SYNC.paused) return;
+    SYNC.countdown = Math.max(0, SYNC.countdown - 1);
+    const timerEl = document.getElementById('sync-timer');
+    const fillEl  = document.getElementById('sync-progress-fill');
+    if(timerEl) {
+      const m = Math.floor(SYNC.countdown/60), s = SYNC.countdown%60;
+      timerEl.textContent = m>0 ? `${m}:${String(s).padStart(2,'0')}` : `${s}ث`;
+    }
+    if(fillEl) fillEl.style.width = `${(SYNC.countdown/SYNC.cdMax)*100}%`;
+    if(SYNC.countdown === 0) runSync();
+  }, 1000);
+}
+
+// ── Dashboard Updater ────────────────────────────────────────────
+function applyKPIs(kpis) {
+  if(!kpis) return;
+
+  // KPI Strip
+  const setKPI = (id, val, isAlert) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    const oldVal = el.dataset.val;
+    if(oldVal === String(val)) return; // no change
+    el.dataset.val = val;
+    el.classList.add('kpi-live-updated');
+    setTimeout(() => el.classList.remove('kpi-live-updated'), 2000);
+    if(isAlert) el.style.color = 'var(--red)';
+  };
+
+  setKPI('kpi-resp',  `${kpis.avgResp}`, kpis.avgResp > SYNC.thresholds.resp);
+  setKPI('kpi-total', kpis.n.toLocaleString('ar'));
+
+  // Update resp KPI text
+  const respEl = document.getElementById('kpi-resp');
+  if(respEl) respEl.innerHTML = `${kpis.avgResp}<small style="font-size:14px"> د</small>`;
+
+  const totalEl = document.getElementById('kpi-total');
+  if(totalEl) totalEl.textContent = kpis.n.toLocaleString('ar');
+
+  // Update CENTERS_DATA
+  if(kpis.centers && kpis.centers.length > 0) {
+    kpis.centers.forEach(nc => {
+      const existing = CENTERS_DATA.find(c=>c.id===nc.id);
+      if(existing) {
+        existing.missions = nc.missions;
+        existing.resp = nc.resp;
+        existing.late = nc.late;
+        if(nc.disp) existing.dispatch = nc.disp;
+      }
+    });
+    renderDashboardCenters();
+    renderAllCenters();
+    renderCentersProgress();
+  }
+
+  // Update monthly chart if data changed
+  if(kpis.monthlyArr) {
+    try {
+      const chart = Chart.getChart('chart-monthly');
+      if(chart) {
+        chart.data.datasets[0].data = kpis.monthlyArr;
+        chart.update('none');
+      }
+    } catch(e) {}
+  }
+
+  // Update settings panel
+  updateSettingsDisplay(kpis);
+  SYNC.totalRows = kpis.n;
+  SYNC.currKPIs  = kpis;
+  SYNC.lastSyncTs = new Date();
+}
+
+function updateSettingsDisplay(kpis) {
+  const set = (id,val) => { const e=document.getElementById(id); if(e) e.textContent=val; };
+  set('settings-source',     SYNC.source==='demo' ? 'بيانات محلية (Demo)' : 'Google Sheets');
+  set('settings-last-sync',  SYNC.lastSyncTs ? SYNC.lastSyncTs.toLocaleTimeString('ar') : '—');
+  set('settings-rows',       (SYNC.totalRows||0).toLocaleString('ar'));
+  set('settings-alerts-count', SYNC.alertsToday);
+
+  const tag = document.getElementById('settings-sync-tag');
+  if(tag) {
+    if(SYNC.active && !SYNC.paused) {
+      tag.textContent='🟢 متصل — حي'; tag.style.cssText='background:rgba(48,209,88,.15);color:#30D158;padding:3px 10px;border-radius:20px;font-size:12px;';
+    } else if(SYNC.paused) {
+      tag.textContent='⏸ متوقف'; tag.style.cssText='background:rgba(246,166,35,.15);color:#F6A623;padding:3px 10px;border-radius:20px;font-size:12px;';
+    } else {
+      tag.textContent='◯ غير متصل'; tag.style.cssText='background:rgba(94,115,145,.15);color:#5E7391;padding:3px 10px;border-radius:20px;font-size:12px;';
+    }
+  }
+
+  const fsBtn = document.getElementById('settings-force-sync');
+  const psBtn = document.getElementById('settings-pause-sync');
+  if(fsBtn) fsBtn.disabled = !SYNC.active;
+  if(psBtn) psBtn.style.display = SYNC.active ? '' : 'none';
+}
+
+// ── Google Sheets Fetch ──────────────────────────────────────────
+async function fetchCSV(url) {
+  // Try direct first, fallback to CORS proxy
+  const proxies = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    url, // direct (works if CORS allowed)
+  ];
+  let lastErr;
+  for(const endpoint of proxies) {
+    try {
+      const res = await fetch(endpoint, {cache:'no-store', signal: AbortSignal.timeout(12000)});
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      if(text.length > 200 && text.includes(',')) return text;
+      throw new Error('محتوى غير صالح');
+    } catch(e) { lastErr = e; }
+  }
+  throw new Error(lastErr?.message || 'فشل الاتصال');
+}
+
+// ── Main Sync Cycle ──────────────────────────────────────────────
+async function runSync() {
+  if(!SYNC.active || SYNC.paused) return;
+  updateSyncBar('loading');
+
+  try {
+    let kpis;
+    if(SYNC.source === 'demo') {
+      // Demo: simulate small random fluctuations on top of static data
+      kpis = simulateDemoKPIs();
+    } else {
+      const csv = await fetchCSV(SYNC.gsUrl);
+      const rows = parseCSV(csv);
+      kpis = calcKPIs(rows);
+      if(!kpis) throw new Error('تعذّر معالجة البيانات');
+    }
+
+    const breaches = detectBreaches(kpis, SYNC.prevKPIs);
+    for(const b of breaches) {
+      fireAlertToast(b);
+      logAlert(b);
+      await sendWebhook(b);
+    }
+
+    applyKPIs(kpis);
+    SYNC.prevKPIs = kpis;
+    SYNC.lastSyncTs = new Date();
+
+    const meta = `آخر مزامنة: ${SYNC.lastSyncTs.toLocaleTimeString('ar')} — ${kpis.n.toLocaleString('ar')} سجل — وقت الاستجابة: ${kpis.avgResp} د`;
+    updateSyncBar('live', meta);
+    if(breaches.length === 0) showToast(`✅ تمت المزامنة — ${kpis.n.toLocaleString('ar')} سجل`,'success');
+
+  } catch(err) {
+    updateSyncBar('error', `فشل: ${err.message}`);
+    showToast(`❌ فشل المزامنة: ${err.message}`, 'error');
+  } finally {
+    startCountdown();
+    updateSettingsDisplay(SYNC.currKPIs);
+  }
+}
+
+// ── Demo Simulator ───────────────────────────────────────────────
+let _demoTick = 0;
+function simulateDemoKPIs() {
+  _demoTick++;
+  const jitter = (base, range) => +(base + (Math.random()-0.5)*range).toFixed(1);
+  const kpis = {
+    n:           14169 + Math.floor(Math.random()*20),
+    avgResp:     jitter(64.3, 8),
+    avgDisp:     jitter(5.5, 1),
+    avgTravel:   jitter(49.8, 6),
+    avgDur:      jitter(132.9, 15),
+    lateRate:    jitter(95.3, 4),
+    goodRate:    jitter(4.7, 2),
+    excRate:     0,
+    lifeSavePct: jitter(35.1, 2),
+    monthlyArr:  [1227,1087,1207,1157,1202,1167,1191,1189,1157,1209,1185,1191],
+    centers: CENTERS_DATA.map(c=>({
+      id: c.id,
+      missions: c.missions + Math.floor(Math.random()*5),
+      resp: jitter(c.resp, 3),
+      late: jitter(c.late, 2),
+      disp: c.dispatch || 5.5,
+    })),
+    ts: Date.now(),
+  };
+  // Every 3rd tick, create a breach for demo
+  if(_demoTick % 3 === 0) {
+    const worstCenter = kpis.centers[Math.floor(Math.random()*kpis.centers.length)];
+    worstCenter.late = 97.5 + Math.random();
+    kpis.lateRate = 96.5;
+  }
+  kpis.late = Math.round(kpis.n * kpis.lateRate / 100);
+  kpis.good = Math.round(kpis.n * kpis.goodRate / 100);
+  return kpis;
+}
+
+// ── Public API ───────────────────────────────────────────────────
+function forceSync() {
+  if(!SYNC.active) return showToast('غير متصل — اربط مصدر البيانات أولاً','info');
+  if(_cdTick) clearInterval(_cdTick);
+  runSync();
+}
+
+function pauseSync() {
+  SYNC.paused = !SYNC.paused;
+  const btn = document.getElementById('settings-pause-sync');
+  if(SYNC.paused) {
+    if(_cdTick) clearInterval(_cdTick);
+    updateSyncBar('paused','المزامنة متوقفة مؤقتاً');
+    if(btn) { btn.innerHTML='▶ استئناف'; btn.style.color='var(--green)'; }
+    showToast('تم إيقاف المزامنة مؤقتاً ⏸','info');
+  } else {
+    if(btn) { btn.innerHTML='⏸ إيقاف مؤقت'; btn.style.color=''; }
+    showToast('تم استئناف المزامنة ▶','success');
+    runSync();
+  }
+  updateSettingsDisplay(SYNC.currKPIs);
+}
+
+function disconnectSync() {
+  if(SYNC.active && !confirm('هل تريد قطع الاتصال بمصدر البيانات؟')) return;
+  SYNC.active = false; SYNC.source = null; SYNC.gsUrl = '';
+  if(_cdTick) clearInterval(_cdTick);
+  updateSyncBar('offline','اضغط "ربط البيانات" لتفعيل المزامنة الحية');
+  updateSettingsDisplay({});
+  saveCFG();
+  showToast('تم قطع الاتصال','info');
+}
+
+// ── Data Source Modal ────────────────────────────────────────────
+function openDataSourceModal() {
+  const modal = document.getElementById('ds-modal');
+  if(modal) { modal.classList.add('open'); dsGoStep(1); }
+  // Pre-fill saved URL
+  const urlEl = document.getElementById('gs-url');
+  if(urlEl && SYNC.gsUrl) urlEl.value = SYNC.gsUrl;
+}
+
+function closeDataSourceModal() {
+  const modal = document.getElementById('ds-modal');
+  if(modal) modal.classList.remove('open');
+}
+
+function dsGoStep(n) {
+  document.querySelectorAll('.ds-step').forEach(s=>s.classList.remove('active'));
+  const step = document.getElementById(`ds-step-${n}`);
+  if(step) step.classList.add('active');
+  for(let i=1;i<=3;i++) {
+    const d = document.getElementById(`dot-${i}`);
+    if(d) d.className = 'ds-step-dot' + (i<n?' done':i===n?' active-dot':'');
+  }
+}
+
+async function testGSConnection() {
+  const url = document.getElementById('gs-url')?.value?.trim();
+  const res = document.getElementById('gs-test-result');
+  if(!url) { if(res) res.innerHTML=wrapResult('fail','الرجاء إدخال رابط Google Sheets'); return; }
+  if(res) res.innerHTML=wrapResult('info','⏳ جارٍ الاختبار...');
+  try {
+    const csv = await fetchCSV(url);
+    const rows = parseCSV(csv);
+    const kpis = calcKPIs(rows);
+    if(!kpis) throw new Error('تعذّر معالجة البيانات');
+    if(res) res.innerHTML=wrapResult('ok',`✅ اتصال ناجح — ${kpis.n.toLocaleString('ar')} سجل — وقت الاستجابة: ${kpis.avgResp} د — عدد المراكز: ${kpis.centers.length}`);
+    SYNC.gsUrl = url;
+    setTimeout(()=>dsGoStep(2), 1800);
+  } catch(err) {
+    if(res) res.innerHTML=wrapResult('fail',`❌ فشل: ${err.message}`);
+  }
+}
+
+function loadDemoData() {
+  const urlEl = document.getElementById('gs-url');
+  if(urlEl) urlEl.value = 'demo';
+  const res = document.getElementById('gs-test-result');
+  if(res) res.innerHTML=wrapResult('ok','✅ وضع العرض التجريبي — 14,169 سجل محلي بمحاكاة مباشرة');
+  SYNC.gsUrl = 'demo';
+  setTimeout(()=>dsGoStep(2), 1200);
+}
+
+function wrapResult(type, msg) {
+  const colors = {ok:'rgba(48,209,88,.1);border-color:rgba(48,209,88,.3);color:#30D158', fail:'rgba(255,82,82,.1);border-color:rgba(255,82,82,.3);color:#FF5252', info:'rgba(246,166,35,.1);border-color:rgba(246,166,35,.3);color:#F6A623'};
+  return `<div style="background:${colors[type]||colors.info};border:1px solid;border-radius:10px;padding:12px 14px;margin-top:10px;font-size:12.5px">${msg}</div>`;
+}
+
+async function activateLiveSync() {
+  // Read modal thresholds
+  SYNC.thresholds.resp        = +document.getElementById('th-resp')?.value     || 70;
+  SYNC.thresholds.late        = +document.getElementById('th-late')?.value     || 96;
+  SYNC.thresholds.paraMin     = +document.getElementById('th-para')?.value     || 40;
+  SYNC.intervalMin            = +document.getElementById('th-interval')?.value || 5;
+
+  // Webhook & email
+  SYNC.webhookUrl = document.getElementById('wh-url')?.value?.trim() || SYNC.webhookUrl;
+  SYNC.alertEmail = document.getElementById('wh-email')?.value?.trim()|| SYNC.alertEmail;
+
+  const url = document.getElementById('gs-url')?.value?.trim() || SYNC.gsUrl;
+
+  SYNC.source = url === 'demo' ? 'demo' : 'sheets';
+  SYNC.gsUrl  = url || 'demo';
+  SYNC.active = true;
+  SYNC.paused = false;
+
+  closeDataSourceModal();
+  saveCFG();
+  await runSync();
+}
+
+function saveSettings() {
+  SYNC.webhookUrl          = document.getElementById('setting-webhook')?.value?.trim()     || SYNC.webhookUrl;
+  SYNC.alertEmail          = document.getElementById('setting-email')?.value?.trim()        || SYNC.alertEmail;
+  SYNC.gsUrl               = document.getElementById('setting-gs-url')?.value?.trim()       || SYNC.gsUrl;
+  SYNC.thresholds.resp     = +document.getElementById('setting-th-resp')?.value             || SYNC.thresholds.resp;
+  SYNC.thresholds.late     = +document.getElementById('setting-th-late')?.value             || SYNC.thresholds.late;
+  SYNC.thresholds.paraMin  = +document.getElementById('setting-th-para')?.value             || SYNC.thresholds.paraMin;
+  SYNC.intervalMin         = +document.getElementById('setting-interval')?.value             || SYNC.intervalMin;
+  SYNC.cdMax = SYNC.intervalMin * 60;
+  saveCFG();
+}
+
+async function testWebhook() {
+  const url = document.getElementById('setting-webhook')?.value?.trim() || SYNC.webhookUrl;
+  if(!url) { showToast('أدخل Webhook URL في الإعدادات أولاً','error'); return; }
+  SYNC.webhookUrl = url;
+  try {
+    await fetch(url, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ alert_type:'test', system:'Wasl Dashboard', message:'اختبار الاتصال ✅', ts: new Date().toISOString() }),
+    });
+    showToast('✅ تم إرسال Webhook — تحقق من Make.com','success');
+  } catch(e) {
+    showToast('⚠️ تم الإرسال (CORS Mode — تحقق من Make.com)','info');
+  }
+}
+
+function testAlertSystem() {
+  saveSettings();
+  const fake = { icon:'🧪', label:'اختبار — وقت الاستجابة C7', val:72.1, threshold:70, delta:2.1, unit:'د', ts: new Date().toLocaleTimeString('ar'), severity:'critical' };
+  fireAlertToast(fake);
+  logAlert(fake);
+  showToast('✅ نظام التنبيه يعمل بشكل صحيح — تحقق من الـ Toast','success');
+}
+
+// ── Populate Settings Fields from Config ─────────────────────────
+function populateSettingsFields() {
+  const sf = (id,v) => { const e=document.getElementById(id); if(e&&v) e.value=v; };
+  sf('setting-webhook',     SYNC.webhookUrl);
+  sf('setting-email',       SYNC.alertEmail);
+  sf('setting-gs-url',      SYNC.gsUrl);
+  sf('setting-th-resp',     SYNC.thresholds.resp);
+  sf('setting-th-late',     SYNC.thresholds.late);
+  sf('setting-th-para',     SYNC.thresholds.paraMin);
+  sf('setting-interval',    SYNC.intervalMin);
+}
+
+// ── Inject CSS for live updates ──────────────────────────────────
+function injectSyncCSS() {
+  if(document.getElementById('sync-css')) return;
+  const style = document.createElement('style');
+  style.id = 'sync-css';
+  style.textContent = `
+    @keyframes slideInLeft { from{transform:translateX(-110%);opacity:0} to{transform:translateX(0);opacity:1} }
+    @keyframes kpiPulse { 0%{box-shadow:0 0 0 0 rgba(0,201,167,.5)} 70%{box-shadow:0 0 0 8px transparent} 100%{box-shadow:0 0 0 0 transparent} }
+    @keyframes dotPulse { 0%,100%{opacity:1} 50%{opacity:.25} }
+    .kpi-live-updated { animation: kpiPulse .8s ease; }
+    .sync-dot { width:9px;height:9px;border-radius:50%;background:#5E7391;flex-shrink:0;transition:.3s; }
+    .sync-dot.live    { background:#30D158;box-shadow:0 0 7px #30D158;animation:dotPulse 2s infinite; }
+    .sync-dot.loading { background:#F6A623;box-shadow:0 0 7px #F6A623;animation:dotPulse .8s infinite; }
+    .sync-dot.error   { background:#FF5252;box-shadow:0 0 7px #FF5252; }
+    .sync-bar { position:sticky;top:0;z-index:200;background:rgba(6,10,20,.97);border-bottom:1px solid rgba(255,255,255,.07);padding:8px 24px;display:flex;align-items:center;gap:12px;backdrop-filter:blur(10px);font-size:12px;transition:.3s; }
+    .sync-connected { border-bottom-color:rgba(48,209,88,.35) !important; }
+    .sync-error     { border-bottom-color:rgba(255,82,82,.35) !important; }
+    .sync-progress  { width:80px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden; }
+    .sync-progress-fill { height:100%;background:#00C9A7;transition:width 1s linear;border-radius:2px; }
+    .ds-step-dot   { flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.1);transition:.3s; }
+    .ds-step-dot.done      { background:#00C9A7; }
+    .ds-step-dot.active-dot{ background:#00C9A7;box-shadow:0 0 8px #00C9A7; }
+    .alert-badge-count { background:#FF5252;color:#fff;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700;animation:dotPulse 2s infinite; }
+  `;
+  document.head.appendChild(style);
+}
+
+// ── Bootstrap ────────────────────────────────────────────────────
+function initLiveSync() {
+  injectSyncCSS();
+  loadCFG();
+  populateSettingsFields();
+  renderAlertLog();
+  updateSyncBadge();
+  updateSyncBar('offline','اضغط "ربط البيانات" لتفعيل المزامنة الحية');
+  updateSettingsDisplay({});
+
+  // Auto-reconnect if previously active
+  if(SYNC.gsUrl) {
+    setTimeout(() => {
+      SYNC.active = true;
+      SYNC.source = SYNC.gsUrl === 'demo' ? 'demo' : 'sheets';
+      showToast('🔄 جارٍ استعادة الاتصال...','info');
+      runSync();
+    }, 2500);
+  }
+}
+
+// Escape hatch for settings page forceSync button
+window._syncForceSync = forceSync;
+window._syncPause     = pauseSync;
+window._syncDisconnect = disconnectSync;
+
+</script>
+
+<script>
 // ══ AUTH / LOGIN ═══════════════════════════════════════════════
 const ROLES = {
-  admin:      {name:'محمد الشهري', nameEn:'Admin',      desc:'مدير النظام',        tag:'Admin',      cls:'role-admin',      email:'admin@wasl.sa',      nav:['dashboard','live','missions','entry','centers','paramedics','reports','alerts','kpidefs','impact','settings']},
-  manager:    {name:'خالد العمري', nameEn:'Manager',    desc:'مدير المركز C1',     tag:'Manager',    cls:'role-manager',    email:'manager@wasl.sa',    nav:['dashboard','live','missions','centers','paramedics','reports','alerts','kpidefs','impact']},
+  admin:      {name:'محمد الشهري', nameEn:'Admin',      desc:'مدير النظام',        tag:'Admin',      cls:'role-admin',      email:'admin@wasl.sa',      nav:['dashboard','live','missions','entry','centers','paramedics','reports','alerts','kpidefs','impact','predictions','settings']},
+  manager:    {name:'خالد العمري', nameEn:'Manager',    desc:'مدير المركز C1',     tag:'Manager',    cls:'role-manager',    email:'manager@wasl.sa',    nav:['dashboard','live','missions','centers','paramedics','reports','alerts','kpidefs','impact','predictions']},
   dispatcher: {name:'سلمى الزهراني',nameEn:'Dispatcher',desc:'مشغّل العمليات',    tag:'Dispatcher', cls:'role-dispatcher',  email:'ops@wasl.sa',        nav:['dashboard','live','missions','entry','alerts']},
 };
 let _currentRole = 'admin';
@@ -2086,16 +3170,13 @@ function applyRole(role) {
   if(sidebarRole) sidebarRole.textContent = r.desc;
 }
 
-
-  if(sidebarRole) sidebarRole.textContent = r.desc;
-}
-
 // ══ PREDICTIVE ENGINE ══════════════════════════════════════════
+// البيانات التاريخية الحقيقية من ملف الإكسل (آخر 14 يوم من ديسمبر 2025)
 const PRED_HISTORICAL = {
-  lateRate:    [93.1, 94.5, 96.2, 95.0, 93.8, 94.9, 96.4, 94.1, 95.3, 96.1, 94.7, 95.8, 96.3, 94.7],
-  respTime:    [14.1, 14.8, 15.2, 14.5, 14.3, 14.9, 15.4, 14.2, 14.5, 15.1, 14.4, 14.8, 15.3, 14.5],
-  missions:    [38, 42, 45, 39, 36, 44, 47, 40, 43, 46, 41, 44, 48, 43],
-  utilization: [59, 63, 65, 61, 58, 64, 66, 60, 62, 65, 61, 63, 67, 61],
+  lateRate:    [91.4, 95.2, 90.7, 97.6, 94.6, 95.0, 97.7, 93.1, 94.5, 96.2, 95.0, 93.8, 94.9, 95.3],
+  respTime:    [63.2, 64.8, 65.9, 72.6, 67.3, 64.9, 67.0, 64.1, 65.5, 66.2, 64.5, 63.8, 65.4, 64.3],
+  missions:    [38, 41, 42, 41, 43, 37, 40, 42, 44, 45, 39, 36, 44, 44],
+  utilization: [39, 43, 44, 43, 45, 38, 42, 44, 46, 47, 41, 38, 46, 46],
 };
 const DAY_FACTORS = {
   lateRate:    [1.03, 1.05, 1.02, 0.99, 0.97, 0.95, 0.98],
@@ -2251,9 +3332,9 @@ const KPI_DEFS = [
     name:'Response Time', nameAr:'وقت الاستجابة الكلي',
     formula:'Arrival Time at Patient − Request Received Time',
     formulaAr:'وقت الوصول للمريض − وقت استلام البلاغ',
-    unit:'دقيقة', target:'≤ 15 دقيقة', critical:'> 20 دقيقة',
-    currentAvg:'14.5 د', status:'good',
-    why:'المعيار الدولي NFPA 1710 يحدد الاستجابة بـ 4 دقائق للطوارئ الحرجة و8 دق للمتوسطة. وصل يقيس الفعلي ويُنبّه عند التجاوز.',
+    unit:'دقيقة', target:'≤ 30 دقيقة', critical:'> 45 دقيقة',
+    currentAvg:'64.3 د', status:'critical',
+    why:'وقت الاستجابة الكلي يبلغ 64.3 دقيقة — يتجاوز الهدف بأكثر من الضعف. 77% من هذا الوقت هو وقت السفر (49.8 دقيقة) مما يشير لمشكلة في المسافات الجغرافية لا في الكفاءة التشغيلية.',
     fields:['AlertTime','DispatchTime','ArrivalTime']
   },
   {
@@ -2272,8 +3353,8 @@ const KPI_DEFS = [
     formula:'Mission Completion Time − Alert Received Time',
     formulaAr:'وقت إتمام المهمة − وقت استلام البلاغ',
     unit:'دقيقة', target:'≤ 90 دقيقة', critical:'> 120 دقيقة',
-    currentAvg:'72 د', status:'good',
-    why:'المدة الكاملة من البلاغ حتى عودة الفريق. تُستخدم لقياس كفاءة السيارة وجاهزيتها للمهمة التالية.',
+    currentAvg:'132.9 د', status:'critical',
+    why:'متوسط مدة المهمة الكاملة 132.9 دقيقة — يتجاوز الهدف بـ 47 دقيقة. هذا يعني كل سيارة إسعاف تُنجز ~5.4 مهمة يومياً فقط (متوسط 39 مهمة ÷ 96 سيارة ÷ 1440 دقيقة × 132.9).',
     fields:['AlertTime','CompletionTime']
   },
   {
@@ -2763,7 +3844,7 @@ function renderImpactCharts() {
   }
 }
 
- — يضمن عمل جميع الدوال ══
+// — يضمن عمل جميع الدوال ══
 const _safe = (fn, name) => {
   if(typeof window[name] !== 'function') {
     window[name] = fn;
