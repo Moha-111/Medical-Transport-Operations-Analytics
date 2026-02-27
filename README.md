@@ -273,7 +273,17 @@ We are actively seeking support from Saudi Arabia's leading innovation programs:
 
 ---
 
-## 🔒 Privacy & Security
+## 📂 Data & Templates
+
+[![Raw Data](https://img.shields.io/badge/Raw%20Data-Google%20Sheets-34A853?style=for-the-badge&logo=googlesheets&logoColor=white)](https://docs.google.com/spreadsheets/d/1lFtHLgycKMlTFfpC4YbL_Dsvn2ZprOJARc1imcIBF0g/edit?usp=sharing)
+[![Templates](https://img.shields.io/badge/Field%20Templates-Google%20Sheets-34A853?style=for-the-badge&logo=googlesheets&logoColor=white)](https://docs.google.com/spreadsheets/d/1-ZUjvnIdeTTqLc3Z-nyYd8Csftds2e6l/edit?usp=sharing)
+
+| الملف | الوصف | الرابط |
+|-------|-------|--------|
+| 📊 **البيانات الخام** | 14,169 مهمة نقل × 25 متغير | [فتح في Google Sheets](https://docs.google.com/spreadsheets/d/1lFtHLgycKMlTFfpC4YbL_Dsvn2ZprOJARc1imcIBF0g/edit?usp=sharing) |
+| 📋 **نماذج الميدان** | بلاغ المسعف + تشيك الإسعاف + تسليم الوردية | [فتح في Google Sheets](https://docs.google.com/spreadsheets/d/1-ZUjvnIdeTTqLc3Z-nyYd8Csftds2e6l/edit?usp=sharing) |
+
+---
 
 > **Current Status:** All data in this repository is **synthetic/demo data** generated for hackathon purposes only. No real patient information is included.
 
