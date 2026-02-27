@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>وصل × Claude Code — محمد الشهري</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --teal:    #00C9A7;
+    --blue:    #0098DB;
+    --purple:  #7C3AED;
+    --gold:    #F59E0B;
+    --red:     #EF4444;
+    --bg:      #0A0E1A;
+    --surface: #111827;
+    --surface2:#1F2937;
+    --border:  rgba(255,255,255,.08);
+    --text:    #F9FAFB;
+    --muted:   #9CA3AF;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    font-family: 'Cairo', 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+  }
+
+  /* ── SLIDE CONTAINER ─────────────────────────── */
+  .deck {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 48px;
+    opacity: 0;
+    transform: translateX(80px);
+    transition: opacity .55s cubic-bezier(.4,0,.2,1), transform .55s cubic-bezier(.4,0,.2,1);
+    pointer-events: none;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: all;
+  }
+  .slide.exit {
+    opacity: 0;
+    transform: translateX(-80px);
+  }
+
+  /* ── NAV ──────────────────────────────────────── */
+  .nav {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 99;
+  }
+  .nav-btn {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,.06);
+    color: var(--text);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .2s;
+    backdrop-filter: blur(8px);
+  }
+  .nav-btn:hover { background: rgba(0,201,167,.2); border-color: var(--teal); }
+  .dots { display: flex; gap: 6px; }
+  .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--muted); cursor: pointer;
+    transition: all .3s;
+  }
+  .dot.active { background: var(--teal); width: 22px; border-radius: 3px; }
+  .slide-num {
+    font-size: 12px; color: var(--muted);
+    min-width: 40px; text-align: center;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* ── PROGRESS BAR ─────────────────────────────── */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--teal), var(--blue));
+    transition: width .4s ease;
+    z-index: 100;
+  }
+
+  /* ── GLOBAL HELPERS ───────────────────────────── */
+  .tag {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+  }
+  .tag-teal  { background: rgba(0,201,167,.15); color: var(--teal); border: 1px solid rgba(0,201,167,.3); }
+  .tag-blue  { background: rgba(0,152,219,.15); color: var(--blue); border: 1px solid rgba(0,152,219,.3); }
+  .tag-purple{ background: rgba(124,58,237,.15); color: #A78BFA;  border: 1px solid rgba(124,58,237,.3); }
+  .tag-gold  { background: rgba(245,158,11,.15); color: var(--gold); border: 1px solid rgba(245,158,11,.3); }
+
+  .glow-teal  { box-shadow: 0 0 40px rgba(0,201,167,.25); }
+  .glow-blue  { box-shadow: 0 0 40px rgba(0,152,219,.25); }
+  .glow-purple{ box-shadow: 0 0 40px rgba(124,58,237,.25); }
+
+  /* gradient text */
+  .grad-text {
+    background: linear-gradient(135deg, var(--teal), var(--blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .grad-text-gold {
+    background: linear-gradient(135deg, #F59E0B, #EF4444);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .grad-text-purple {
+    background: linear-gradient(135deg, var(--purple), var(--blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── ANIMATED BG GRID ─────────────────────────── */
+  .bg-grid {
+    position: fixed; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(0,201,167,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,201,167,.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridScroll 20s linear infinite;
+  }
+  @keyframes gridScroll {
+    from { background-position: 0 0; }
+    to   { background-position: 60px 60px; }
+  }
+
+  .slide > * { position: relative; z-index: 1; }
+
+  /* ── SLIDE 0 — COVER ──────────────────────────── */
+  .cover-logo {
+    font-size: 96px;
+    margin-bottom: 16px;
+    filter: drop-shadow(0 0 30px rgba(0,201,167,.5));
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-10px); }
+  }
+  .cover-title {
+    font-size: clamp(40px, 5vw, 72px);
+    font-weight: 900;
+    line-height: 1.1;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .cover-sub {
+    font-size: clamp(16px, 2vw, 22px);
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+  .author-chip {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 12px 24px;
+    backdrop-filter: blur(12px);
+  }
+  .author-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--teal), var(--blue));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 900; color: #fff;
+  }
+  .author-name { font-size: 16px; font-weight: 700; }
+  .author-role { font-size: 12px; color: var(--muted); }
+
+  /* ── SLIDE 1 — PROBLEM ────────────────────────── */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+    max-width: 900px;
+    margin-top: 32px;
+  }
+  .problem-card {
+    background: rgba(239,68,68,.06);
+    border: 1px solid rgba(239,68,68,.2);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .problem-icon { font-size: 32px; flex-shrink: 0; }
+  .problem-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; color: #FCA5A5; }
+  .problem-desc  { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* ── SLIDE 2 — SOLUTION ───────────────────────── */
+  .solution-visual {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-top: 32px;
+  }
+  .sol-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 28px;
+    text-align: center;
+    min-width: 150px;
+  }
+  .sol-arrow {
+    font-size: 24px;
+    color: var(--teal);
+    margin: 0 12px;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .sol-icon  { font-size: 36px; margin-bottom: 8px; }
+  .sol-label { font-size: 13px; font-weight: 700; }
+  .sol-sub   { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* ── SLIDE 3 — STATS ──────────────────────────── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    width: 100%;
+    max-width: 900px;
+    margin-top: 32px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 20px;
+    text-align: center;
+    transition: transform .3s, box-shadow .3s;
+  }
+  .stat-card:hover { transform: translateY(-4px); }
+  .stat-num  { font-size: clamp(36px,4vw,56px); font-weight: 900; line-height: 1; }
+  .stat-label{ font-size: 14px; color: var(--muted); margin-top: 8px; font-weight: 600; }
+  .stat-sub  { font-size: 12px; color: var(--muted); margin-top: 4px; opacity: .7; }
+
+  /* ── SLIDE 4 — FEATURES ───────────────────────── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    width: 100%;
+    max-width: 960px;
+    margin-top: 28px;
+  }
+  .feat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px;
+    transition: all .3s;
+    cursor: default;
+  }
+  .feat-card:hover {
+    border-color: var(--teal);
+    background: rgba(0,201,167,.05);
+    transform: translateY(-3px);
+  }
+  .feat-icon  { font-size: 28px; margin-bottom: 10px; }
+  .feat-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .feat-desc  { font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .feat-tag   { margin-top: 10px; }
+
+  /* ── SLIDE 5 — TECH STACK ─────────────────────── */
+  .tech-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 880px;
+  }
+  .tech-pill {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 12px 22px;
+    font-size: 14px; font-weight: 600;
+    transition: all .25s;
+  }
+  .tech-pill:hover { border-color: var(--teal); transform: translateY(-2px); }
+  .tech-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  /* ── SLIDE 6 — CLAUDE ─────────────────────────── */
+  .claude-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+    max-width: 720px;
+    margin-top: 28px;
+  }
+  .timeline-item {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    position: relative;
+    padding-bottom: 24px;
+  }
+  .timeline-item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    right: 19px;
+    top: 40px;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--teal), transparent);
+  }
+  .t-num {
+    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--teal), var(--blue));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 900; color: #fff;
+    box-shadow: 0 0 20px rgba(0,201,167,.3);
+  }
+  .t-content { flex: 1; }
+  .t-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .t-desc  { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* ── SLIDE 7 — STATUS ─────────────────────────── */
+  .status-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    width: 100%;
+    max-width: 900px;
+    margin-top: 28px;
+  }
+  .status-col-title {
+    font-size: 16px; font-weight: 700;
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .status-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .status-item:last-child { border-bottom: none; }
+  .s-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .s-label { font-weight: 600; }
+  .s-sub   { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .status-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  /* ── SLIDE 8 — IMPACT ─────────────────────────── */
+  .impact-bar-wrap {
+    width: 100%;
+    max-width: 760px;
+    margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .impact-row { }
+  .impact-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  .impact-label { font-weight: 600; }
+  .impact-pct   { font-weight: 700; }
+  .impact-track {
+    height: 10px; border-radius: 10px;
+    background: var(--surface2);
+    overflow: hidden;
+  }
+  .impact-fill {
+    height: 100%; border-radius: 10px;
+    transition: width 1.2s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ── SLIDE 9 — FINAL ──────────────────────────── */
+  .final-quote {
+    font-size: clamp(20px, 2.5vw, 32px);
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.7;
+    max-width: 700px;
+    margin: 28px 0;
+    color: var(--text);
+  }
+  .final-chips {
+    display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+  }
+  .final-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-size: 14px; font-weight: 600;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* ── SECTION HEADER ───────────────────────────── */
+  .slide-label {
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--teal); margin-bottom: 8px;
+  }
+  .slide-title {
+    font-size: clamp(28px, 3.5vw, 48px);
+    font-weight: 900;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .slide-sub {
+    font-size: 15px; color: var(--muted);
+    text-align: center; margin-top: 8px;
+    max-width: 600px;
+  }
+
+  /* ── PARTICLE SPOTS ───────────────────────────── */
+  .spots {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  }
+  .spot {
+    position: absolute; border-radius: 50%;
+    filter: blur(80px); opacity: .18;
+  }
+  .spot1 { width:400px;height:400px;background:var(--teal);  top:-100px; right:-100px; }
+  .spot2 { width:350px;height:350px;background:var(--blue);  bottom:-80px; left:-80px; }
+  .spot3 { width:280px;height:280px;background:var(--purple);top:40%;right:20%; }
+
+  /* ── KEY HIGHLIGHT BOX ───────────────────────── */
+  .highlight-box {
+    background: linear-gradient(135deg,rgba(0,201,167,.08),rgba(0,152,219,.08));
+    border: 1px solid rgba(0,201,167,.2);
+    border-radius: 16px;
+    padding: 20px 28px;
+    margin-top: 20px;
+    text-align: center;
+    max-width: 700px;
+  }
+  .highlight-box p { font-size: 15px; color: var(--muted); line-height: 1.8; }
+  .highlight-box strong { color: var(--teal); }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="spots">
+  <div class="spot spot1"></div>
+  <div class="spot spot2"></div>
+  <div class="spot spot3"></div>
+</div>
+
+<div class="progress-bar" id="progress"></div>
+
+<div class="deck" id="deck">
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 0 — COVER
+  ═══════════════════════════════════════════════ -->
+  <div class="slide active" id="s0">
+    <div class="cover-logo">🚑</div>
+    <div class="cover-title">
+      منصة <span class="grad-text">وصل</span>
+    </div>
+    <div class="cover-title" style="font-size:clamp(24px,3vw,42px);margin-top:-8px">
+      ذكاء عمليات نقل المرضى
+    </div>
+    <div class="cover-sub">
+      مبنية بالكامل باستخدام · <span style="color:var(--teal);font-weight:700">Claude Code</span>
+    </div>
+    <div class="author-chip">
+      <div class="author-avatar">م</div>
+      <div>
+        <div class="author-name">محمد الشهري</div>
+        <div class="author-role">مطور المنصة · 2026</div>
+      </div>
+      <div style="width:1px;height:36px;background:var(--border);margin:0 8px"></div>
+      <img src="https://anthropic.com/favicon.ico" style="width:20px;height:20px;border-radius:4px" onerror="this.outerHTML='<span style=font-size:18px>🤖</span>'"/>
+      <span style="font-size:14px;font-weight:700;color:var(--teal)">Claude Code</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 1 — PROBLEM
+  ═══════════════════════════════════════════════ -->
+  <div class="slide" id="s1">
+    <div class="slide-label">المشكلة</div>
+    <div class="slide-title">قطاع نقل المرضى <span class="grad-text-gold">يعاني</span></div>
+    <div class="slide-sub">تحديات حقيقية تواجه عمليات الإسعاف في المملكة</div>
+
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-icon">📊</div>
+        <div>
+          <div class="problem-title">بيانات مبعثرة</div>
+          <div class="problem-desc">14,169 مهمة نقل مسجلة في جداول Excel منفصلة بدون تحليل موحّد</div>
+        </div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">⏱️</div>
+        <div>
+          <div class="problem-title">تأخر الاستجابة</div>
+          <div class="problem-desc">لا توجد رؤية لحظية لأوقات الاستجابة عبر 20 مركزاً في الوقت الفعلي</div>
+        </div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">📭</div>
+        <div>
+          <div class="problem-title">تنبيهات متأخرة</div>
+          <div class="problem-desc">اكتشاف خروقات الأداء بعد فوات الأوان — بدون إشعارات فورية للمديرين</div>
+        </div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">🧾</div>
+        <div>
+          <div class="problem-title">تقارير يدوية</div>
+          <div class="problem-desc">ساعات يوميًا لإعداد تقارير الأداء يدويًا بدلاً من التركيز على العمليات</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 2 — SOLUTION
+  ═══════════════════════════════════════════════ -->
+  <div class="slide" id="s2">
+    <div class="slide-label">الحل</div>
+    <div class="slide-title">منصة <span class="grad-text">وصل</span> — من البيانات إلى القرار</div>
+    <div class="slide-sub">سلسلة متكاملة تحوّل بيانات Excel الخام إلى تقارير ذكية فورية</div>
+
+    <div class="solution-visual">
+      <div class="sol-box glow-teal">
+        <div class="sol-icon">📁</div>
+        <div class="sol-label">Excel / CSV</div>
+        <div class="sol-sub">بيانات المهام الخام</div>
+      </div>
+      <div class="sol-arrow">→</div>
+      <div class="sol-box">
+        <div class="sol-icon">⚙️</div>
+        <div class="sol-label">SheetJS + AI</div>
+        <div class="sol-sub">تحليل وحساب KPIs</div>
+      </div>
+      <div class="sol-arrow">→</div>
+      <div class="sol-box">
+        <div class="sol-icon">📊</div>
+        <div class="sol-label">داشبورد وصل</div>
+        <div class="sol-sub">رؤية لحظية شاملة</div>
+      </div>
+      <div class="sol-arrow">→</div>
+      <div class="sol-box glow-blue">
+        <div class="sol-icon">🔔</div>
+        <div class="sol-label">Make.com</div>
+        <div class="sol-sub">تنبيهات + تقارير GPT</div>
+      </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top:32px">
+      <p>
+        رفع ملف Excel واحد → تحديث <strong>فوري لجميع المؤشرات</strong> →
+        إرسال تنبيه لـ Make.com عند أي خروق → <strong>تقرير GPT-4o ذكي</strong> تلقائيًا
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 3 — STATS
+  ═══════════════════════════════════════════════ -->
+  <div class="slide" id="s3">
+    <div class="slide-label">الأرقام الحقيقية</div>
+    <div class="slide-title">البيانات التي تقف خلف <span class="grad-text">وصل</span></div>
+
+    <div class="stats-grid">
+      <div class="stat-card glow-teal">
+        <div class="stat-num grad-text">14,169</div>
+        <div class="stat-label">مهمة نقل مريض</div>
+        <div class="stat-sub">يناير – ديسمبر 2025</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num grad-text-purple">20</div>
+        <div class="stat-label">مركزاً طبياً</div>
+        <div class="stat-sub">تحت المراقبة الحية</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--gold)">219</div>
+        <div class="stat-label">مسعفًا</div>
+        <div class="stat-sub">ملفات أداء كاملة</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num grad-text">64.3</div>
+        <div class="stat-label">دقيقة متوسط استجابة</div>
+        <div class="stat-sub">مراقب لحظيًا</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--teal)">95.3%</div>
+        <div class="stat-label">مهام في الوقت المحدد</div>
+        <div class="stat-sub">نسبة الالتزام</div>
+      </div>
+      <div class="stat-card glow-blue">
+        <div class="stat-num grad-text-gold">39</div>
+        <div class="stat-label">مهمة يوميًا</div>
+        <div class="stat-sub">متوسط الحمل التشغيلي</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 4 — FEATURES
+  ═══════════════════════════════════════════════ -->
+  <div class="slide" id="s4">
+    <div class="slide-label">المميزات</div>
+    <div class="slide-title">ما تفعله المنصة <span class="grad-text">فعلاً</span></div>
+
+    <div class="features-grid">
+      <div class="feat-card">
+        <div class="feat-icon">📤</div>
+        <div class="feat-title">رفع Excel مباشر</div>
+        <div class="feat-desc">SheetJS يقرأ الملف ويحدّث جميع KPIs فوريًا بدون إعادة تحميل</div>
+        <div class="feat-tag"><span class="tag tag-teal">✅ يعمل</span></div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📈</div>
+        <div class="feat-title">مؤشرات أداء حية</div>
+        <div class="feat-desc">حساب تلقائي لـ 12+ KPI: زمن الاستجابة، التوزيع، المدة، الخروقات</div>
+        <div class="feat-tag"><span class="tag tag-teal">✅ يعمل</span></div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🔔</div>
+        <div class="feat-title">تنبيهات Make.com</div>
+        <div class="feat-desc">Webhook حقيقي يُرسل عند تجاوز أي حد → Make.com يرسل إشعار فوري</div>
+        <div class="feat-tag"><span class="tag tag-teal">✅ يعمل</span></div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🤖</div>
+        <div class="feat-title">تقرير GPT-4o يومي</div>
+        <div class="feat-desc">Make.com + GPT-4o ينتج تقرير عربي ذكي يُرسل بالبريد الساعة 7 صباحًا</div>
+        <div class="feat-tag"><span class="tag tag-blue">⚙️ Make.com</span></div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📱</div>
+        <div class="feat-title">تطبيق PWA</div>
+        <div class="feat-desc">قابل للتثبيت على الجوال، يعمل أوفلاين، Service Worker حقيقي</div>
+        <div class="feat-tag"><span class="tag tag-teal">✅ يعمل</span></div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🗺️</div>
+        <div class="feat-title">خريطة المراكز</div>
+        <div class="feat-desc">عرض بصري للأداء عبر 20 مركزًا مع مقارنة زمن الاستجابة والمهام</div>
+        <div class="feat-tag"><span class="tag tag-teal">✅ يعمل</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 5 — TECH STACK
+  ═══════════════════════════════════════════════ -->
+  <div class="slide" id="s5">
+    <div class="slide-label">التقنيات</div>
+    <div class="slide-title">Stack بسيط · <span class="grad-text">قوي · بدون خادم</span></div>
+    <div class="slide-sub">بنية Frontend-Only — تعمل من أي متصفح بدون Backend</div>
+
+    <div class="tech-row">
+      <div class="tech-pill">
+        <div class="tech-dot" style="background:#F7DF1E"></div>
+        Vanilla JavaScript
+      </div>
+      <div class="tech-pill">
+        <div class="tech-dot" style="background:#E34F26"></div>
+        HTML5 + CSS3
+      </div>
+      <div class="tech-pill">
+        <div class="tech-dot" style="background:var(--teal)"></div>
+        Chart.js
+      </div>
+      <div class="tech-pill">
+        <div class="tech-dot" style="background:#217346"></div>
+        SheetJS (Excel Parser)
+      </div>
+      <div class="tech-pill">
+        <div class="tech-dot" style="background:var(--blue)"></div>
+        Google Sheets API
+      </div>
+      <div class="tech-pill">
+        <div class="tech-dot" style="background:#9B59B6"></div>
+        Make.com Webhooks
+      </div>
+      <div class="tech-pill">
+        <div class="tech-dot" style="background:#10A37F"></div>
+        GPT-4o (عبر Make.com)
+      </div>
+      <div class="tech-pill">
+        <div class="tech-dot" style="background:#FF6B35"></div>
+        PWA + Service Worker
+      </div>
+      <div class="tech-pill">
+        <div class="tech-dot" style="background:#24292E"></div>
+        GitHub Pages (Hosting)
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <p>
+        <strong>صفر خوادم · صفر تكلفة تشغيل</strong> — كل شيء يعمل في المتصفح
+        والـ Webhooks هي الجسر الوحيد للخارج
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 6 — HOW CLAUDE BUILT IT
+  ═══════════════════════════════════════════════ -->
+  <div class="slide" id="s6">
+    <div class="slide-label">كيف بُنيت المنصة</div>
+    <div class="slide-title">دور <span class="grad-text-purple">Claude Code</span> في البناء</div>
+    <div class="slide-sub">من الفكرة إلى منصة SaaS احترافية — بمحادثة واحدة</div>
+
+    <div class="claude-timeline">
+      <div class="timeline-item">
+        <div class="t-num">1</div>
+        <div class="t-content">
+          <div class="t-title">تصميم البنية الكاملة</div>
+          <div class="t-desc">Claude صمّم معمارية الملف الواحد (Single-File SPA) مع كامل قاعدة البيانات في LocalStorage</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="t-num">2</div>
+        <div class="t-content">
+          <div class="t-title">كتابة 3000+ سطر كود</div>
+          <div class="t-desc">من صفر إلى لوحة تحكم كاملة: Charts · KPIs · Alerts · PWA · Webhook · Excel Parser</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="t-num">3</div>
+        <div class="t-content">
+          <div class="t-title">تحويل النمط التجاري</div>
+          <div class="t-desc">ترقية من نموذج تجريبي إلى منصة SaaS بمستويات صلاحيات ونظام إعدادات كامل</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="t-num">4</div>
+        <div class="t-content">
+          <div class="t-title">ربط Excel بالداشبورد</div>
+          <div class="t-desc">تشخيص مشكلة SheetJS وإصلاحها: رفع الملف → قراءة الأعمدة → تحديث KPIs → تحديث الرسوم البيانية</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 7 — STATUS
+  ═══════════════════════════════════════════════ -->
+  <div class="slide" id="s7">
+    <div class="slide-label">الحالة الراهنة</div>
+    <div class="slide-title">ما يعمل <span class="grad-text">الآن</span> · وما هو قادم</div>
+
+    <div class="status-cols">
+      <div class="status-box" style="border-color:rgba(0,201,167,.25)">
+        <div class="status-col-title">
+          <span style="font-size:20px">✅</span>
+          <span style="color:var(--teal)">يعمل الآن</span>
+        </div>
+        <div class="status-item">
+          <span class="s-icon">📤</span>
+          <div><div class="s-label">رفع Excel + تحديث الداشبورد</div><div class="s-sub">SheetJS → calcKPIs → applyKPIs</div></div>
+        </div>
+        <div class="status-item">
+          <span class="s-icon">📊</span>
+          <div><div class="s-label">12+ مؤشر KPI محسوب</div><div class="s-sub">استجابة · توزيع · مدة · خروقات</div></div>
+        </div>
+        <div class="status-item">
+          <span class="s-icon">🔔</span>
+          <div><div class="s-label">Webhook حقيقي لـ Make.com</div><div class="s-sub">fetch POST → إشعار فوري</div></div>
+        </div>
+        <div class="status-item">
+          <span class="s-icon">📱</span>
+          <div><div class="s-label">PWA + أوفلاين</div><div class="s-sub">Service Worker نشط</div></div>
+        </div>
+        <div class="status-item">
+          <span class="s-icon">🗺️</span>
+          <div><div class="s-label">خرائط + رسوم 20 مركز</div><div class="s-sub">Chart.js تفاعلي</div></div>
+        </div>
+      </div>
+
+      <div class="status-box" style="border-color:rgba(245,158,11,.2)">
+        <div class="status-col-title">
+          <span style="font-size:20px">🚀</span>
+          <span style="color:var(--gold)">المرحلة القادمة</span>
+        </div>
+        <div class="status-item">
+          <span class="s-icon">💬</span>
+          <div><div class="s-label">إشعارات واتساب</div><div class="s-sub">ربط Make.com + WhatsApp API</div></div>
+        </div>
+        <div class="status-item">
+          <span class="s-icon">🔐</span>
+          <div><div class="s-label">نظام مصادقة حقيقي</div><div class="s-sub">OAuth / JWT بدلاً من الكود الثابت</div></div>
+        </div>
+        <div class="status-item">
+          <span class="s-icon">🔴</span>
+          <div><div class="s-label">بيانات حية حقيقية</div><div class="s-sub">API مباشر بدلاً من محاكاة</div></div>
+        </div>
+        <div class="status-item">
+          <span class="s-icon">🤖</span>
+          <div><div class="s-label">تقرير GPT-4o يومي</div><div class="s-sub">يعمل عبر Make.com — يحتاج Scenario</div></div>
+        </div>
+        <div class="status-item">
+          <span class="s-icon">☁️</span>
+          <div><div class="s-label">Backend + Database</div><div class="s-sub">Supabase / Firebase للتخزين السحابي</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 8 — WHY CLAUDE CODE
+  ═══════════════════════════════════════════════ -->
+  <div class="slide" id="s8">
+    <div class="slide-label">لماذا Claude Code؟</div>
+    <div class="slide-title">الأداة التي <span class="grad-text-purple">غيّرت</span> طريقة البناء</div>
+    <div class="slide-sub">مقارنة واقعية بين البناء التقليدي والبناء بـ Claude Code</div>
+
+    <div class="impact-bar-wrap">
+      <div class="impact-row">
+        <div class="impact-labels">
+          <span class="impact-label">⏱️ وقت التطوير</span>
+          <span class="impact-pct" style="color:var(--teal)">أسرع بـ 10x</span>
+        </div>
+        <div class="impact-track">
+          <div class="impact-fill" style="width:90%;background:linear-gradient(90deg,var(--teal),var(--blue))"></div>
+        </div>
+      </div>
+      <div class="impact-row">
+        <div class="impact-labels">
+          <span class="impact-label">🐛 اكتشاف الأخطاء</span>
+          <span class="impact-pct" style="color:var(--blue)">فوري</span>
+        </div>
+        <div class="impact-track">
+          <div class="impact-fill" style="width:95%;background:linear-gradient(90deg,var(--blue),var(--purple))"></div>
+        </div>
+      </div>
+      <div class="impact-row">
+        <div class="impact-labels">
+          <span class="impact-label">📚 احتياج التوثيق</span>
+          <span class="impact-pct" style="color:var(--purple)">انخفض 80%</span>
+        </div>
+        <div class="impact-track">
+          <div class="impact-fill" style="width:80%;background:linear-gradient(90deg,var(--purple),#EC4899)"></div>
+        </div>
+      </div>
+      <div class="impact-row">
+        <div class="impact-labels">
+          <span class="impact-label">🎯 جودة الكود</span>
+          <span class="impact-pct" style="color:var(--gold)">مستوى Senior Dev</span>
+        </div>
+        <div class="impact-track">
+          <div class="impact-fill" style="width:88%;background:linear-gradient(90deg,var(--gold),#EF4444)"></div>
+        </div>
+      </div>
+      <div class="impact-row">
+        <div class="impact-labels">
+          <span class="impact-label">🔧 حل المشكلات المعقدة</span>
+          <span class="impact-pct" style="color:var(--teal)">بمحادثة واحدة</span>
+        </div>
+        <div class="impact-track">
+          <div class="impact-fill" style="width:92%;background:linear-gradient(90deg,var(--teal),var(--blue))"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 9 — FINAL
+  ═══════════════════════════════════════════════ -->
+  <div class="slide" id="s9">
+    <div style="font-size:72px;margin-bottom:8px;animation:float 3s ease-in-out infinite">🏆</div>
+    <div class="slide-label">الخلاصة</div>
+    <div class="slide-title">
+      <span class="grad-text">وصل</span> + <span class="grad-text-purple">Claude Code</span>
+    </div>
+
+    <div class="final-quote">
+      "بدون خادم، بدون فريق، بدون شهور —
+      منصة ذكاء طبي كاملة في <span class="grad-text">أيام</span>"
+    </div>
+
+    <div class="final-chips">
+      <div class="final-chip">🚑 14,169 مهمة محللة</div>
+      <div class="final-chip">🏥 20 مركزاً مراقبًا</div>
+      <div class="final-chip">🤖 Claude Code بنى الكل</div>
+      <div class="final-chip">⚡ صفر خوادم</div>
+      <div class="final-chip">🇸🇦 لخدمة الرعاية الصحية السعودية</div>
+    </div>
+
+    <div style="margin-top:32px;font-size:14px;color:var(--muted);text-align:center;line-height:1.8">
+      محمد الشهري · <span style="color:var(--teal)">alshehrimo7ammada@gmail.com</span>
+      <br/>مبني بـ Claude Code — Anthropic · 2026
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<!-- ── NAVIGATION ────────────────────────────────── -->
+<div class="nav">
+  <button class="nav-btn" id="prevBtn" onclick="go(-1)">→</button>
+  <div class="dots" id="dots"></div>
+  <div class="slide-num" id="slideNum"></div>
+  <button class="nav-btn" id="nextBtn" onclick="go(1)">←</button>
+</div>
+
+<script>
+const TOTAL = 10;
+let cur = 0;
+let animating = false;
+
+function buildDots() {
+  const d = document.getElementById('dots');
+  for (let i = 0; i < TOTAL; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (i===0?' active':'');
+    dot.onclick = () => goTo(i);
+    d.appendChild(dot);
+  }
+}
+
+function updateUI() {
+  // progress
+  document.getElementById('progress').style.width = ((cur+1)/TOTAL*100)+'%';
+  // dots
+  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active',i===cur));
+  // slide num
+  document.getElementById('slideNum').textContent = (cur+1)+'/'+TOTAL;
+}
+
+function goTo(idx) {
+  if (animating || idx === cur || idx < 0 || idx >= TOTAL) return;
+  animating = true;
+
+  const fromEl = document.getElementById('s'+cur);
+  const toEl   = document.getElementById('s'+idx);
+
+  fromEl.classList.remove('active');
+  fromEl.classList.add('exit');
+  toEl.classList.add('active');
+
+  setTimeout(()=>{ fromEl.classList.remove('exit'); animating=false; }, 560);
+  cur = idx;
+  updateUI();
+}
+
+function go(dir) { goTo(cur + dir); }
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowDown')  go(1);
+  if (e.key === 'ArrowRight' || e.key === 'ArrowUp')   go(-1);
+  if (e.key === 'Home') goTo(0);
+  if (e.key === 'End')  goTo(TOTAL-1);
+});
+
+// Touch swipe
+let tx = 0;
+document.addEventListener('touchstart', e => tx = e.touches[0].clientX, {passive:true});
+document.addEventListener('touchend',   e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 50) go(dx > 0 ? 1 : -1);
+}, {passive:true});
+
+// Animate impact bars on slide 8
+function animateBars() {
+  document.querySelectorAll('.impact-fill').forEach(el => {
+    const w = el.style.width;
+    el.style.width = '0';
+    setTimeout(()=>{ el.style.width = w; }, 100);
+  });
+}
+const obsBar = new MutationObserver(muts => {
+  muts.forEach(m => {
+    m.addedNodes.forEach(n => { if(n.id==='s8'||n.classList?.contains('active')) animateBars(); });
+  });
+});
+
+// Watch slide 8 activation
+const origGoTo = goTo;
+window.goTo = function(idx) {
+  origGoTo(idx);
+  if (idx === 8) setTimeout(animateBars, 300);
+};
+
+buildDots();
+updateUI();
+</script>
+</body>
+</html>
