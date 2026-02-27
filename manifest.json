@@ -1,0 +1,54 @@
+{
+  "name": "Wasl — وصل | Medical Transport Intelligence",
+  "short_name": "وصل Wasl",
+  "description": "منصة ذكاء عمليات نقل المرضى — Patient Transfer Operations Intelligence Platform",
+  "start_url": "/Medical-Transport-Operations-Analytics/",
+  "scope": "/Medical-Transport-Operations-Analytics/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#00C9A7",
+  "background_color": "#060A14",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["medical", "business", "productivity"],
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192x192/00C9A7/ffffff?text=%D9%88%D8%B5%D9%84",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://via.placeholder.com/512x512/00C9A7/ffffff?text=%D9%88%D8%B5%D9%84",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "./report-screenshot.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "label": "Wasl Dashboard — Daily AI Report"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "لوحة التحكم",
+      "short_name": "Dashboard",
+      "description": "Open the main operations dashboard",
+      "url": "/Medical-Transport-Operations-Analytics/#dashboard",
+      "icons": [{ "src": "https://via.placeholder.com/96x96/00C9A7/ffffff?text=D", "sizes": "96x96" }]
+    },
+    {
+      "name": "المراقبة الحية",
+      "short_name": "Live",
+      "description": "Open live monitoring",
+      "url": "/Medical-Transport-Operations-Analytics/#monitoring",
+      "icons": [{ "src": "https://via.placeholder.com/96x96/0098DB/ffffff?text=L", "sizes": "96x96" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

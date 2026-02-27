@@ -1,0 +1,77 @@
+# ═══════════════════════════════════════════════
+# Wasl Platform — .gitignore
+# ═══════════════════════════════════════════════
+
+# ── OS Files ──────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ── Editor Files ──────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.editorconfig
+
+# ── Node.js (if ever used) ────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+.npm
+
+# ── Environment & Secrets ─────────────────────
+.env
+.env.local
+.env.*.local
+*.env
+secrets.json
+config.local.js
+webhook-config.json
+
+# ── Build Outputs ─────────────────────────────
+dist/
+build/
+out/
+.cache/
+.parcel-cache/
+
+# ── Logs ──────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+lerna-debug.log*
+
+# ── Testing ───────────────────────────────────
+coverage/
+.nyc_output/
+.jest-cache/
+
+# ── Temporary Files ───────────────────────────
+tmp/
+temp/
+*.tmp
+*.temp
+
+# ── Large Data Files (do not commit real data) ─
+# Uncomment if you need to exclude sensitive data files:
+# *.xlsx
+# *.csv
+# *.json (except package.json and manifest.json)
+
+# ── Screenshots with PII ──────────────────────
+# Add specific screenshot files containing patient data here
+# patient-data-*.png
+
+# ── Local Development Config ──────────────────
+.local/
+local.config.js
