@@ -221,6 +221,88 @@ This approach reduced development time from weeks to hours while maintaining pro
 📈  $4.2B  Saudi healthcare IT market by 2030
 ```
 
+---
+
+## 🗺️ Potential Deployment Scenarios
+
+> Wasl was designed from day one to serve multiple sectors — not just one hospital. Below are the five highest-impact deployment targets, each validated by real-world EMS operational experience.
+
+---
+
+### 🏥 1. Hospital Transport Departments
+> **Target:** Private and semi-government hospitals operating internal patient transfer fleets
+
+Every hospital with 5+ ambulances faces the same problem: fragmented data, manual reporting, and no real-time visibility. Wasl replaces Excel-and-WhatsApp management with a live operational intelligence layer.
+
+**Pain Points Solved:**
+- No dashboard for multi-shift operations
+- Delayed manual reports to hospital management
+- No benchmarking across internal transfer teams
+
+**Value Delivered:** Daily AI reports at 7 AM + instant alerts when response time exceeds target
+
+---
+
+### 🚑 2. EMS Networks & Regional Operations Centers
+> **Target:** Multi-center emergency medical services networks (20+ centers, 200+ paramedics)
+
+This is Wasl's home ground — built on **14,169 real EMS-like missions** from a 20-center network. The platform understands EMS operations from the inside: shift handovers, vehicle utilization, late dispatch patterns, and peak-hour distribution.
+
+**Pain Points Solved:**
+- No unified view across all centers
+- Manual performance tracking per paramedic
+- No predictive alerts before KPI violations
+
+**Value Delivered:** Center benchmarking + paramedic productivity + peak-hour surge alerts
+
+**Why Wasl is Different:** The builder has direct EMS operational experience — every KPI definition reflects what actually matters in the field.
+
+---
+
+### 🏛️ 3. Government Health Clusters
+> **Target:** Ministry of Health health clusters (e.g., First Health Cluster Riyadh — 20+ hospitals)
+
+Government clusters manage hundreds of daily patient transfers between facilities. The challenge is governance: Who is accountable for a 25-minute delay? Which center is underperforming? Wasl answers these questions in real time.
+
+**Pain Points Solved:**
+- No accountability chain for transfer delays
+- Manual coordination between cluster facilities
+- No early warning for capacity bottlenecks
+
+**Alignment:** Fully Arabic UI + PDPL roadmap + aligns with [Vision 2030 Digital Health Strategy](https://vision2030.gov.sa)
+
+---
+
+### 🚐 4. Private Ambulance Providers
+> **Target:** Licensed private ambulance companies operating across Riyadh, Jeddah, Dammam
+
+Private operators compete on response time and customer satisfaction. Wasl gives them a competitive advantage: data-driven dispatch, automated performance reports for clients, and WhatsApp alerts for critical incidents.
+
+**Pain Points Solved:**
+- No automated reporting to corporate clients
+- No visibility into driver/crew performance
+- Manual billing reconciliation based on mission logs
+
+**Business Model Fit:** 500–1,500 SAR/month subscription — immediate ROI vs. hiring an operations analyst
+
+---
+
+### 🕌 5. Hajj & Mass Gathering Medical Logistics
+> **Target:** Ministry of Health EMS teams during Hajj, Umrah, and large national events
+
+Mass gathering medicine is one of the most demanding EMS environments in the world. The Hajj season sees **2+ million pilgrims** in a concentrated geography, with thousands of medical transfers daily. Wasl's real-time monitoring and instant alert system is purpose-built for this scale.
+
+**Pain Points Solved:**
+- No centralized dashboard for multi-sector EMS operations
+- Inability to detect bottlenecks before they cascade
+- Post-event analysis relies on paper records
+
+**Unique Advantage:** Arabic-first platform + Saudi operational context + scalable from 1 center to 100+
+
+> *"Built by a Saudi EMS professional who has seen these challenges firsthand — Wasl speaks the language of the field."*
+
+---
+
 ### Business Model
 
 | Plan | Target | Price | Features |
