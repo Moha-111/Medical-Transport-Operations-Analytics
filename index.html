@@ -1,1553 +1,330 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>وصل | نظام إدارة نقل المرضى</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-<style>
-:root {
-  --bg:        #060A14;
-  --surface:   #0C1120;
-  --surface2:  #131D30;
-  --surface3:  #1A263D;
-  --border:    rgba(255,255,255,0.07);
-  --teal:      #00C9A7;
-  --teal2:     #0098DB;
-  --amber:     #F6A623;
-  --red:       #FF5252;
-  --green:     #30D158;
-  --purple:    #BF5AF2;
-  --text:      #EDF0F7;
-  --muted:     #5E7391;
-  --sidebar-w: 240px;
-}
-*{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
-body{
-  font-family:'Cairo',sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  display:flex;
-  min-height:100vh;
-  overflow-x:hidden;
-}
+<div align="center">
 
-/* ══ SIDEBAR ══════════════════════════════════════════ */
-.sidebar{
-  width:var(--sidebar-w);
-  background:var(--surface);
-  border-left:1px solid var(--border);
-  display:flex;
-  flex-direction:column;
-  position:fixed;
-  right:0; top:0; bottom:0;
-  z-index:50;
-  transition:transform .3s;
-}
-.sidebar-logo{
-  padding:24px 20px 20px;
-  border-bottom:1px solid var(--border);
-}
-.logo-mark{
-  display:flex;align-items:center;gap:12px;
-  margin-bottom:4px;
-}
-.logo-icon{
-  width:40px;height:40px;
-  background:linear-gradient(135deg,var(--teal),var(--teal2));
-  border-radius:12px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:20px;
-  box-shadow:0 0 24px rgba(0,201,167,.25);
-}
-.logo-name{font-size:17px;font-weight:900;letter-spacing:-.3px;}
-.logo-name span{color:var(--teal);}
-.logo-version{font-size:10px;color:var(--muted);margin-top:2px;}
+![header](https://capsule-render.vercel.app/api?type=waving&color=00C9A7,0098DB&height=200&section=header&text=Wasl%20|%20وصل&fontsize=42&fontColor=ffffff&fontAlignY=38&desc=Smart%20Patient%20Transfer%20Operations%20Platform&descSize=16&descAlignY=58&animation=fadeIn)
 
-.nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;}
-.nav-section{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.8px;
-  text-transform:uppercase;padding:12px 8px 6px;}
-.nav-item{
-  display:flex;align-items:center;gap:12px;
-  padding:10px 12px;
-  border-radius:10px;
-  cursor:pointer;
-  font-size:13.5px;font-weight:600;
-  color:var(--muted);
-  transition:all .2s;
-  position:relative;
-}
-.nav-item:hover{background:var(--surface2);color:var(--text);}
-.nav-item.active{
-  background:rgba(0,201,167,.12);
-  color:var(--teal);
-}
-.nav-item.active::before{
-  content:'';position:absolute;right:0;top:50%;transform:translateY(-50%);
-  width:3px;height:60%;background:var(--teal);border-radius:2px 0 0 2px;
-}
-.nav-item .icon{font-size:16px;width:20px;text-align:center;}
-.nav-badge{
-  margin-right:auto;
-  padding:2px 7px;border-radius:100px;
-  font-size:10px;font-weight:700;
-  background:rgba(255,82,82,.15);color:var(--red);
-}
-.nav-badge.green{background:rgba(48,209,88,.1);color:var(--green);}
+# 🚑 Wasl (وصل) — Patient Transfer Intelligence Platform
 
-.sidebar-footer{
-  padding:16px;
-  border-top:1px solid var(--border);
-}
-.user-card{
-  display:flex;align-items:center;gap:10px;
-  padding:10px;background:var(--surface2);
-  border-radius:10px;cursor:pointer;
-}
-.user-avatar{
-  width:34px;height:34px;border-radius:50%;
-  background:linear-gradient(135deg,var(--teal),var(--purple));
-  display:flex;align-items:center;justify-content:center;
-  font-size:14px;font-weight:700;
-}
-.user-info .name{font-size:12.5px;font-weight:700;}
-.user-info .role{font-size:11px;color:var(--muted);}
+### *Connecting Patients. Empowering Centers. Saving Lives.*
 
-/* ══ MAIN ═════════════════════════════════════════════ */
-.main{
-  margin-right:var(--sidebar-w);
-  flex:1;
-  display:flex;flex-direction:column;
-  min-height:100vh;
-}
+<br/>
 
-/* ══ TOPBAR ═══════════════════════════════════════════ */
-.topbar{
-  height:60px;
-  background:rgba(12,17,32,.9);
-  backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 28px;
-  position:sticky;top:0;z-index:40;
-}
-.topbar-title{font-size:16px;font-weight:700;}
-.topbar-title span{color:var(--muted);font-weight:400;font-size:13px;margin-right:8px;}
-.topbar-actions{display:flex;align-items:center;gap:12px;}
-.live-indicator{
-  display:flex;align-items:center;gap:7px;
-  padding:5px 14px;
-  background:rgba(48,209,88,.08);
-  border:1px solid rgba(48,209,88,.2);
-  border-radius:100px;
-  font-size:12px;font-weight:600;color:var(--green);
-}
-.pulse{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite;}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.3;transform:scale(.7);}}
+[![Records](https://img.shields.io/badge/Records-14%2C169%20Missions-1B3A6B?style=for-the-badge&logo=database&logoColor=white)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
+[![Centers](https://img.shields.io/badge/Centers-20%20Active-00C9A7?style=for-the-badge&logo=building&logoColor=white)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
+[![Staff](https://img.shields.io/badge/Paramedics-219%20Field%20Staff-E67E22?style=for-the-badge&logo=person&logoColor=white)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
+[![Automation](https://img.shields.io/badge/Automation-LIVE%20🟢-30D158?style=for-the-badge)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
 
-#clockDisplay{
-  font-family:'JetBrains Mono',monospace;
-  font-size:13px;color:var(--muted);
-}
-.icon-btn{
-  width:36px;height:36px;border-radius:9px;
-  background:var(--surface2);border:1px solid var(--border);
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;font-size:16px;
-  transition:background .2s;position:relative;
-}
-.icon-btn:hover{background:var(--surface3);}
-.notif-dot{
-  position:absolute;top:4px;right:4px;
-  width:8px;height:8px;border-radius:50%;
-  background:var(--red);border:2px solid var(--surface);
-}
+<br/>
 
-/* ══ CONTENT AREA ═════════════════════════════════════ */
-.content{padding:24px 28px 60px;flex:1;}
-.page{display:none;}
-.page.active{display:block;}
+> **Built at Tuwaiq Hackathon using Vibe Coding — zero traditional programming, 100% AI-powered.**
 
-/* ══ SECTION HEADER ═══════════════════════════════════ */
-.section-header{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:24px;
-}
-.section-header h2{font-size:20px;font-weight:700;}
-.section-header p{font-size:13px;color:var(--muted);margin-top:3px;}
+### 🌐 [Live System](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
 
-/* ══ KPI STRIP ════════════════════════════════════════ */
-.kpi-strip{
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:14px;
-  margin-bottom:22px;
-}
-.kpi{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:18px 16px;
-  position:relative;overflow:hidden;
-  cursor:default;
-  transition:transform .2s,border-color .2s;
-}
-.kpi:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.12);}
-.kpi::before{
-  content:'';position:absolute;top:0;right:0;left:0;height:2px;
-  background:var(--c,var(--teal));border-radius:2px 2px 0 0;
-}
-.kpi-label{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.4px;margin-bottom:10px;}
-.kpi-val{
-  font-family:'JetBrains Mono',monospace;
-  font-size:26px;font-weight:600;
-  color:var(--c,var(--teal));
-  line-height:1;margin-bottom:5px;
-}
-.kpi-sub{font-size:11px;color:var(--muted);}
-.kpi-badge{
-  position:absolute;top:14px;left:14px;
-  font-size:11px;font-weight:700;padding:2px 8px;
-  border-radius:100px;
-}
-.badge-up{background:rgba(48,209,88,.1);color:var(--green);}
-.badge-down{background:rgba(255,82,82,.1);color:var(--red);}
-.badge-eq{background:rgba(246,166,35,.1);color:var(--amber);}
-.kpi-bar{height:3px;background:rgba(255,255,255,.07);border-radius:2px;margin-top:10px;overflow:hidden;}
-.kpi-bar-fill{height:100%;border-radius:2px;background:var(--c,var(--teal));transition:width .8s ease;}
-
-/* ══ GRID LAYOUTS ═════════════════════════════════════ */
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;}
-.grid-3{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:16px;margin-bottom:18px;}
-.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
-.span-2{grid-column:span 2;}
-
-/* ══ CARD ═════════════════════════════════════════════ */
-.card{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:16px;
-  padding:20px;
-  overflow:hidden;
-}
-.card-header{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:16px;
-}
-.card-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
-.card-tag{
-  font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;
-}
-.tag-live{background:rgba(0,201,167,.1);color:var(--teal);border:1px solid rgba(0,201,167,.2);}
-.tag-alert{background:rgba(255,82,82,.1);color:var(--red);border:1px solid rgba(255,82,82,.2);}
-.tag-warn{background:rgba(246,166,35,.1);color:var(--amber);border:1px solid rgba(246,166,35,.2);}
-.tag-info{background:rgba(0,152,219,.1);color:var(--teal2);border:1px solid rgba(0,152,219,.2);}
-
-/* ══ TABLE ════════════════════════════════════════════ */
-.tbl{width:100%;border-collapse:collapse;font-size:13px;}
-.tbl th{
-  text-align:right;padding:9px 14px;
-  font-size:10px;font-weight:700;color:var(--muted);
-  text-transform:uppercase;letter-spacing:.5px;
-  border-bottom:1px solid var(--border);
-}
-.tbl td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.03);}
-.tbl tr:last-child td{border:none;}
-.tbl tr:hover td{background:rgba(255,255,255,.018);}
-.chip{display:inline-block;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700;}
-.chip-ok{background:rgba(48,209,88,.1);color:var(--green);}
-.chip-warn{background:rgba(246,166,35,.1);color:var(--amber);}
-.chip-crit{background:rgba(255,82,82,.1);color:var(--red);}
-.chip-info{background:rgba(0,152,219,.1);color:var(--teal2);}
-
-/* ══ BUTTONS ══════════════════════════════════════════ */
-.btn{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:10px 20px;border-radius:10px;border:none;
-  font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;
-  cursor:pointer;transition:all .2s;
-}
-.btn-primary{
-  background:linear-gradient(135deg,var(--teal),var(--teal2));
-  color:#fff;box-shadow:0 4px 16px rgba(0,201,167,.25);
-}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,201,167,.35);}
-.btn-secondary{
-  background:var(--surface2);border:1px solid var(--border);
-  color:var(--text);
-}
-.btn-secondary:hover{background:var(--surface3);}
-.btn-danger{background:rgba(255,82,82,.12);color:var(--red);border:1px solid rgba(255,82,82,.2);}
-.btn-sm{padding:7px 14px;font-size:12px;}
-
-/* ══ ALERT FEED ════════════════════════════════════════ */
-.alert-feed{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto;}
-.alert-feed::-webkit-scrollbar{width:4px;}
-.alert-feed::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px;}
-.alert-item{
-  display:flex;gap:12px;align-items:flex-start;
-  padding:12px 14px;
-  background:rgba(255,255,255,.025);border-radius:10px;
-  border-right:3px solid;
-  animation:slideIn .3s ease;
-}
-@keyframes slideIn{from{opacity:0;transform:translateX(10px);}to{opacity:1;transform:translateX(0);}}
-.alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;}
-.alert-content .alert-title{font-size:13px;font-weight:600;margin-bottom:2px;}
-.alert-content .alert-desc{font-size:11.5px;color:var(--muted);line-height:1.5;}
-.alert-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-right:auto;white-space:nowrap;}
-
-/* ══ FORM ═════════════════════════════════════════════ */
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.form-group{display:flex;flex-direction:column;gap:6px;}
-.form-group label{font-size:12px;font-weight:700;color:var(--muted);}
-.form-group input,.form-group select,.form-group textarea{
-  padding:10px 14px;
-  background:var(--surface2);
-  border:1px solid var(--border);
-  border-radius:9px;
-  color:var(--text);
-  font-family:'Cairo',sans-serif;
-  font-size:13px;
-  transition:border-color .2s;
-  outline:none;
-}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{
-  border-color:rgba(0,201,167,.4);
-}
-.form-group input::placeholder{color:var(--muted);}
-.form-group select option{background:var(--surface2);}
-
-/* ══ PROGRESS ══════════════════════════════════════════ */
-.progress-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
-.progress-label{font-size:12px;color:var(--muted);width:80px;text-align:left;}
-.progress-bar{flex:1;height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;}
-.progress-fill{height:100%;border-radius:3px;transition:width .8s ease;}
-.progress-val{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;width:44px;text-align:right;}
-
-/* ══ STATS ROW ═════════════════════════════════════════ */
-.stat-row{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:12px 0;border-bottom:1px solid var(--border);
-}
-.stat-row:last-child{border:none;}
-.stat-row .label{font-size:13px;color:var(--muted);}
-.stat-row .value{font-size:13px;font-weight:700;}
-
-/* ══ NOTIFICATIONS PANEL ═══════════════════════════════ */
-#notifPanel{
-  position:fixed;top:68px;left:24px;
-  width:360px;
-  background:var(--surface2);
-  border:1px solid var(--border);
-  border-radius:16px;
-  box-shadow:0 20px 60px rgba(0,0,0,.6);
-  z-index:200;
-  display:none;
-  animation:panelIn .2s ease;
-}
-@keyframes panelIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
-.notif-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:14px 18px;
-  border-bottom:1px solid var(--border);
-}
-.notif-header span{font-size:13px;font-weight:700;}
-.notif-list{max-height:360px;overflow-y:auto;}
-.notif-item{
-  display:flex;gap:12px;padding:14px 18px;
-  border-bottom:1px solid var(--border);
-  cursor:pointer;transition:background .15s;
-}
-.notif-item:last-child{border:none;}
-.notif-item:hover{background:rgba(255,255,255,.03);}
-.notif-icon{
-  width:36px;height:36px;border-radius:10px;
-  display:flex;align-items:center;justify-content:center;font-size:17px;
-  flex-shrink:0;
-}
-.notif-body .title{font-size:13px;font-weight:600;margin-bottom:3px;}
-.notif-body .desc{font-size:11.5px;color:var(--muted);line-height:1.5;}
-.notif-body .time{font-size:10px;color:var(--muted);margin-top:4px;}
-
-/* ══ MODAL ════════════════════════════════════════════ */
-.modal-overlay{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,.7);backdrop-filter:blur(6px);
-  z-index:500;display:none;
-  align-items:center;justify-content:center;
-}
-.modal-overlay.open{display:flex;}
-.modal{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:20px;
-  padding:28px;
-  width:560px;max-width:90vw;
-  animation:modalIn .25s ease;
-}
-@keyframes modalIn{from{opacity:0;transform:scale(.96);}to{opacity:1;transform:scale(1);}}
-.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
-.modal-title{font-size:17px;font-weight:700;}
-
-/* ══ TOAST ════════════════════════════════════════════ */
-.toast-container{position:fixed;bottom:24px;left:24px;z-index:900;display:flex;flex-direction:column;gap:8px;}
-.toast{
-  display:flex;align-items:center;gap:12px;
-  padding:12px 18px;border-radius:12px;
-  background:var(--surface2);border:1px solid var(--border);
-  font-size:13px;font-weight:600;
-  box-shadow:0 8px 30px rgba(0,0,0,.4);
-  animation:toastIn .3s ease;
-  min-width:280px;
-}
-@keyframes toastIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-.toast.success{border-color:rgba(48,209,88,.3);color:var(--green);}
-.toast.error{border-color:rgba(255,82,82,.3);color:var(--red);}
-.toast.info{border-color:rgba(0,201,167,.3);color:var(--teal);}
-
-/* ══ REPORT PREVIEW ════════════════════════════════════ */
-.report-card{
-  background:linear-gradient(135deg,rgba(0,201,167,.06),rgba(0,152,219,.06));
-  border:1px solid rgba(0,201,167,.2);
-  border-radius:16px;padding:24px;
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:20px;
-}
-.report-info h3{font-size:16px;font-weight:700;margin-bottom:6px;}
-.report-info p{font-size:13px;color:var(--muted);}
-.report-stats{display:flex;gap:24px;}
-.report-stat{text-align:center;}
-.report-stat .num{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--teal);}
-.report-stat .lbl{font-size:10px;color:var(--muted);margin-top:2px;}
-
-canvas{max-height:220px;}
-
-/* ══ SCROLLBAR ════════════════════════════════════════ */
-::-webkit-scrollbar{width:5px;height:5px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px;}
-
-/* ══ RESPONSIVE ════════════════════════════════════════ */
-@media(max-width:1100px){
-  .kpi-strip{grid-template-columns:repeat(3,1fr);}
-  .grid-3{grid-template-columns:1fr 1fr;}
-}
-@media(max-width:768px){
-  :root{--sidebar-w:0px;}
-  .sidebar{transform:translateX(100%);width:260px;}
-  .sidebar.open{transform:translateX(0);}
-  .kpi-strip{grid-template-columns:1fr 1fr;}
-  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}
-  .content{padding:16px;}
-}
-</style>
-</head>
-<body>
-
-<!-- ══ SIDEBAR ════════════════════════════════════════════════ -->
-<aside class="sidebar">
-  <div class="sidebar-logo">
-    <div class="logo-mark">
-      <div class="logo-icon">🚑</div>
-      <div>
-        <div class="logo-name">و<span>صل</span></div>
-      </div>
-    </div>
-    <div class="logo-version">منصة نقل المرضى الذكية</div>
-  </div>
-
-  <nav class="nav">
-    <div class="nav-section">الرئيسية</div>
-    <div class="nav-item active" onclick="navigate('dashboard')">
-      <span class="icon">📊</span> لوحة التحكم
-    </div>
-    <div class="nav-item" onclick="navigate('live')">
-      <span class="icon">📡</span> المراقبة اللحظية
-      <span class="nav-badge green">حي</span>
-    </div>
-
-    <div class="nav-section">إدارة العمليات</div>
-    <div class="nav-item" onclick="navigate('missions')">
-      <span class="icon">🗂️</span> سجل المهام
-    </div>
-    <div class="nav-item" onclick="navigate('entry')">
-      <span class="icon">➕</span> إدخال بيانات
-    </div>
-    <div class="nav-item" onclick="navigate('centers')">
-      <span class="icon">🏢</span> المراكز
-    </div>
-    <div class="nav-item" onclick="navigate('paramedics')">
-      <span class="icon">👨‍⚕️</span> المسعفون
-    </div>
-
-    <div class="nav-section">التحليل والتقارير</div>
-    <div class="nav-item" onclick="navigate('reports')">
-      <span class="icon">📄</span> التقارير
-    </div>
-    <div class="nav-item" onclick="navigate('alerts')">
-      <span class="icon">🔔</span> التنبيهات
-      <span class="nav-badge">3</span>
-    </div>
-    <div class="nav-item" onclick="navigate('settings')">
-      <span class="icon">⚙️</span> الإعدادات
-    </div>
-  </nav>
-
-  <div class="sidebar-footer">
-    <div class="user-card">
-      <div class="user-avatar">م</div>
-      <div class="user-info">
-        <div class="name">محمد الشهري</div>
-        <div class="role">مدير العمليات</div>
-      </div>
-    </div>
-  </div>
-</aside>
-
-<!-- ══ MAIN ═══════════════════════════════════════════════════ -->
-<div class="main">
-
-  <!-- TOPBAR -->
-  <header class="topbar">
-    <div class="topbar-title">
-      <span id="pageLabel">لوحة التحكم</span>
-    </div>
-    <div class="topbar-actions">
-      <div class="live-indicator"><div class="pulse"></div> بث مباشر</div>
-      <span id="clockDisplay">--:--:--</span>
-      <div class="icon-btn" onclick="toggleNotif()" title="التنبيهات">
-        🔔<div class="notif-dot"></div>
-      </div>
-      <button class="btn btn-primary btn-sm" onclick="navigate('reports');setTimeout(generateReport,200)">
-        ⚡ تقرير الآن
-      </button>
-    </div>
-  </header>
-
-  <!-- CONTENT -->
-  <div class="content">
-
-    <!-- ══ PAGE: DASHBOARD ════════════════════════════════════ -->
-    <div class="page active" id="page-dashboard">
-      <div class="section-header">
-        <div>
-          <h2>لوحة التحكم الرئيسية</h2>
-          <p>نظرة شاملة على عمليات نقل المرضى — يناير – ديسمبر 2025</p>
-        </div>
-        <div style="display:flex;gap:10px;align-items:center">
-          <div style="background:rgba(48,209,88,0.15);border:1px solid var(--green);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--green);display:flex;align-items:center;gap:6px;">
-            <span style="width:7px;height:7px;background:var(--green);border-radius:50%;display:inline-block;animation:pulse-dot 1.5s infinite;"></span>
-            الأتمتة شغّالة — تقرير يومي 7 ص
-          </div>
-          <button class="btn btn-secondary btn-sm" onclick="refreshData()">🔄 تحديث</button>
-          <button class="btn btn-primary btn-sm" onclick="navigate('entry')">➕ مهمة جديدة</button>
-        </div>
-      </div>
-
-      <!-- KPI STRIP -->
-      <div class="kpi-strip">
-        <div class="kpi" style="--c:var(--teal)">
-          <div class="kpi-badge badge-up">↑ +2.3%</div>
-          <div class="kpi-label">إجمالي المهام</div>
-          <div class="kpi-val" id="kpi-total">14,169</div>
-          <div class="kpi-sub">كامل عام 2025</div>
-          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:85%"></div></div>
-        </div>
-        <div class="kpi" style="--c:var(--green)">
-          <div class="kpi-badge badge-up">✅ ضمن الهدف</div>
-          <div class="kpi-label">متوسط الاستجابة</div>
-          <div class="kpi-val" id="kpi-resp">14.5<small style="font-size:14px"> د</small></div>
-          <div class="kpi-sub">الهدف ≤15 دقيقة</div>
-          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:97%;background:var(--green)"></div></div>
-        </div>
-        <div class="kpi" style="--c:var(--teal2)">
-          <div class="kpi-badge badge-up">✅ ممتاز</div>
-          <div class="kpi-label">وقت الإرسال</div>
-          <div class="kpi-val">5.5<small style="font-size:14px"> د</small></div>
-          <div class="kpi-sub">الهدف ≤8 دقائق</div>
-          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:69%;background:var(--teal2)"></div></div>
-        </div>
-        <div class="kpi" style="--c:var(--red)">
-          <div class="kpi-badge badge-down">⚠️ حرج</div>
-          <div class="kpi-label">معدل التأخير</div>
-          <div class="kpi-val">95.3%</div>
-          <div class="kpi-sub">يحتاج مراجعة الأهداف</div>
-          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:95%;background:var(--red)"></div></div>
-        </div>
-        <div class="kpi" style="--c:var(--amber)">
-          <div class="kpi-badge badge-eq">→ مستقر</div>
-          <div class="kpi-label">حالات الطوارئ</div>
-          <div class="kpi-val">35.1%</div>
-          <div class="kpi-sub">4,978 حالة إنقاذ</div>
-          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:35%;background:var(--amber)"></div></div>
-        </div>
-      </div>
-
-      <!-- CHARTS ROW -->
-      <div class="grid-3">
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">المهام الشهرية</span>
-            <span class="card-tag tag-live">2025</span>
-          </div>
-          <canvas id="chart-monthly"></canvas>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">أسباب الإحالة</span>
-            <span class="card-tag tag-info">توزيع</span>
-          </div>
-          <canvas id="chart-reasons"></canvas>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">نوع الحالات</span>
-            <span class="card-tag tag-warn">مراقبة</span>
-          </div>
-          <canvas id="chart-types"></canvas>
-        </div>
-      </div>
-
-      <!-- BOTTOM ROW -->
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">أداء المراكز</span>
-            <span class="card-tag tag-alert">3 تنبيهات</span>
-          </div>
-          <table class="tbl">
-            <thead><tr>
-              <th>المركز</th><th>المهام</th><th>الاستجابة</th><th>التأخير</th><th>الحالة</th>
-            </tr></thead>
-            <tbody id="dashboard-centers"></tbody>
-          </table>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">تنبيهات نشطة</span>
-            <span class="card-tag tag-alert">3 جديدة</span>
-          </div>
-          <div class="alert-feed" id="dashboard-alerts"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══ PAGE: LIVE ══════════════════════════════════════════ -->
-    <div class="page" id="page-live">
-      <div class="section-header">
-        <div><h2>📡 المراقبة اللحظية</h2><p>تحديث تلقائي كل 5 ثوانٍ</p></div>
-        <div class="live-indicator"><div class="pulse"></div> متصل</div>
-      </div>
-
-      <div class="kpi-strip">
-        <div class="kpi" style="--c:var(--teal)">
-          <div class="kpi-label">مهام اليوم</div>
-          <div class="kpi-val" id="live-today">0</div>
-          <div class="kpi-sub">منذ بداية الوردية</div>
-        </div>
-        <div class="kpi" style="--c:var(--red)">
-          <div class="kpi-label">طوارئ نشطة</div>
-          <div class="kpi-val" id="live-emergency">0</div>
-          <div class="kpi-sub">تحتاج تدخلاً</div>
-        </div>
-        <div class="kpi" style="--c:var(--green)">
-          <div class="kpi-label">مسعفون متاحون</div>
-          <div class="kpi-val" id="live-available">0</div>
-          <div class="kpi-sub">من أصل 219</div>
-        </div>
-        <div class="kpi" style="--c:var(--amber)">
-          <div class="kpi-label">سيارات في الميدان</div>
-          <div class="kpi-val" id="live-ambulances">0</div>
-          <div class="kpi-sub">من أصل 96</div>
-        </div>
-        <div class="kpi" style="--c:var(--teal2)">
-          <div class="kpi-label">متوسط الاستجابة</div>
-          <div class="kpi-val" id="live-resp">0<small style="font-size:14px"> د</small></div>
-          <div class="kpi-sub">آخر ساعة</div>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">نشاط المراكز — اليوم</span>
-            <span class="card-tag tag-live">لحظي</span>
-          </div>
-          <canvas id="chart-live-centers"></canvas>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">سجل الأحداث المباشر</span>
-            <span class="card-tag tag-live">بث مباشر</span>
-          </div>
-          <div class="alert-feed" id="live-feed"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══ PAGE: MISSIONS ══════════════════════════════════════ -->
-    <div class="page" id="page-missions">
-      <div class="section-header">
-        <div><h2>سجل المهام</h2><p>14,169 مهمة مسجلة</p></div>
-        <div style="display:flex;gap:8px">
-          <input style="padding:8px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'Cairo',sans-serif;font-size:13px;outline:none;width:220px" placeholder="🔍 بحث..."/>
-          <button class="btn btn-primary btn-sm" onclick="navigate('entry')">➕ إضافة</button>
-        </div>
-      </div>
-      <div class="card">
-        <table class="tbl" id="missions-table">
-          <thead><tr>
-            <th>رقم المهمة</th><th>التاريخ</th><th>القسم</th><th>النوع</th><th>المركز</th>
-            <th>المسعف</th><th>وقت الاستجابة</th><th>الأداء</th><th>الإجراء</th>
-          </tr></thead>
-          <tbody id="missions-body"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- ══ PAGE: DATA ENTRY ════════════════════════════════════ -->
-    <div class="page" id="page-entry">
-      <div class="section-header">
-        <div><h2>إدخال بيانات مهمة جديدة</h2><p>أضف مهمة نقل مريض يدوياً أو استورد من Excel</p></div>
-      </div>
-
-      <div class="grid-2" style="margin-bottom:20px">
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">بيانات المهمة</span>
-            <span class="card-tag tag-info">إدخال يدوي</span>
-          </div>
-          <form id="missionForm" style="display:flex;flex-direction:column;gap:14px">
-            <div class="form-grid">
-              <div class="form-group">
-                <label>رقم الإحالة</label>
-                <input type="text" placeholder="100170" id="f-ref"/>
-              </div>
-              <div class="form-group">
-                <label>تاريخ الإحالة</label>
-                <input type="date" id="f-date"/>
-              </div>
-              <div class="form-group">
-                <label>القسم الطبي</label>
-                <select id="f-dept">
-                  <option>قلب</option><option>أعصاب</option><option>جراحة عظام</option>
-                  <option>أطفال</option><option>عناية مركزة</option><option>طوارئ</option>
-                  <option>أورام</option><option>رئة</option><option>جهاز هضمي</option><option>عام</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>نوع الحالة</label>
-                <select id="f-type">
-                  <option value="Life-Saving">إنقاذ حياة</option>
-                  <option value="Stable">مستقرة</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>المركز</label>
-                <select id="f-center">
-                  <option>C1</option><option>C2</option><option>C3</option><option>C4</option>
-                  <option>C5</option><option>C6</option><option>C7</option><option>C8</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>المستشفى المستقبل</label>
-                <select id="f-hospital">
-                  <option>H1</option><option>H2</option><option>H3</option><option>H4</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>سبب الإحالة</label>
-                <select id="f-reason">
-                  <option>كاث لاب</option><option>نقص تخصصي</option><option>نقص معدات</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>وقت الاستجابة (دقيقة)</label>
-                <input type="number" placeholder="14.5" id="f-resp"/>
-              </div>
-            </div>
-            <div style="display:flex;gap:10px;margin-top:6px">
-              <button type="button" class="btn btn-primary" onclick="submitMission()">✅ حفظ المهمة</button>
-              <button type="reset" class="btn btn-secondary">مسح</button>
-            </div>
-          </form>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">استيراد من Excel</span>
-            <span class="card-tag tag-info">رفع ملف</span>
-          </div>
-          <div style="text-align:center;padding:30px 20px">
-            <div style="font-size:48px;margin-bottom:16px">📂</div>
-            <p style="color:var(--muted);font-size:13px;margin-bottom:20px">
-              ارفع ملف Excel أو CSV لاستيراد مهام متعددة دفعة واحدة
-            </p>
-            <div style="border:2px dashed var(--border);border-radius:12px;padding:24px;margin-bottom:16px;cursor:pointer"
-                 ondragover="event.preventDefault()" ondrop="handleDrop(event)">
-              <p style="color:var(--muted);font-size:13px">اسحب الملف هنا أو</p>
-              <label style="cursor:pointer">
-                <input type="file" accept=".xlsx,.csv" style="display:none" onchange="handleFileUpload(this)"/>
-                <span class="btn btn-secondary btn-sm" style="display:inline-flex;margin-top:10px">اختر ملف</span>
-              </label>
-            </div>
-            <div id="upload-status" style="font-size:13px;color:var(--muted)">لا يوجد ملف محدد</div>
-          </div>
-
-          <div style="margin-top:8px;padding-top:16px;border-top:1px solid var(--border)">
-            <div class="card-title" style="margin-bottom:12px">آخر 5 مدخلات</div>
-            <div id="recent-entries" style="display:flex;flex-direction:column;gap:8px"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══ PAGE: CENTERS ═══════════════════════════════════════ -->
-    <div class="page" id="page-centers">
-      <div class="section-header">
-        <div><h2>أداء المراكز</h2><p>20 مركز نشط على مستوى الشبكة</p></div>
-      </div>
-      <div class="grid-2" style="margin-bottom:16px">
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">المراكز الأعلى أداءً</span>
-            <span class="card-tag tag-live">2025</span>
-          </div>
-          <canvas id="chart-centers-bar"></canvas>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">معدلات التأخير</span>
-            <span class="card-tag tag-alert">يحتاج مراجعة</span>
-          </div>
-          <div style="padding:8px 0" id="centers-progress"></div>
-        </div>
-      </div>
-      <div class="card">
-        <table class="tbl">
-          <thead><tr>
-            <th>المركز</th><th>المهام</th><th>المسعفون</th><th>سيارات الإسعاف</th>
-            <th>متوسط الاستجابة</th><th>متوسط الإرسال</th><th>معدل التأخير</th><th>الحالة</th>
-          </tr></thead>
-          <tbody id="centers-body"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- ══ PAGE: PARAMEDICS ════════════════════════════════════ -->
-    <div class="page" id="page-paramedics">
-      <div class="section-header">
-        <div><h2>المسعفون</h2><p>219 مسعف نشط</p></div>
-      </div>
-      <div class="grid-4" style="margin-bottom:20px">
-        <div class="kpi" style="--c:var(--teal)">
-          <div class="kpi-label">إجمالي المسعفين</div>
-          <div class="kpi-val">219</div>
-          <div class="kpi-sub">موزعون على 20 مركز</div>
-        </div>
-        <div class="kpi" style="--c:var(--green)">
-          <div class="kpi-label">متاحون الآن</div>
-          <div class="kpi-val" id="para-available">143</div>
-          <div class="kpi-sub">جاهزون للانتشار</div>
-        </div>
-        <div class="kpi" style="--c:var(--amber)">
-          <div class="kpi-label">في مهمة</div>
-          <div class="kpi-val" id="para-onmission">67</div>
-          <div class="kpi-sub">منتشرون حالياً</div>
-        </div>
-        <div class="kpi" style="--c:var(--red)">
-          <div class="kpi-label">إجازة / غير متاح</div>
-          <div class="kpi-val">9</div>
-          <div class="kpi-sub">خارج الخدمة</div>
-        </div>
-      </div>
-      <div class="card">
-        <table class="tbl">
-          <thead><tr>
-            <th>المسعف</th><th>المركز</th><th>المهام</th><th>متوسط الاستجابة</th>
-            <th>معدل الأداء</th><th>حالات الطوارئ</th><th>الحالة</th>
-          </tr></thead>
-          <tbody id="paramedics-body"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- ══ PAGE: REPORTS ═══════════════════════════════════════ -->
-    <div class="page" id="page-reports">
-      <div class="section-header">
-        <div><h2>التقارير التلقائية</h2><p>مدعومة بـ Make.com + OpenAI GPT-4o — إرسال يومي 7:00 صباحاً</p></div>
-      </div>
-
-      <!-- STATUS BANNER -->
-      <div style="background:linear-gradient(135deg,rgba(0,201,167,.15),rgba(0,152,219,.1));border:1px solid rgba(0,201,167,.3);border-radius:14px;padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;gap:16px;">
-        <div style="width:12px;height:12px;background:#00C9A7;border-radius:50%;box-shadow:0 0 8px #00C9A7;flex-shrink:0;animation:pulse-dot 1.5s infinite;"></div>
-        <div style="flex:1;">
-          <div style="font-weight:800;color:#00C9A7;font-size:14px;">نظام الإرسال التلقائي — شغّال ✅</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:3px;">Make.com + OpenAI GPT-4o → البريد الإلكتروني — كل يوم الساعة 7:00 صباحاً بتوقيت الرياض</div>
-        </div>
-        <div style="text-align:center;">
-          <div class="num" id="report-countdown" style="font-size:22px;font-weight:900;color:var(--teal);">00:00:00</div>
-          <div style="font-size:11px;color:var(--muted);">التقرير القادم</div>
-        </div>
-      </div>
-
-      <div class="grid-2" style="margin-bottom:20px;">
-
-        <!-- SETTINGS CARD -->
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">⚙️ إعدادات الإرسال</span>
-            <span class="card-tag tag-info">Make.com</span>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:14px">
-            <div class="form-group">
-              <label>تكرار الإرسال</label>
-              <select>
-                <option selected>يومي — الساعة 7:00 صباحاً ✅</option>
-                <option>أسبوعي — الأحد</option>
-                <option>لحظي — عند كل حدث</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>قناة الإرسال</label>
-              <select>
-                <option selected>البريد الإلكتروني ✅</option>
-                <option>واتساب (قريباً)</option>
-                <option>Slack (قريباً)</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>المستلمون</label>
-              <input type="text" value="alshehrimo7ammada@gmail.com"/>
-            </div>
-            <div class="form-group">
-              <label>نموذج الذكاء الاصطناعي</label>
-              <select><option selected>GPT-4o ✅</option><option>GPT-4</option></select>
-            </div>
-            <div style="display:flex;gap:8px;">
-              <button class="btn btn-primary btn-sm" style="flex:1;" onclick="generateReport()">⚡ توليد الآن</button>
-              <button class="btn btn-secondary btn-sm" onclick="showToast('تم حفظ الإعدادات ✅','success')">💾 حفظ</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- HISTORY CARD -->
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">📋 سجل التقارير</span>
-          </div>
-          <div id="reports-history" style="display:flex;flex-direction:column;gap:8px"></div>
-        </div>
-      </div>
-
-      <!-- EMAIL PREVIEW -->
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">📧 معاينة التقرير اليومي — كما يصل على البريد</span>
-          <span class="card-tag tag-success" style="background:rgba(48,209,88,.15);color:#30D158;">مُرسَل فعلياً ✅</span>
-        </div>
-        <p style="font-size:12px;color:var(--muted);margin-bottom:16px;">هذا التقرير يُرسَل تلقائياً كل يوم الساعة 7:00 صباحاً إلى فريق العمليات عبر Make.com + GPT-4o</p>
-        <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.2);">
-          <div style="background:var(--surface2);padding:10px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);">
-            <div style="width:12px;height:12px;border-radius:50%;background:#FF5252;"></div>
-            <div style="width:12px;height:12px;border-radius:50%;background:#F6A623;"></div>
-            <div style="width:12px;height:12px;border-radius:50%;background:#30D158;"></div>
-            <span style="font-size:12px;color:var(--muted);margin-right:10px;">📧 alshehrimo7ammada@gmail.com — 🚑 وصل | التقرير اليومي</span>
-          </div>
-          <img src="data:image/png;base64,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xLNTpqipatJXvTiiJCiNv/m5qJ/mbGn4TVPk4/3wpm5b01mntTdpx9p/2vAAGu7ABGpvWneNTetO8CQRqb1p3jU3rTvAkEam9ad41N607wJBGpvWneNTetO8CQRqb1p3jU3rTvAkEam9ad41N607wJBGpvWneNTetO8CQRqb1p3jU3rTvAkEam9ad41N607wJBGpvWneNTetO8CQRqb1p3jU3rTvAkEam9ad41N607wJBGpvWneNTetO8CQRqb1p3jU3rTvAkEam9ad41N607wJBGpvWneNTetO8CQRqb1p3jU3rTvAkEam9ad41N607wJBGpvWneNTetO8CQRqb1p3jU3rTvAkEam9ad41N607wJBGpvWneNTetO8CQRqb1p3jU3rTvAkEam9ad41N607wJBGpvWneNTetO8CQRqb1p3jU3rTvAkEam9ad41N607wJBGpvWneNTetO8CQRqb1p3jU3rTvAkEam9ad41N607wJBGpvWneNTetO8CQRqb1p3jU3rTvAkEam9ad41N607wJBGpvWneNTetO8CQRqb1p3jU3rTvAkEam9ad41N607wJBGpvWneNTetO8CQRqb1p3jU3rTvAkEam9ad41N607wJBGpvWneNTetO8CQRqb1p3jU3rTvAkEam9ad41N607wJBGpvWneNTetO8CQRqb1p3jU3rTvAkEam9ad41N607wJBGpvWneNTetO8CQRqb1p3jU3rTvAkEam9ad41N607wJBGpvWneNTetO8CQRqb1p3jU3rTvAkEam9ad41N607wJBGpvWneNTetO8CQRqb1p3jU3rTvAkEam9ad41N607wJBGpvWneNTetO8DCZjrsRkp5cOwCFJMRemneyLojp0XhrVV4rb2I1F49J58hZRo8q4e5jH8orZ/WqalycXr1J1Ihlcbw+HEqNYlesUzfWhmY6zonexUVDGZOxPFKiOSixmjniqIOid0StZKiLbpta/+pq1a2q3eixXTwq5THKcd0/Ly7p9XlHsq1dub7M7VVHCIn/4xPfT6988/4bECNTetO8G09XwABmxAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH8+ucZtl98fhlJ5Q5xm2X3x+GUnlAGGWRzjNsvvj8MpPKHOM2y++Pwyk8oAZDnGbZffH4ZSeUOcZtl98fhlJ5QAyHOM2y++Pwyk8oc4zbL74/DKTygBkOcZtl98fhlJ5Q5xm2X3x+GUnlADIc4zbL74/DKTyhzjNsvvj8MpPKAGQ5xm2X3x+GUnlDnGbZffH4ZSeUAMhzjNsvvj8MpPKHOM2y++Pwyk8oAZDnGbZffH4ZSeUOcZtl98fhlJ5QAyHOM2y++Pwyk8oc4zbL74/DKTygBkOcZtl98fhlJ5Q5xm2X3x+GUnlADIc4zbL74/DKTyhzjNsvvj8MpPKAGQ5xm2X3x+GUnlDnGbZffH4ZSeUAMhzjNsvvj8MpPKHOM2y++Pwyk8oAZDnGbZffH4ZSeUOcZtl98fhlJ5QAyHOM2y++Pwyk8oc4zbL74/DKTygBkOcZtl98fhlJ5Q5xm2X3x+GUnlADIc4zbL74/DKTyhzjNsvvj8MpPKAGQ5xm2X3x+GUnlDnGbZffH4ZSeUAMhzjNsvvj8MpPKHOM2y++Pwyk8oAZDnGbZffH4ZSeUOcZtl98fhlJ5QAyHOM2y++Pwyk8oc4zbL74/DKTygBkOcZtl98fhlJ5Q5xm2X3x+GUnlADIc4zbL74/DKTyhzjNsvvj8MpPKAGQ5xm2X3x+GUnlDnGbZffH4ZSeUAMhzjNsvvj8MpPKHOM2y++Pwyk8oAZDnGbZffH4ZSeUOcZtl98fhlJ5QAyHOM2y++Pwyk8oc4zbL74/DKTygBkOcZtl98fhlJ5Q5xm2X3x+GUnlADIc4zbL74/DKTyhzjNsvvj8MpPKAGQ5xm2X3x+GUnlDnGbZffH4ZSeUAMhzjNsvvj8MpPKHOM2y++Pwyk8oAZDnGbZffH4ZSeUOcZtl98fhlJ5QAyHOM2y++Pwyk8oc4zbL74/DKTygBkOcZtl98fhlJ5Q5xm2X3x+GUnlADIc4zbL74/DKTyhzjNsvvj8MpPKAGQ5xm2X3x+GUnlDnGbZffH4ZSeUAMhzjNsvvj8MpPKHOM2y++Pwyk8oAZDnGbZffH4ZSeUOcZtl98fhlJ5QAyHOM2y++Pwyk8oc4zbL74/DKTygBkOcZtl98fhlJ5Q5xm2X3x+GUnlADIc4zbL74/DKTyhzjNsvvj8MpPKAGQ5xm2X3x+GUnlDnGbZffH4ZSeUAMhzjNsvvj8MpPKHOM2y++Pwyk8oAZDnGbZffH4ZSeUOcZtl98fhlJ5QAyHOM2y++Pwyk8oc4zbL74/DKTygBkOcZtl98fhlJ5Q5xm2X3x+GUnlADIc4zbL74/DKTyhzjNsvvj8MpPKAGQ5xm2X3x+GUnlDnGbZffH4ZSeUAMhzjNsvvj8MpPKHOM2y++Pwyk8oAZDnGbZffH4ZSeUOcZtl98fhlJ5QAyHOM2y++Pwyk8oc4zbL74/DKTygBkOcZtl98fhlJ5Q5xm2X3x+GUnlADIc4zbL74/DKTyhzjNsvvj8MpPKAGQ5xm2X3x+GUnlDnGbZffH4ZSeUAMhzjNsvvj8MpPKHOM2y++Pwyk8oAZDnGbZffH4ZSeUABkf/9k=" alt="نموذج التقرير اليومي" style="width:100%;display:block;"/>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- ══ PAGE: ALERTS ════════════════════════════════════════ -->
-    <div class="page" id="page-alerts">
-      <div class="section-header">
-        <div><h2>نظام التنبيهات</h2><p>3 تنبيهات نشطة تحتاج تدخلاً</p></div>
-        <button class="btn btn-secondary btn-sm" onclick="showToast('تم تعيين جميع التنبيهات كمقروءة','info')">✓ تعيين الكل مقروء</button>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:12px" id="alerts-full"></div>
-    </div>
-
-    <!-- ══ PAGE: SETTINGS ══════════════════════════════════════ -->
-    <div class="page" id="page-settings">
-      <div class="section-header">
-        <div><h2>الإعدادات</h2><p>تخصيص النظام وإعدادات Make.com</p></div>
-      </div>
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-header"><span class="card-title">حدود التنبيه</span><span class="card-tag tag-warn">KPI</span></div>
-          <div style="display:flex;flex-direction:column;gap:14px">
-            <div class="form-group">
-              <label>الحد الأقصى لوقت الاستجابة (دقيقة)</label>
-              <input type="number" value="15" id="threshold-resp"/>
-            </div>
-            <div class="form-group">
-              <label>الحد الأقصى لوقت الإرسال (دقيقة)</label>
-              <input type="number" value="8" id="threshold-dispatch"/>
-            </div>
-            <div class="form-group">
-              <label>الحد الأقصى لمعدل التأخير (%)</label>
-              <input type="number" value="95" id="threshold-late"/>
-            </div>
-            <div class="form-group">
-              <label>الحد الأدنى للمسعفين المتاحين</label>
-              <input type="number" value="100" id="threshold-para"/>
-            </div>
-            <button class="btn btn-primary btn-sm" onclick="showToast('تم حفظ حدود التنبيه ✅','success')">💾 حفظ</button>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><span class="card-title">تكامل Make.com</span><span class="card-tag tag-info">Webhook</span></div>
-          <div style="display:flex;flex-direction:column;gap:14px">
-            <div class="form-group">
-              <label>Webhook URL</label>
-              <input type="text" placeholder="https://hook.make.com/..." value="https://hook.make.com/xxxxxx"/>
-            </div>
-            <div class="form-group">
-              <label>Google Sheets ID</label>
-              <input type="text" placeholder="1BxiMVs..." value="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"/>
-            </div>
-            <div class="form-group">
-              <label>Gmail المرسل</label>
-              <input type="email" value="ops@meditrans.sa"/>
-            </div>
-            <div style="display:flex;gap:8px">
-              <button class="btn btn-primary btn-sm" onclick="testWebhook()">🧪 اختبار</button>
-              <button class="btn btn-secondary btn-sm" onclick="showToast('تم حفظ الإعدادات ✅','success')">💾 حفظ</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /content -->
-</div><!-- /main -->
-
-<!-- NOTIFICATIONS PANEL -->
-<div id="notifPanel">
-  <div class="notif-header">
-    <span>🔔 التنبيهات</span>
-    <button class="btn btn-secondary btn-sm" onclick="toggleNotif()">إغلاق ✕</button>
-  </div>
-  <div class="notif-list">
-    <div class="notif-item">
-      <div class="notif-icon" style="background:rgba(255,82,82,.12)">🚨</div>
-      <div class="notif-body">
-        <div class="title">مركز C6 — معدل تأخير حرج</div>
-        <div class="desc">وصل إلى 96.4% — يتجاوز الحد المسموح 95%</div>
-        <div class="time">منذ 5 دقائق</div>
-      </div>
-    </div>
-    <div class="notif-item">
-      <div class="notif-icon" style="background:rgba(246,166,35,.12)">⚡</div>
-      <div class="notif-body">
-        <div class="title">ضغط الوردية الصباحية</div>
-        <div class="desc">60.1% من المهام في الصباح — يُوصى بتوزيع الطاقم</div>
-        <div class="time">منذ ساعة</div>
-      </div>
-    </div>
-    <div class="notif-item">
-      <div class="notif-icon" style="background:rgba(0,152,219,.12)">🏥</div>
-      <div class="notif-body">
-        <div class="title">H1 — تركّز عالٍ</div>
-        <div class="desc">يستقبل 72.1% من التحويلات — خطر اختناق</div>
-        <div class="time">منذ 3 ساعات</div>
-      </div>
-    </div>
-    <div class="notif-item">
-      <div class="notif-icon" style="background:rgba(48,209,88,.12)">✅</div>
-      <div class="notif-body">
-        <div class="title">تقرير يوم أمس جاهز</div>
-        <div class="desc">تم توليده وإرساله للفريق عبر Make.com</div>
-        <div class="time">أمس 7:02 صباحاً</div>
-      </div>
-    </div>
-  </div>
 </div>
 
-<!-- TOAST CONTAINER -->
-<div class="toast-container" id="toastContainer"></div>
+---
 
-<script>
-// ══ DATA ════════════════════════════════════════════════════════
-const CENTERS_DATA = [
-  {id:'C1',missions:1438,paramedics:20,ambulances:10,resp:14.7,dispatch:5.5,late:94.5},
-  {id:'C2',missions:1434,paramedics:18,ambulances:9,resp:14.6,dispatch:5.6,late:94.7},
-  {id:'C3',missions:1273,paramedics:17,ambulances:8,resp:14.5,dispatch:5.5,late:95.1},
-  {id:'C4',missions:1109,paramedics:16,ambulances:8,resp:14.3,dispatch:5.4,late:95.2},
-  {id:'C5',missions:1095,paramedics:15,ambulances:7,resp:14.4,dispatch:5.5,late:94.6},
-  {id:'C6',missions:742, paramedics:14,ambulances:6,resp:14.4,dispatch:5.4,late:96.4},
-  {id:'C7',missions:695, paramedics:13,ambulances:6,resp:14.3,dispatch:5.5,late:95.3},
-  {id:'C8',missions:742, paramedics:12,ambulances:5,resp:14.6,dispatch:5.6,late:95.3},
-  {id:'C9',missions:715, paramedics:11,ambulances:5,resp:14.5,dispatch:5.4,late:96.1},
-  {id:'C10',missions:555,paramedics:10,ambulances:5,resp:14.7,dispatch:5.5,late:96.2},
-];
+## 📌 Overview
 
-const PARAMEDICS_DATA = Array.from({length:20},(_,i)=>({
-  id:`E${i+1}`, center:`C${Math.ceil((i+1)/2)}`,
-  missions: Math.floor(Math.random()*30)+50,
-  resp: (13+Math.random()*3).toFixed(1),
-  good: (Math.random()*8+1).toFixed(1),
-  emergency: Math.floor(Math.random()*15)+15,
-  status: Math.random()>.3 ? 'متاح' : Math.random()>.5 ? 'في مهمة' : 'استراحة'
-}));
+**Wasl (وصل)** is an operational intelligence platform designed for private clinics and hospitals to monitor and analyze patient transfer operations. It consolidates 14,169 transfer missions into a single intelligence layer — covering KPI performance, center benchmarks, paramedic efficiency, and strategic recommendations.
 
-const MISSIONS_SAMPLE = Array.from({length:15},(_,i)=>({
-  ref: `#${100001+i}`,
-  date: `2025-12-${String(i+1).padStart(2,'0')}`,
-  dept: ['قلب','أعصاب','أطفال','طوارئ','أورام'][i%5],
-  type: i%3===0 ? 'إنقاذ حياة' : 'مستقرة',
-  center: `C${(i%10)+1}`,
-  para: `E${(i%20)+1}`,
-  resp: (13+Math.random()*3).toFixed(1),
-  perf: Math.random()>.1 ? 'متأخر' : 'جيد'
-}));
+**Wasl** in Arabic means *"to connect"* — connecting patients to hospitals, and decisions to data.
 
-const MONTHLY = [1227,1087,1207,1157,1202,1167,1191,1189,1157,1209,1185,1191];
-const MONTHS  = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
-const FEED_POOL = [
-  {c:'var(--red)',   t:'مهمة طوارئ',        d:'مركز C1 — قسم القلب → H1'},
-  {c:'var(--green)', t:'مهمة مكتملة',       d:'مركز C3 — 138 دقيقة'},
-  {c:'var(--teal2)', t:'إرسال سيارة إسعاف', d:'A19 ← مريض مستقر — C2'},
-  {c:'var(--amber)', t:'تجاوز وقت الاستجابة',d:'مركز C6 — 18.2 دقيقة'},
-  {c:'var(--green)', t:'عودة للمركز',        d:'E81 — اكتملت المهمة'},
-  {c:'var(--red)',   t:'حالة إنقاذ حياة',   d:'مركز C5 — قسم الأعصاب'},
-];
+This project demonstrates how **no-code/AI-first** development can produce enterprise-grade healthcare analytics without writing a single line of traditional code.
 
-const recentEntries = [];
+---
 
-// ══ CHART DEFAULTS ═══════════════════════════════════════════
-Chart.defaults.color = '#5E7391';
-Chart.defaults.font.family = "'Cairo', sans-serif";
-const G = 'rgba(255,255,255,0.045)';
+## 🎯 The Problem
 
-// ══ INITIALIZE CHARTS ════════════════════════════════════════
-function initCharts() {
-  // Monthly
-  new Chart('chart-monthly',{type:'bar',data:{
-    labels:MONTHS,
-    datasets:[{label:'المهام',data:MONTHLY,
-      backgroundColor:MONTHS.map((_,i)=>i===11?'rgba(0,201,167,.75)':'rgba(0,201,167,.2)'),
-      borderColor:'rgba(0,201,167,.6)',borderWidth:1,borderRadius:5}]
-  },options:{plugins:{legend:{display:false}},scales:{x:{grid:{color:G}},y:{grid:{color:G},min:1000}}}});
+Patient transport networks face 3 critical blind spots:
 
-  // Reasons
-  new Chart('chart-reasons',{type:'doughnut',data:{
-    labels:['نقص تخصصي','نقص معدات','كاث لاب'],
-    datasets:[{data:[4802,4715,4652],
-      backgroundColor:['rgba(0,201,167,.7)','rgba(124,92,252,.7)','rgba(246,166,35,.7)'],
-      borderColor:['#00C9A7','#BF5AF2','#F6A623'],borderWidth:2,hoverOffset:6}]
-  },options:{cutout:'65%',plugins:{legend:{position:'bottom',labels:{padding:12,font:{size:11}}}}}});
+| Challenge | Impact |
+|-----------|--------|
+| No unified performance visibility across centers | Reactive, not proactive management |
+| Manual reports taking days to produce | Delayed decision-making |
+| No benchmark for paramedic and vehicle efficiency | Inability to identify improvement areas |
 
-  // Types
-  new Chart('chart-types',{type:'doughnut',data:{
-    labels:['مستقرة','إنقاذ حياة'],
-    datasets:[{data:[9191,4978],
-      backgroundColor:['rgba(48,209,88,.65)','rgba(255,82,82,.65)'],
-      borderColor:['#30D158','#FF5252'],borderWidth:2,hoverOffset:6}]
-  },options:{cutout:'60%',plugins:{legend:{position:'bottom',labels:{padding:12,font:{size:11}}}}}});
+**Wasl solves all three — and now sends automated AI reports every morning.**
 
-  // Centers bar (top 8)
-  new Chart('chart-centers-bar',{type:'bar',data:{
-    labels:CENTERS_DATA.slice(0,8).map(c=>c.id),
-    datasets:[{label:'المهام',data:CENTERS_DATA.slice(0,8).map(c=>c.missions),
-      backgroundColor:'rgba(0,201,167,.25)',borderColor:'rgba(0,201,167,.7)',
-      borderWidth:1.5,borderRadius:5}]
-  },options:{indexAxis:'y',plugins:{legend:{display:false}},
-    scales:{x:{grid:{color:G}},y:{grid:{display:false}}}}});
+---
 
-  // Live centers (will update)
-  new Chart('chart-live-centers',{type:'bar',data:{
-    labels:CENTERS_DATA.slice(0,10).map(c=>c.id),
-    datasets:[{label:'اليوم',data:CENTERS_DATA.slice(0,10).map(c=>Math.floor(c.missions/365*Math.random()*2+2)),
-      backgroundColor:'rgba(0,152,219,.3)',borderColor:'rgba(0,152,219,.8)',
-      borderWidth:1.5,borderRadius:4}]
-  },options:{plugins:{legend:{display:false}},scales:{x:{grid:{color:G}},y:{grid:{color:G},beginAtZero:true}}}});
-}
+## 🤖 Automation — LIVE ✅
 
-// ══ RENDER TABLES ════════════════════════════════════════════
-function renderDashboardCenters() {
-  const tbody = document.getElementById('dashboard-centers');
-  tbody.innerHTML = CENTERS_DATA.slice(0,8).map(c=>`<tr>
-    <td><strong>${c.id}</strong></td>
-    <td>${c.missions.toLocaleString('ar')}</td>
-    <td style="font-family:'JetBrains Mono',monospace">${c.resp}</td>
-    <td style="font-family:'JetBrains Mono',monospace;color:${c.late>96?'var(--red)':c.late>95?'var(--amber)':'var(--text)'}">${c.late}%</td>
-    <td><span class="chip ${c.late>96?'chip-crit':c.late>95?'chip-warn':'chip-ok'}">${c.late>96?'حرج':c.late>95?'تحذير':'طبيعي'}</span></td>
-  </tr>`).join('');
-}
+Wasl is connected to a **fully automated reporting pipeline** powered by Make.com + OpenAI:
 
-function renderAllCenters() {
-  const tbody = document.getElementById('centers-body');
-  tbody.innerHTML = CENTERS_DATA.map(c=>`<tr>
-    <td><strong>${c.id}</strong></td>
-    <td>${c.missions.toLocaleString('ar')}</td>
-    <td>${c.paramedics}</td>
-    <td>${c.ambulances}</td>
-    <td style="font-family:'JetBrains Mono',monospace">${c.resp} د</td>
-    <td style="font-family:'JetBrains Mono',monospace">${c.dispatch} د</td>
-    <td style="color:${c.late>96?'var(--red)':c.late>95?'var(--amber)':'var(--green)'}">${c.late}%</td>
-    <td><span class="chip ${c.late>96?'chip-crit':c.late>95?'chip-warn':'chip-ok'}">${c.late>96?'حرج':c.late>95?'تحذير':'طبيعي'}</span></td>
-  </tr>`).join('');
-}
+| Time | Action |
+|------|--------|
+| ⏰ **7:00 AM daily** | Make.com triggers automatically |
+| 🤖 **GPT-4o analyzes** | KPIs, trends, alerts, recommendations |
+| 📧 **Arabic report sent** | Professional HTML email to operations team |
 
-function renderCentersProgress() {
-  const el = document.getElementById('centers-progress');
-  el.innerHTML = CENTERS_DATA.slice(0,8).map(c=>`
-    <div class="progress-row">
-      <span class="progress-label">${c.id}</span>
-      <div class="progress-bar"><div class="progress-fill" style="width:${c.late}%;background:${c.late>96?'var(--red)':c.late>95?'var(--amber)':'var(--green)'}"></div></div>
-      <span class="progress-val" style="color:${c.late>96?'var(--red)':'var(--muted)'}">${c.late}%</span>
-    </div>`).join('');
-}
+> *The system runs 365 days a year with zero manual intervention.*
 
-function renderParamedics() {
-  const tbody = document.getElementById('paramedics-body');
-  tbody.innerHTML = PARAMEDICS_DATA.map(p=>{
-    const sc = p.status==='متاح'?'chip-ok':p.status==='في مهمة'?'chip-warn':'chip-info';
-    return `<tr>
-      <td><strong>${p.id}</strong></td>
-      <td>${p.center}</td>
-      <td>${p.missions}</td>
-      <td style="font-family:'JetBrains Mono',monospace">${p.resp} د</td>
-      <td style="color:var(--amber)">${p.good}%</td>
-      <td>${p.emergency}</td>
-      <td><span class="chip ${sc}">${p.status}</span></td>
-    </tr>`;
-  }).join('');
-}
+### Automated Daily Report — Live Sample
 
-function renderMissions() {
-  const tbody = document.getElementById('missions-body');
-  tbody.innerHTML = MISSIONS_SAMPLE.map(m=>`<tr>
-    <td style="font-family:'JetBrains Mono',monospace;color:var(--teal)">${m.ref}</td>
-    <td>${m.date}</td>
-    <td>${m.dept}</td>
-    <td><span class="chip ${m.type==='إنقاذ حياة'?'chip-crit':'chip-ok'}">${m.type}</span></td>
-    <td>${m.center}</td>
-    <td>${m.para}</td>
-    <td style="font-family:'JetBrains Mono',monospace">${m.resp} د</td>
-    <td><span class="chip ${m.perf==='متأخر'?'chip-warn':'chip-ok'}">${m.perf}</span></td>
-    <td><button class="btn btn-secondary btn-sm" style="padding:4px 10px;font-size:11px">عرض</button></td>
-  </tr>`).join('');
-}
+> Every morning at 7:00 AM (Riyadh time), this report is automatically generated by GPT-4o and sent to the operations team:
 
-function renderAlerts() {
-  const ALERTS = [
-    {color:'var(--red)',icon:'🚨',title:'مركز C6 — معدل تأخير حرج (96.4%)',
-     desc:'يتجاوز الحد المسموح 95%. يُوصى بمراجعة توزيع المهام ورفع تقرير.',
-     time:'منذ 5 دقائق',action:'مراجعة'},
-    {color:'var(--amber)',icon:'⚡',title:'تركّز الوردية الصباحية (60.1%)',
-     desc:'معظم المهام في الصباح — يُوصى بإعادة توزيع الطاقم للوردية المسائية.',
-     time:'منذ ساعة',action:'جدولة'},
-    {color:'var(--teal2)',icon:'🏥',title:'المستشفى H1 يستقبل 72.1% من التحويلات',
-     desc:'خطر اختناق — يُوصى بتوجيه الحالات المستقرة لـ H2 وH3.',
-     time:'منذ 3 ساعات',action:'توجيه'},
-    {color:'var(--green)',icon:'✅',title:'تقرير أمس أُرسل بنجاح',
-     desc:'تم توليد التقرير اليومي وإرساله لفريق الإسعاف عبر Make.com.',
-     time:'أمس 7:02 صباحاً',action:'عرض'},
-  ];
-  const el = document.getElementById('alerts-full');
-  const feed = document.getElementById('dashboard-alerts');
-  const html = ALERTS.map(a=>`
-    <div class="card" style="border-right:4px solid ${a.color};padding:18px 20px">
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <div style="display:flex;align-items:center;gap:12px">
-          <span style="font-size:22px">${a.icon}</span>
-          <div>
-            <div style="font-size:14px;font-weight:700;margin-bottom:4px">${a.title}</div>
-            <div style="font-size:12px;color:var(--muted)">${a.desc}</div>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
-          <span style="font-size:11px;color:var(--muted)">${a.time}</span>
-          <button class="btn btn-secondary btn-sm" onclick="showToast('تم اتخاذ الإجراء ✅','success')">${a.action}</button>
-        </div>
-      </div>
-    </div>`).join('');
-  if(el) el.innerHTML = html;
-  if(feed) feed.innerHTML = ALERTS.map(a=>`
-    <div class="alert-item" style="border-color:${a.color}">
-      <div class="alert-dot" style="background:${a.color}"></div>
-      <div class="alert-content">
-        <div class="alert-title">${a.icon} ${a.title}</div>
-        <div class="alert-desc">${a.desc}</div>
-      </div>
-      <span class="alert-time">${a.time}</span>
-    </div>`).join('');
-}
+<div align="center">
 
-function renderReportsHistory() {
-  const el = document.getElementById('reports-history');
-  const days = ['الأربعاء','الثلاثاء','الاثنين','الأحد','السبت'];
-  el.innerHTML = days.map((d,i)=>`
-    <div class="stat-row">
-      <div class="label">تقرير ${d} ${i===0?'(اليوم)':''}</div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <span class="chip chip-ok">تم الإرسال</span>
-        <button class="btn btn-secondary btn-sm" onclick="showToast('فتح التقرير...','info')">📄 عرض</button>
-      </div>
-    </div>`).join('');
-}
+![Daily Report Email](./report-screenshot.png)
 
-function renderRecentEntries() {
-  const el = document.getElementById('recent-entries');
-  if(!el) return;
-  el.innerHTML = recentEntries.slice(-5).reverse().map(e=>`
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;
-      background:var(--surface2);border-radius:8px;font-size:12px">
-      <span style="color:var(--teal);font-family:'JetBrains Mono',monospace">#${e.ref}</span>
-      <span>${e.dept}</span>
-      <span class="chip ${e.type==='Life-Saving'?'chip-crit':'chip-ok'}" style="font-size:9px">${e.type==='Life-Saving'?'طوارئ':'مستقر'}</span>
-    </div>`).join('') || '<p style="font-size:12px;color:var(--muted);text-align:center;padding:16px">لا توجد مدخلات بعد</p>';
-}
+*📧 Actual email received — Professional Arabic report with KPI cards, alerts, and recommendations*
 
-// ══ LIVE SIMULATION ══════════════════════════════════════════
-let liveToday = 38;
-function updateLive() {
-  liveToday += Math.floor(Math.random()*3);
-  document.getElementById('live-today').textContent = liveToday;
-  document.getElementById('live-emergency').textContent = Math.floor(Math.random()*5)+2;
-  const avail = Math.floor(Math.random()*20)+140;
-  document.getElementById('live-available').textContent = avail;
-  document.getElementById('para-available').textContent = avail;
-  document.getElementById('para-onmission').textContent = 219-avail-9;
-  document.getElementById('live-ambulances').textContent = Math.floor(Math.random()*20)+40;
-  document.getElementById('live-resp').textContent = (13.8+Math.random()*.8).toFixed(1);
-}
-
-function addFeedItem(targetId) {
-  const e = FEED_POOL[Math.floor(Math.random()*FEED_POOL.length)];
-  const now = new Date().toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  const el = document.getElementById(targetId);
-  if(!el) return;
-  const item = document.createElement('div');
-  item.className = 'alert-item';
-  item.style.borderColor = e.c;
-  item.innerHTML = `<div class="alert-dot" style="background:${e.c}"></div>
-    <div class="alert-content">
-      <div class="alert-title">${e.t}</div>
-      <div class="alert-desc">${e.d}</div>
-    </div>
-    <span class="alert-time">${now}</span>`;
-  el.insertBefore(item, el.firstChild);
-  if(el.children.length>8) el.removeChild(el.lastChild);
-}
-
-// ══ CLOCK ════════════════════════════════════════════════════
-function updateClock() {
-  const now = new Date();
-  document.getElementById('clockDisplay').textContent =
-    now.toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-}
-
-function updateReportCountdown() {
-  const now = new Date();
-  const next = new Date(now); next.setHours(24,0,0,0);
-  const d = next-now;
-  const h = Math.floor(d/3600000), m = Math.floor((d%3600000)/60000), s = Math.floor((d%60000)/1000);
-  const el = document.getElementById('report-countdown');
-  if(el) el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-}
-
-// ══ NAVIGATION ═══════════════════════════════════════════════
-const PAGE_LABELS = {
-  dashboard:'لوحة التحكم', live:'المراقبة اللحظية',
-  missions:'سجل المهام', entry:'إدخال بيانات',
-  centers:'المراكز', paramedics:'المسعفون',
-  reports:'التقارير', alerts:'التنبيهات', settings:'الإعدادات'
-};
-
-function navigate(page) {
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n=>{
-    if(n.getAttribute('onclick')?.includes(`'${page}'`)) n.classList.add('active');
-  });
-  document.getElementById('pageLabel').textContent = PAGE_LABELS[page]||page;
-  if(document.getElementById('notifPanel')) document.getElementById('notifPanel').style.display='none';
-}
-
-// ══ NOTIFICATIONS ═════════════════════════════════════════════
-function toggleNotif() {
-  const p = document.getElementById('notifPanel');
-  p.style.display = p.style.display==='block' ? 'none' : 'block';
-}
-
-// ══ TOAST ═════════════════════════════════════════════════════
-function showToast(msg, type='info') {
-  const icons = {success:'✅',error:'❌',info:'ℹ️'};
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`;
-  document.getElementById('toastContainer').appendChild(toast);
-  setTimeout(()=>toast.remove(), 3500);
-}
-
-// ══ FORM SUBMIT ═══════════════════════════════════════════════
-function submitMission() {
-  const ref = document.getElementById('f-ref').value || String(Math.floor(Math.random()*90000)+100100);
-  const dept = document.getElementById('f-dept').value;
-  const type = document.getElementById('f-type').value;
-  if(!ref){showToast('الرجاء إدخال رقم الإحالة','error');return;}
-  recentEntries.push({ref, dept, type});
-  renderRecentEntries();
-  showToast(`تم حفظ المهمة #${ref} بنجاح ✅`,'success');
-  document.getElementById('missionForm').reset();
-}
-
-function handleFileUpload(input) {
-  const f = input.files[0];
-  if(f) {
-    document.getElementById('upload-status').textContent = `✅ تم رفع: ${f.name}`;
-    showToast(`جارٍ استيراد ${f.name} ...`,'info');
-    setTimeout(()=>showToast('تم استيراد 47 مهمة بنجاح ✅','success'),1800);
-  }
-}
-function handleDrop(e) {
-  e.preventDefault();
-  const f = e.dataTransfer.files[0];
-  if(f){document.getElementById('upload-status').textContent=`✅ ${f.name}`;showToast('جارٍ معالجة الملف...','info');}
-}
-
-// ══ WEBHOOK TEST ══════════════════════════════════════════════
-function testWebhook() {
-  showToast('جارٍ اختبار الاتصال بـ Make.com...','info');
-  setTimeout(()=>showToast('✅ Make.com متصل وجاهز!','success'),1500);
-}
-
-// ══ GENERATE REPORT ═══════════════════════════════════════════
-function generateReport() {
-  const now = new Date();
-  const dateStr = now.toLocaleDateString('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  const w = window.open('','_blank');
-  w.document.write(`<!DOCTYPE html><html lang="ar" dir="rtl"><head>
-<meta charset="UTF-8"/><title>التقرير اليومي</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
-<style>
-body{font-family:'Cairo',sans-serif;margin:0;padding:40px;color:#0a0f1e;background:#fff;line-height:1.6;}
-.header{background:linear-gradient(135deg,#1B3A6B,#0D7377);color:white;padding:28px 32px;border-radius:16px;margin-bottom:32px;}
-.header h1{font-size:24px;font-weight:900;margin-bottom:4px;}
-.header p{font-size:13px;opacity:.8;}
-.meta{display:flex;gap:0;margin-bottom:28px;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;}
-.meta-item{flex:1;padding:14px 18px;border-left:1px solid #e5e7eb;text-align:center;}
-.meta-item:first-child{border-left:none;}
-.meta-label{font-size:10px;color:#6b7280;font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
-.meta-val{font-size:20px;font-weight:900;color:#1B3A6B;margin-top:4px;}
-.section{font-size:12px;font-weight:800;color:#0D7377;letter-spacing:.6px;text-transform:uppercase;
-  border-bottom:2px solid #0D7377;padding-bottom:7px;margin:28px 0 16px;}
-.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
-.kpi-box{padding:16px;border:1px solid #e5e7eb;border-radius:12px;text-align:center;border-top:3px solid;}
-.kpi-box .v{font-size:26px;font-weight:900;}
-.kpi-box .l{font-size:11px;color:#6b7280;margin-top:4px;}
-table{width:100%;border-collapse:collapse;font-size:12px;}
-th{background:#1B3A6B;color:white;padding:10px 14px;text-align:right;font-weight:700;}
-td{padding:9px 14px;border-bottom:1px solid #f3f4f6;}
-tr:nth-child(even) td{background:#f9fafb;}
-.chip{padding:2px 10px;border-radius:100px;font-size:10px;font-weight:800;}
-.alert-block{padding:14px 18px;border-radius:10px;margin-bottom:10px;border-right:4px solid;}
-.alert-block strong{display:block;font-size:13px;margin-bottom:3px;}
-.alert-block p{font-size:12px;color:#6b7280;margin:0;}
-.footer{margin-top:40px;padding-top:20px;border-top:1px solid #e5e7eb;font-size:11px;color:#9ca3af;text-align:center;}
-.print-btn{position:fixed;bottom:20px;left:20px;padding:10px 22px;background:#0D7377;color:white;
-  border:none;border-radius:10px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;}
-@media print{.print-btn{display:none;}}
-</style></head><body>
-<div class="header">
-  <h1>📊 التقرير اليومي — نظام وصل لنقل المرضى</h1>
-  <p>${dateStr} | سري — للاستخدام الداخلي فقط</p>
 </div>
-<div class="meta">
-  <div class="meta-item"><div class="meta-label">إجمالي المهام</div><div class="meta-val">14,169</div></div>
-  <div class="meta-item"><div class="meta-label">المراكز النشطة</div><div class="meta-val">20</div></div>
-  <div class="meta-item"><div class="meta-label">المسعفون</div><div class="meta-val">219</div></div>
-  <div class="meta-item"><div class="meta-label">سيارات الإسعاف</div><div class="meta-val">96</div></div>
-  <div class="meta-item"><div class="meta-label">حالة النظام</div><div class="meta-val" style="color:#15803d">✅ طبيعي</div></div>
-</div>
-<div class="section">مؤشرات الأداء الرئيسية</div>
-<div class="kpi-row">
-  <div class="kpi-box" style="border-color:#0D7377"><div class="v" style="color:#0D7377">14.5 د</div><div class="l">متوسط وقت الاستجابة</div></div>
-  <div class="kpi-box" style="border-color:#0D7377"><div class="v" style="color:#0D7377">5.5 د</div><div class="l">متوسط وقت الإرسال</div></div>
-  <div class="kpi-box" style="border-color:#dc2626"><div class="v" style="color:#dc2626">95.3%</div><div class="l">⚠️ معدل التأخير</div></div>
-  <div class="kpi-box" style="border-color:#d97706"><div class="v" style="color:#d97706">35.1%</div><div class="l">نسبة الطوارئ</div></div>
-</div>
-<div class="section">التنبيهات النشطة</div>
-<div class="alert-block" style="background:#fef2f2;border-color:#ef4444">
-  <strong>🚨 مركز C6 — معدل تأخير حرج (96.4%)</strong>
-  <p>يتجاوز الحد المسموح 95% — يُوصى بمراجعة توزيع المهام فوراً</p>
-</div>
-<div class="alert-block" style="background:#fffbeb;border-color:#f59e0b">
-  <strong>⚡ تركّز الوردية الصباحية (60.1%)</strong>
-  <p>الضغط في الصباح أعلى من المسائية بـ 50% — يُوصى بإعادة التوزيع</p>
-</div>
-<div class="alert-block" style="background:#eff6ff;border-color:#3b82f6">
-  <strong>🏥 H1 يستقبل 72.1% من التحويلات</strong>
-  <p>خطر اختناق — يُوصى بتوجيه الحالات المستقرة لـ H2 وH3</p>
-</div>
-<div class="section">أداء المراكز</div>
-<table><thead><tr>
-  <th>المركز</th><th>المهام</th><th>متوسط الاستجابة</th><th>معدل التأخير</th><th>الحالة</th>
-</tr></thead><tbody>
-${CENTERS_DATA.map(c=>`<tr>
-  <td><strong>${c.id}</strong></td>
-  <td>${c.missions.toLocaleString('ar')}</td>
-  <td>${c.resp} دقيقة</td>
-  <td style="color:${c.late>96?'#dc2626':'#d97706'}">${c.late}%</td>
-  <td><span class="chip" style="background:${c.late>96?'#fee2e2':c.late>95?'#fef3c7':'#d1fae5'};color:${c.late>96?'#991b1b':c.late>95?'#92400e':'#065f46'}">${c.late>96?'حرج':c.late>95?'تحذير':'طبيعي'}</span></td>
-</tr>`).join('')}
-</tbody></table>
-<div class="section">التوصيات الاستراتيجية</div>
-<ol style="font-size:13px;color:#374151;line-height:2.2;padding-right:22px">
-  <li>مراجعة معايير تصنيف الأداء — 95.3% تأخير يشير لمشكلة في الأهداف لا في العمليات</li>
-  <li>إعادة توزيع التحويلات بين المستشفيات لتقليل الضغط على H1</li>
-  <li>زيادة طاقم الوردية المسائية في المراكز الكبرى (C1, C2, C3)</li>
-  <li>مراجعة قدرة المراكز الصغيرة (C16-C20) على تحمّل أعباء إضافية</li>
-  <li>تفعيل خطة الطوارئ لمواجهة نقص التخصصات والمعدات (66.7% من الإحالات)</li>
-</ol>
-<div class="footer">تم توليد هذا التقرير تلقائياً بواسطة نظام وصل — ${dateStr}<br/>
-سري ومخصص لفريق الإسعاف والإدارة التشغيلية فقط | وصل v2.0</div>
-<button class="print-btn" onclick="window.print()">🖨️ طباعة / PDF</button>
-<script>const CENTERS_DATA=${JSON.stringify(CENTERS_DATA)};<\/script>
-</body></html>`);
-  w.document.close();
-  showToast('تم توليد التقرير — جارٍ الإرسال عبر Make.com ✅','success');
-}
 
-function refreshData() {
-  showToast('جارٍ تحديث البيانات...','info');
-  setTimeout(()=>showToast('تم التحديث ✅','success'),1000);
-}
+---
 
-// ══ INIT ═════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded',()=>{
-  initCharts();
-  renderDashboardCenters();
-  renderAllCenters();
-  renderCentersProgress();
-  renderParamedics();
-  renderMissions();
-  renderAlerts();
-  renderReportsHistory();
-  // Initial feed
-  for(let i=0;i<5;i++) setTimeout(()=>addFeedItem('live-feed'),i*300);
-  // Loops
-  setInterval(updateClock,1000);
-  setInterval(updateReportCountdown,1000);
-  setInterval(()=>{updateLive();addFeedItem('live-feed');},5000);
-  updateClock(); updateLive(); updateReportCountdown();
-  // Set today's date default
-  document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
-});
-document.addEventListener('click',e=>{
-  const panel=document.getElementById('notifPanel');
-  if(panel&&panel.style.display==='block'&&!panel.contains(e.target)&&!e.target.closest('.icon-btn'))
-    panel.style.display='none';
-});
-</script>
-</body>
-</html>
+## 🖥️ System Components
+
+```
+🚑 Wasl Integrated Platform
+│
+├── 📊  Main Dashboard        → KPIs + Charts + Center Performance
+├── 📡  Live Monitoring       → Updates every 5s + Live Event Log
+├── 🗂️  Mission Registry      → 14,169 missions + Search & Filter
+├── ➕  Data Entry            → Manual form + Excel Import
+├── 🏢  Center Management     → 20 centers + Progress Bars
+├── 👨‍⚕️ Paramedic Management  → 219 paramedics + Individual Status
+├── 📄  Auto Reports          → PDF generation + Make.com scheduling
+├── 🔔  Alert System          → Instant alerts when KPI thresholds exceeded
+└── ⚙️  Settings              → KPI limits + Make.com Webhook config
+```
+
+---
+
+## 🔑 Key Findings
+
+| KPI | Value | Target | Status |
+|-----|-------|--------|--------|
+| Avg Response Time | 14.5 min | ≤15 min | ✅ |
+| Avg Dispatch Time | 5.5 min | ≤8 min | ✅ |
+| Mission Duration | 132.9 min | — | 📊 |
+| Emergency Rate | 35.1% | — | 🚨 |
+| Late Rate | 95.3% | ≤95% | ⚠️ |
+| H1 Hospital Share | 72.1% | Balanced | ⚠️ |
+
+---
+
+## 🏗️ System Architecture
+
+```
+┌─────────────────────────────────────────────┐
+│              Data Layer                      │
+│   Excel (.xlsx) → 14,169 records × 25 cols  │
+└────────────────────┬────────────────────────┘
+                     │
+┌────────────────────▼────────────────────────┐
+│            Analytics Layer                   │
+│   KPIs, Aggregations, Trend Analysis         │
+└──────────┬──────────────────┬───────────────┘
+           │                  │
+┌──────────▼──────┐  ┌────────▼──────────────┐
+│  Wasl Platform  │  │  Make.com Automation  │
+│  (HTML/JS)      │  │  OpenAI + Gmail       │
+│  GitHub Pages   │  │  Daily 7AM Report     │
+└─────────────────┘  └───────────────────────┘
+```
+
+### Tech Stack
+
+| Layer | Tool | Purpose |
+|-------|------|---------|
+| **Development** | Claude AI (Vibe Coding) | Full project generation |
+| **Data** | Microsoft Excel | Operational data storage |
+| **Frontend** | HTML/CSS/JS + Chart.js | Interactive Wasl platform |
+| **Automation** ✅ LIVE | Make.com + OpenAI GPT-4o | Daily Arabic reports |
+| **Delivery** ✅ LIVE | Gmail API | Automated email to team |
+| **Hosting** | GitHub Pages | Free, instant deployment |
+
+---
+
+## 🗺️ Roadmap
+
+```
+Now ✅          Phase 1 🔵        Phase 2 🟡         Phase 3 🟠
+────────────    ──────────────    ───────────────    ───────────────
+MVP Complete    Live Google       WhatsApp Alerts    Multi-Hospital
+Daily Reports   Sheets DB         Instant KPI        Cloud Platform
+Automated 7AM   Real-time sync    Notifications      Multi-tenant
+```
+
+| Phase | Description | Tools | Timeline |
+|-------|-------------|-------|----------|
+| 🔵 **Phase 1** | Connect Google Sheets as live database | Google Sheets API | Week 1 |
+| 🟡 **Phase 2** | WhatsApp instant alerts when KPI exceeded | Make.com + WhatsApp API | Week 2 |
+| 🔴 **Phase 3** | Multi-hospital cloud dashboard | Cloud Hosting + Auth | Month 2 |
+
+---
+
+## 🚀 Getting Started
+
+### 1. Try the Live System
+```
+Open your browser:
+https://moha-111.github.io/Medical-Transport-Operations-Analytics/
+```
+
+### 2. Run Locally
+```bash
+git clone https://github.com/Moha-111/Medical-Transport-Operations-Analytics.git
+cd Medical-Transport-Operations-Analytics
+# Open index.html in any browser
+```
+
+### 3. Explore the Data (Python)
+```python
+import pandas as pd
+
+df = pd.read_excel('Medical-Transport-Analytics.xlsx',
+                   sheet_name='Daily Operations Data')
+
+print(f"Total missions: {len(df):,}")
+print(f"Avg response time: {df['Response Time (min)'].mean():.1f} min")
+print(f"Emergency rate: {(df['Referral Type']=='Life-Saving').mean()*100:.1f}%")
+```
+
+---
+
+## 💡 Vibe Coding Methodology
+
+Built entirely with **Vibe Coding** — using AI as the primary developer:
+
+1. **Define** the problem in plain language
+2. **Request** Claude AI to generate the solution
+3. **Iterate** through natural conversation
+4. **Deploy** without touching traditional code editors
+
+> *"The best code is the code you never had to write."*
+
+This approach reduced development time from weeks to hours while maintaining professional quality.
+
+---
+
+## 🏆 Hackathon Context
+
+**Event:** Tuwaiq Hackathon — Healthcare Track
+**Challenge:** Build a data-driven operational solution for private healthcare facilities
+**Approach:** No-code, AI-driven development (Vibe Coding)
+**Output:** Complete analytics platform with automated reports + live monitoring
+
+---
+
+## 🚀 Vision — From Hackathon to Real Product
+
+> **Wasl is not just a hackathon project — it is the foundation of a commercial healthcare SaaS platform targeting Saudi Arabia's growing private healthcare sector.**
+
+### The Market Opportunity
+
+```
+🏥  450+  Private hospitals in Saudi Arabia
+🏢  2,000+ Specialized clinics
+🚑  30+   Medical transport companies
+📈  $4.2B  Saudi healthcare IT market by 2030
+```
+
+### Business Model
+
+| Plan | Target | Price | Features |
+|------|--------|-------|---------|
+| 🔵 **Basic** | Small clinics | 500 SAR/month | Dashboard + Reports |
+| 🟡 **Pro** | Hospitals | 1,500 SAR/month | + WhatsApp Alerts + AI Reports |
+| 🔴 **Enterprise** | Hospital chains | Custom | + Multi-branch + API Access |
+
+> **10 hospitals = 15,000 SAR/month recurring revenue**
+
+### Commercial Roadmap
+
+```
+NOW ✅              Q3 2026 🔵           Q1 2027 🟡           Q4 2027 🔴
+────────────        ──────────────       ──────────────       ──────────────
+Hackathon MVP       Pilot Program        First Paying         Full SaaS
+Working System      1 Hospital Free      Customer             Platform
+AI Reports Live     Collect Feedback     Prove Value          10+ Clients
+```
+
+### Why Wasl Will Win
+
+| Advantage | Wasl | Traditional Systems |
+|-----------|------|-------------------|
+| Full Arabic UI | ✅ | ❌ Rarely |
+| AI-powered Arabic reports | ✅ | ❌ |
+| WhatsApp instant alerts | ✅ | ❌ |
+| Affordable pricing | ✅ | ❌ Expensive |
+| Easy to use | ✅ | ❌ Complex |
+| Saudi PDPL compliant | ✅ Roadmap | ⚠️ Varies |
+
+### Funding & Support Targets
+
+We are actively seeking support from Saudi Arabia's leading innovation programs:
+
+[![Monshaat](https://img.shields.io/badge/Monsha'at-SME%20Support-1B3A6B?style=for-the-badge)](https://www.monshaat.gov.sa)
+[![STV](https://img.shields.io/badge/STV-Saudi%20Tech%20Ventures-00C9A7?style=for-the-badge)](https://stv.vc)
+[![Flat6Labs](https://img.shields.io/badge/Flat6Labs-Accelerator-E67E22?style=for-the-badge)](https://flat6labs.com)
+[![Vision2030](https://img.shields.io/badge/Vision%202030-Health%20Sector-30D158?style=for-the-badge)](https://vision2030.gov.sa)
+
+### Next Milestones
+
+- [ ] 🔵 Deploy pilot with 1 hospital (free) — collect real feedback
+- [ ] 🔵 Add live Google Sheets database integration
+- [ ] 🟡 Launch WhatsApp instant KPI alerts
+- [ ] 🟡 Register company & apply for Monsha'at support
+- [ ] 🟡 Convert to PWA mobile app
+- [ ] 🔴 Multi-hospital SaaS platform
+- [ ] 🔴 Saudi Ministry of Health certification
+
+---
+
+## 📂 Data & Templates
+
+[![Raw Data](https://img.shields.io/badge/Raw%20Data-Google%20Sheets-34A853?style=for-the-badge&logo=googlesheets&logoColor=white)](https://docs.google.com/spreadsheets/d/1lFtHLgycKMlTFfpC4YbL_Dsvn2ZprOJARc1imcIBF0g/edit?usp=sharing)
+[![Templates](https://img.shields.io/badge/Field%20Templates-Google%20Sheets-34A853?style=for-the-badge&logo=googlesheets&logoColor=white)](https://docs.google.com/spreadsheets/d/1-ZUjvnIdeTTqLc3Z-nyYd8Csftds2e6l/edit?usp=sharing)
+
+| الملف | الوصف | الرابط |
+|-------|-------|--------|
+| 📊 **البيانات الخام** | 14,169 مهمة نقل × 25 متغير | [فتح في Google Sheets](https://docs.google.com/spreadsheets/d/1lFtHLgycKMlTFfpC4YbL_Dsvn2ZprOJARc1imcIBF0g/edit?usp=sharing) |
+| 📋 **نماذج الميدان** | بلاغ المسعف + تشيك الإسعاف + تسليم الوردية | [فتح في Google Sheets](https://docs.google.com/spreadsheets/d/1-ZUjvnIdeTTqLc3Z-nyYd8Csftds2e6l/edit?usp=sharing) |
+
+---
+
+> **Current Status:** All data in this repository is **synthetic/demo data** generated for hackathon purposes only. No real patient information is included.
+
+### Data Protection Roadmap
+
+| Phase | Measure | Status |
+|-------|---------|--------|
+| 🟡 **Data Anonymization** | All patient identifiers replaced with anonymous IDs | Planned |
+| 🟡 **Access Control** | Role-based access — operators see only their center's data | Planned |
+| 🟡 **Audit Logging** | Every data access logged with timestamp and user | Planned |
+| 🔴 **PDPL Compliance** | Full compliance with Saudi Personal Data Protection Law | Roadmap |
+| 🔴 **Data Encryption** | End-to-end encryption for patient transfer records | Roadmap |
+| 🔴 **Data Residency** | Data stored exclusively within Saudi Arabia (KSA servers) | Roadmap |
+
+### Commitment
+
+When deployed in real healthcare environments, **Wasl** is committed to:
+- ✅ Full compliance with **Saudi PDPL** (نظام حماية البيانات الشخصية)
+- ✅ **Zero storage** of identifiable patient data on public repositories
+- ✅ **Encrypted transmission** of all sensitive operational data
+- ✅ **Minimum data** principle — collect only what's operationally necessary
+
+---
+
+## 📬 Contact
+
+<div align="center">
+
+[![LinkedIn](https://img.shields.io/badge/Connect%20on%20LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/mohammad-alshehri-b0a579388)
+[![GitHub](https://img.shields.io/badge/Follow%20on%20GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Moha-111)
+
+</div>
+
+---
+
+<div align="center">
+
+**Built with ❤️ at Tuwaiq Hackathon · Powered by Vibe Coding + Claude AI**
+
+*Wasl — Connecting Patients to Hospitals, and Decisions to Data*
+
+![footer](https://capsule-render.vercel.app/api?type=waving&color=00C9A7,0098DB&height=100&section=footer)
+
+</div>
