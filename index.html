@@ -92,6 +92,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root {
   --bg:        #060A14;
@@ -2306,18 +2307,99 @@ function submitMission() {
   document.getElementById('missionForm').reset();
 }
 
-function handleFileUpload(input) {
-  const f = input.files[0];
-  if(f) {
-    document.getElementById('upload-status').textContent = `✅ تم رفع: ${f.name}`;
-    showToast(`جارٍ استيراد ${f.name} ...`,'info');
-    setTimeout(()=>showToast('تم استيراد 47 مهمة بنجاح ✅','success'),1800);
+function processExcelFile(file) {
+  if (!file) return;
+  const statusEl = document.getElementById('upload-status');
+  const ext = file.name.split('.').pop().toLowerCase();
+
+  statusEl.textContent = `⏳ جارٍ تحليل: ${file.name}`;
+  showToast(`جارٍ قراءة ${file.name} ...`, 'info');
+
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    try {
+      let rows = [];
+
+      if (ext === 'csv') {
+        // Parse CSV directly
+        rows = parseCSV(e.target.result);
+      } else {
+        // Parse Excel (.xlsx / .xls) using SheetJS
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+
+        // Use first sheet
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+
+        // Convert to array of objects (header row → keys)
+        rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+      }
+
+      if (!rows || rows.length === 0) {
+        statusEl.textContent = `⚠️ الملف فارغ أو لا يحتوي على بيانات`;
+        showToast('الملف فارغ أو تنسيق غير مدعوم', 'warning');
+        return;
+      }
+
+      // Calculate KPIs from real data
+      const kpis = calcKPIs(rows);
+      if (!kpis) {
+        statusEl.textContent = `⚠️ تعذّر استخراج البيانات — تحقق من أعمدة الملف`;
+        showToast('تعذّر قراءة الأعمدة', 'warning');
+        return;
+      }
+
+      // Apply to dashboard
+      applyKPIs(kpis);
+      renderDashboardCenters();
+      renderAllCenters();
+      renderCentersProgress();
+      renderMissions(rows.slice(-100)); // show latest 100 missions in registry
+
+      // Update header total count
+      const totalEl = document.getElementById('kpi-total');
+      if (totalEl) totalEl.textContent = kpis.n.toLocaleString('ar');
+
+      // Stop demo simulation — we now have real data
+      if (SYNC.demoInterval) {
+        clearInterval(SYNC.demoInterval);
+        SYNC.demoInterval = null;
+      }
+      SYNC.mode = 'excel';
+      SYNC.totalRows = kpis.n;
+
+      statusEl.innerHTML = `✅ <strong>${file.name}</strong> — ${kpis.n.toLocaleString('ar')} مهمة`;
+      showToast(`✅ تم تحميل ${kpis.n.toLocaleString('ar')} مهمة من Excel — الداشبورد محدّث!`, 'success');
+
+    } catch (err) {
+      console.error('Excel parse error:', err);
+      statusEl.textContent = `❌ خطأ في قراءة الملف`;
+      showToast('فشل تحليل الملف — تأكد أنه Excel أو CSV صحيح', 'error');
+    }
+  };
+
+  reader.onerror = function() {
+    statusEl.textContent = `❌ فشل قراءة الملف`;
+    showToast('فشل قراءة الملف', 'error');
+  };
+
+  if (ext === 'csv') {
+    reader.readAsText(file, 'UTF-8');
+  } else {
+    reader.readAsArrayBuffer(file);
   }
 }
+
+function handleFileUpload(input) {
+  processExcelFile(input.files[0]);
+}
+
 function handleDrop(e) {
   e.preventDefault();
   const f = e.dataTransfer.files[0];
-  if(f){document.getElementById('upload-status').textContent=`✅ ${f.name}`;showToast('جارٍ معالجة الملف...','info');}
+  if (f) processExcelFile(f);
 }
 
 // ══ WEBHOOK TEST ══════════════════════════════════════════════
