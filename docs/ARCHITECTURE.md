@@ -1,392 +1,256 @@
-# System Architecture — Wasl (وصل)
+# System Architecture — Wasl Platform (وصل)
 
-> Patient Transfer Intelligence Platform
+## Overview
 
----
-
-## Table of Contents
-
-- [High-Level Overview](#high-level-overview)
-- [Component Map](#component-map)
-- [Data Flow](#data-flow)
-- [Frontend Architecture](#frontend-architecture)
-- [Analytics Engine (core.js)](#analytics-engine-corejs)
-- [Automation Pipeline](#automation-pipeline)
-- [Hosting & Deployment](#hosting--deployment)
-- [Security Architecture](#security-architecture)
-- [Scalability Notes](#scalability-notes)
+Wasl is a client-side, single-page application (SPA) built as a **zero-backend, AI-first healthcare intelligence platform**. It is intentionally serverless in its MVP form to enable rapid deployment and zero infrastructure cost.
 
 ---
 
-## High-Level Overview
-
-Wasl is a **client-side Single Page Application (SPA)** with no backend server. All computation happens in the browser. The only external integrations are:
-
-1. **Make.com** — automation trigger for daily reports
-2. **OpenAI GPT-4o** — Arabic narrative generation
-3. **Gmail API** — email delivery
-4. **GitHub Pages** — static file hosting
+## High-Level Architecture
 
 ```
-╔══════════════════════════════════════════════════════════════╗
-║                    WASL PLATFORM OVERVIEW                    ║
-╠══════════════════════════════════════════════════════════════╣
-║                                                              ║
-║   [User's Browser]         [External Services]               ║
-║   ┌─────────────────┐      ┌──────────────────────────┐      ║
-║   │  index.html     │      │  Make.com Automation     │      ║
-║   │  (SPA)          │◄────►│  → OpenAI GPT-4o         │      ║
-║   │                 │      │  → Gmail API             │      ║
-║   │  core.js        │      └──────────────────────────┘      ║
-║   │  (engine)       │                                        ║
-║   └────────┬────────┘      ┌──────────────────────────┐      ║
-║            │               │  GitHub Pages            │      ║
-║            │               │  (Static File Host)      │      ║
-║   [Local Storage]          └──────────────────────────┘      ║
-║   (config, thresholds)                                       ║
-╚══════════════════════════════════════════════════════════════╝
+┌─────────────────────────────────────────────────────────────────────┐
+│                         CLIENT LAYER                                 │
+│                                                                      │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │                  Wasl SPA (index.html)                        │   │
+│  │                                                              │   │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌────────────────────┐ │   │
+│  │  │   Dashboard  │  │  Monitoring  │  │  Mission Registry  │ │   │
+│  │  │   KPIs+Charts│  │  Live Feed   │  │  14,169 Records    │ │   │
+│  │  └──────────────┘  └──────────────┘  └────────────────────┘ │   │
+│  │                                                              │   │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌────────────────────┐ │   │
+│  │  │   Centers    │  │  Paramedics  │  │   Auto Reports     │ │   │
+│  │  │   20 Centers │  │  219 Staff   │  │   PDF + Webhook    │ │   │
+│  │  └──────────────┘  └──────────────┘  └────────────────────┘ │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                                                                      │
+│  ┌─────────────────────┐  ┌─────────────────────────────────────┐   │
+│  │   Chart.js 4.4.0    │  │   Cairo Font + JetBrains Mono       │   │
+│  │   (CDN)             │  │   (Google Fonts CDN)                │   │
+│  └─────────────────────┘  └─────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────┘
+         │                              │
+         │ HTTPS                        │ Webhook (POST)
+         ▼                              ▼
+┌─────────────────┐          ┌─────────────────────────────────────┐
+│  GitHub Pages   │          │         Make.com Automation         │
+│  Static Hosting │          │                                     │
+│  CDN-backed     │          │  1. Trigger: 7:00 AM (Riyadh time)  │
+│  Free tier      │          │  2. GPT-4o analyzes KPI data        │
+└─────────────────┘          │  3. Generates Arabic HTML report    │
+                             │  4. Sends via Gmail API             │
+                             └─────────────────────────────────────┘
 ```
 
 ---
 
-## Component Map
+## Component Architecture
+
+### Module Map
 
 ```
-Medical-Transport-Operations-Analytics/
+index.html (3,879 lines)
 │
-├── index.html              ← Main SPA (3,879 lines)
-│   ├── HTML Structure      ← 9 views (login, dashboard, monitoring…)
-│   ├── CSS Styles          ← Dark theme, RTL Arabic, Chart.js
-│   └── JavaScript          ← UI logic, event handlers, chart rendering
+├── <head>
+│   ├── Meta tags (SEO, PWA, OG)
+│   ├── Chart.js CDN
+│   └── Google Fonts (Cairo, JetBrains Mono)
 │
-├── src/
-│   └── core.js             ← Pure business logic (testable)
-│       ├── parseCSV()
-│       ├── calcKPIs()
-│       ├── detectBreaches()
-│       ├── wma()
-│       ├── trendSlope()
-│       ├── predict()
-│       ├── serialiseCFG()
-│       └── deserialiseCFG()
+├── <style> (CSS, ~600 lines)
+│   ├── CSS Variables (design tokens)
+│   ├── Login screen styles
+│   ├── Sidebar & navigation
+│   ├── Topbar & clock
+│   ├── KPI cards
+│   ├── Charts & cards
+│   ├── Tables & forms
+│   ├── Alert feed
+│   └── Responsive breakpoints
 │
-├── tests/                  ← Jest test suite (130 tests)
-│   ├── calcKPIs.test.js
-│   ├── config.test.js
-│   ├── detectBreaches.test.js
-│   ├── parseCSV.test.js
-│   ├── prediction.test.js
-│   └── integration.test.js
+├── <body>
+│   ├── #loginScreen
+│   │   ├── Role selector (Admin/Manager/Dispatcher)
+│   │   └── Credentials form
+│   │
+│   ├── .sidebar
+│   │   ├── Logo mark
+│   │   ├── Navigation items
+│   │   └── User card
+│   │
+│   ├── .main
+│   │   ├── .topbar (clock, live indicator, notifications)
+│   │   └── .content
+│   │       ├── #page-dashboard    (KPIs, charts, alerts)
+│   │       ├── #page-monitoring   (live feed, metrics)
+│   │       ├── #page-registry     (mission table, search)
+│   │       ├── #page-entry        (form + Excel import)
+│   │       ├── #page-centers      (20 centers)
+│   │       ├── #page-paramedics   (219 staff)
+│   │       ├── #page-reports      (PDF + webhook)
+│   │       ├── #page-alerts       (threshold config)
+│   │       ├── #page-impact       (ROI analysis)
+│   │       └── #page-settings     (KPI limits + webhook)
+│   │
+│   └── #notifPanel
 │
-├── Medical-Transport-Analytics.xlsx   ← Dataset (14,169 rows × 25 cols)
-├── package.json            ← Jest config + npm scripts
-└── docs/                   ← Technical documentation (this folder)
+└── <script> (JS, ~2,400 lines)
+    ├── DATA constants (MISSIONS, CENTERS, PARAMEDICS)
+    ├── Authentication functions
+    ├── Navigation & routing
+    ├── Dashboard rendering
+    ├── Chart.js initialization
+    ├── Live monitoring simulation
+    ├── Alert generation
+    ├── Report generation (jsPDF)
+    ├── Make.com webhook integration
+    └── Service Worker registration
 ```
 
 ---
 
-## Data Flow
+## Data Architecture
 
-### 1. Initial Data Load
-
-```
-User opens index.html
-       │
-       ▼
-Login screen (role selection)
-       │
-       ▼
-Main Dashboard loads
-       │
-       ├── [If Excel imported previously]
-       │       localStorage → deserialiseCFG() → SYNC state
-       │       Stored CSV   → parseCSV() → rows array
-       │
-       └── [If new session]
-               Demo data shown (no import needed)
-```
-
-### 2. Excel Import Flow
+### Current (MVP)
 
 ```
-User clicks "Import Excel"
-       │
-       ▼
-File input → FileReader API (browser)
-       │
-       ▼
-SheetJS (xlsx.js) parses .xlsx binary
-       │
-       ▼
-Extracts "Daily Operations Data" sheet
-       │
-       ▼
-Converts to CSV string
-       │
-       ▼
-parseCSV(csvString) → rows[]
-       │
-       ▼
-calcKPIs(rows) → kpiResult{}
-       │
-       ├── Update all KPI cards
-       ├── Redraw Chart.js charts
-       ├── detectBreaches() → show alerts
-       └── Store rows in sessionStorage
+Excel File (.xlsx)
+    └── "Daily Operations Data" sheet
+        └── 14,169 rows × 25 columns
+            ├── Mission ID
+            ├── Center Name (20 centers)
+            ├── Paramedic Name (219 staff)
+            ├── Referral Type (Emergency/Routine)
+            ├── Response Time (min)
+            ├── Dispatch Time (min)
+            ├── Mission Duration (min)
+            ├── Destination Hospital
+            ├── Mission Status
+            └── Timestamps
 ```
 
-### 3. Live Monitoring Loop (every 5 seconds)
+Data is embedded directly in JavaScript constants within `index.html` for zero-latency access.
+
+### Phase 1 Target Architecture
 
 ```
-setInterval(5000ms)
-       │
-       ▼
-Fetch latest KPI snapshot
-       │
-       ▼
-Compare to previous snapshot
-       │
-       ├── detectBreaches(curr, prev, thresholds)
-       │       │
-       │       └── New breach? → Add to alert log → Flash badge
-       │
-       └── Update live event log panel
+Google Sheets (Live DB)
+    └── Apps Script API endpoint
+        └── Real-time data sync
+            └── Wasl platform (polls every 60s)
 ```
 
-### 4. Automated Report Flow
+### Phase 3 Target Architecture
 
 ```
-07:00 AM Riyadh Time
-       │
-       ▼
-Make.com scheduled trigger
-       │
-       ▼
-HTTP GET to Wasl Webhook endpoint
-       │
-       ▼
-Wasl responds with JSON KPI snapshot
-       │
-       ▼
-Make.com sends to OpenAI GPT-4o:
-  - System: "You are an Arabic EMS operations analyst…"
-  - User:   KPI data + thresholds + trends
-       │
-       ▼
-GPT-4o returns Arabic HTML report:
-  - Executive summary
-  - KPI performance cards
-  - Alert highlights
-  - Recommendations
-       │
-       ▼
-Make.com Gmail module sends email
-  - To: operations team
-  - Subject: "تقرير وصل اليومي — {date}"
-  - Body: Professional HTML template
-       │
-       ▼
-Operations team inbox ✅
+Cloud Database (PostgreSQL / Supabase)
+    └── REST API (Node.js / FastAPI)
+        └── Multi-tenant auth (JWT)
+            └── Wasl SaaS platform
+                └── Hospital A | Hospital B | Hospital C
 ```
 
 ---
 
-## Frontend Architecture
+## Authentication Architecture
 
-### View System
-
-The SPA has **9 views** toggled by CSS class switching (no routing library):
+### Current (Demo Mode)
 
 ```
-Views:
-  #view-login       ← Authentication (role selection)
-  #view-dashboard   ← Main KPI dashboard
-  #view-monitoring  ← Live monitoring (5s refresh)
-  #view-missions    ← Mission registry (14,169 records)
-  #view-entry       ← Manual data entry form
-  #view-centers     ← Center management
-  #view-paramedics  ← Paramedic tracking
-  #view-reports     ← Auto report configuration
-  #view-settings    ← Threshold + webhook config
+Client-side role selection
+    └── 3 roles: Admin | Manager | Dispatcher
+        └── No real validation (demo only)
+            └── Session stored in localStorage
 ```
 
-### Design System
+### Production Target
 
 ```
-Color Palette:
-  Primary Teal:    #00C9A7   ← KPI positive / headers
-  Primary Blue:    #0098DB   ← Links / accents
-  Alert Amber:     #F6A623   ← Warning breaches
-  Alert Red:       #FF5252   ← Critical breaches
-  Success Green:   #30D158   ← Met targets
-  Background Dark: #060A14   ← Main background
-  Card Background: #1A263D   ← Panel backgrounds
-
-Typography:
-  Arabic text:     'Cairo' (Google Fonts)
-  Monospace/code:  'JetBrains Mono'
-  Direction:       RTL (dir="rtl" on <html>)
-
-Layout:
-  Sidebar:         240px fixed width
-  Content:         calc(100vw - 240px)
-  Charts:          Chart.js 4.4.0
-  Grid:            CSS Grid + Flexbox
-```
-
-### State Management
-
-No framework — plain JavaScript with a global `SYNC` object:
-
-```javascript
-SYNC = {
-  gsUrl:        '',      // Google Sheets URL (future)
-  webhookUrl:   '',      // Make.com webhook
-  alertEmail:   '',      // Report recipient
-  intervalMin:  5,       // Live refresh interval
-  thresholds: {
-    resp:         15,    // Max response time (min)
-    late:         95,    // Max late rate (%)
-    missionsMax:  60,    // Max daily missions per center
-  },
-  alertLog:     [],      // Last 100 alerts
-  alertsToday:  0,
-}
-```
-
-Config is persisted to `localStorage` via `serialiseCFG()` / `deserialiseCFG()`.
-
----
-
-## Analytics Engine (core.js)
-
-The business logic is isolated in `src/core.js` as pure functions with zero side effects. This separation enables:
-
-- **Testability**: 130 Jest unit tests run without a browser
-- **Portability**: Functions can be used in Node.js scripts or future API servers
-- **Maintainability**: UI code and business logic are decoupled
-
-```
-core.js exports:
-  ┌─────────────────────────────────────────────────────┐
-  │  Data Ingestion                                     │
-  │    parseCSV(txt) → rows[]                           │
-  ├─────────────────────────────────────────────────────┤
-  │  KPI Computation                                    │
-  │    calcKPIs(rows) → kpiResult{}                     │
-  ├─────────────────────────────────────────────────────┤
-  │  Alert System                                       │
-  │    detectBreaches(curr, prev, thresholds) → alert[] │
-  ├─────────────────────────────────────────────────────┤
-  │  Prediction Engine                                  │
-  │    wma(arr, window) → number                        │
-  │    trendSlope(arr, n) → number                      │
-  │    predict(historical, factors, day, ahead) → {}    │
-  ├─────────────────────────────────────────────────────┤
-  │  Config Persistence                                 │
-  │    serialiseCFG(syncState) → string                 │
-  │    deserialiseCFG(raw, syncState) → syncState       │
-  └─────────────────────────────────────────────────────┘
-```
-
-See [`API-REFERENCE.md`](./API-REFERENCE.md) for full function signatures.
-
----
-
-## Automation Pipeline
-
-### Make.com Scenario Structure
-
-```
-Scenario: "Wasl Daily Report"
-  ┌─────────────────────────────────────────┐
-  │  1. Schedule Module                     │
-  │     Run: Daily at 07:00 (Asia/Riyadh)  │
-  └──────────────────┬──────────────────────┘
-                     │
-  ┌──────────────────▼──────────────────────┐
-  │  2. HTTP Module (Webhook)               │
-  │     GET {webhookUrl}/kpi-snapshot       │
-  │     Response: JSON KPI data             │
-  └──────────────────┬──────────────────────┘
-                     │
-  ┌──────────────────▼──────────────────────┐
-  │  3. OpenAI Module                       │
-  │     Model: gpt-4o                       │
-  │     System: Arabic EMS analyst prompt  │
-  │     User: KPI JSON + context           │
-  │     Output: HTML report string          │
-  └──────────────────┬──────────────────────┘
-                     │
-  ┌──────────────────▼──────────────────────┐
-  │  4. Gmail Module                        │
-  │     To: {alertEmail}                    │
-  │     Subject: تقرير وصل اليومي          │
-  │     Body: HTML from step 3              │
-  └─────────────────────────────────────────┘
+Identity Provider (Auth0 / Cognito / Azure AD)
+    └── JWT tokens
+        └── Role-based access control (RBAC)
+            ├── Admin: Full access
+            ├── Manager: Center-level data only
+            └── Dispatcher: Own center + missions only
 ```
 
 ---
 
-## Hosting & Deployment
+## Automation Architecture
 
 ```
-Repository: github.com/Moha-111/Medical-Transport-Operations-Analytics
-Branch:     main (or gh-pages)
-Hosting:    GitHub Pages (free tier)
-URL:        https://moha-111.github.io/Medical-Transport-Operations-Analytics/
-
-File served: index.html (root)
-Assets:      All relative paths resolve from root
-HTTPS:       Enforced by GitHub Pages
-CDN:         Chart.js loaded from cdn.jsdelivr.net
+Make.com Scenario
+│
+├── Trigger: Schedule (7:00 AM Asia/Riyadh)
+│
+├── Step 1: HTTP Request (GET Wasl webhook data)
+│   └── Reads KPI summary from platform
+│
+├── Step 2: OpenAI GPT-4o
+│   ├── Input: KPI data + Arabic system prompt
+│   ├── Analysis: Trends, alerts, recommendations
+│   └── Output: Professional Arabic HTML report
+│
+├── Step 3: Gmail (Send email)
+│   ├── To: Operations team
+│   ├── Subject: "تقرير وصل اليومي — [date]"
+│   └── Body: GPT-4o generated HTML
+│
+└── Error handling: Retry × 3, alert on failure
 ```
-
-See [`DEPLOYMENT.md`](./DEPLOYMENT.md) for step-by-step setup instructions.
 
 ---
 
 ## Security Architecture
 
-### Current (Innovation MVP)
+### Current Threat Model
 
-- No authentication server — login is purely role-based UI
-- No patient PII in the dataset (synthetic data only)
-- Config stored in `localStorage` (client-side only)
-- HTTPS enforced via GitHub Pages
+| Threat | Mitigation |
+|--------|-----------|
+| XSS | No user-generated HTML rendered, no innerHTML from untrusted sources |
+| Data exposure | Only synthetic data in repository |
+| API key exposure | No API keys in client code (webhook URL in settings only) |
+| CDN tampering | SRI hashes recommended for production (future) |
 
-### Production Roadmap
+### Production Security Checklist
+
+- [ ] Subresource Integrity (SRI) for all CDN assets
+- [ ] Content Security Policy (CSP) headers
+- [ ] HTTPS enforced
+- [ ] Server-side authentication
+- [ ] Role-based API endpoints
+- [ ] Audit logging for all data access
+- [ ] PDPL compliance review
+
+---
+
+## Performance Profile
+
+| Metric | Current | Target |
+|--------|---------|--------|
+| HTML file size | ~400KB | < 200KB (split into modules) |
+| First Contentful Paint | ~1.2s | < 0.8s |
+| Chart render time | ~300ms | < 200ms |
+| Data load time | Instant (embedded) | < 500ms (API) |
+| Offline support | ✅ (Service Worker) | ✅ |
+| Mobile performance | Good | Excellent |
+
+---
+
+## Deployment Architecture
 
 ```
-Phase 1: Auth
-  → Server-side session tokens
-  → Role-based API access control
-  → Center-scoped data isolation
-
-Phase 2: Data Protection
-  → Patient ID anonymization (hash-based)
-  → Field-level encryption for sensitive columns
-  → Audit log for every data access
-
-Phase 3: Compliance
-  → Saudi PDPL (Personal Data Protection Law) audit
-  → Data residency: KSA servers only
-  → Penetration testing + security certification
+Developer Machine
+    └── git push origin main
+        └── GitHub Actions (deploy.yml)
+            ├── validate job (HTML check, security scan)
+            └── deploy job → GitHub Pages
+                └── CDN Edge (GitHub's global CDN)
+                    └── https://moha-111.github.io/Medical-Transport-Operations-Analytics/
 ```
 
 ---
 
-## Scalability Notes
-
-The current architecture is intentionally simple for innovation validation and pilot-readiness review:
-
-| Constraint | Current | Production Path |
-|------------|---------|-----------------|
-| Data storage | Excel file / browser | PostgreSQL / Google Sheets API |
-| Data volume | 14,169 rows | No limit with server-side pagination |
-| Concurrent users | 1 (browser session) | Multi-tenant SaaS with auth |
-| Real-time updates | Simulated (5s poll) | WebSockets / Server-Sent Events |
-| Report generation | Make.com (1 webhook) | Dedicated report microservice |
-| Hosting | GitHub Pages | AWS / Azure KSA region |
-
-The analytics logic in `core.js` is designed to run identically in Node.js, making it portable to a backend API without modification.
+*Last updated: 2026-02-27*
+*Wasl Architecture Documentation v1.3.0*

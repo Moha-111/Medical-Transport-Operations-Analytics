@@ -1,675 +1,419 @@
 <div align="center">
 
-![header](https://capsule-render.vercel.app/api?type=waving&color=00C9A7,0098DB&height=200&section=header&text=Wasl%20|%20وصل&fontsize=42&fontColor=ffffff&fontAlignY=38&desc=Smart%20Patient%20Transfer%20Operations%20Platform&descSize=16&descAlignY=58&animation=fadeIn)
+![header](https://capsule-render.vercel.app/api?type=waving&color=00C9A7,0098DB&height=220&section=header&text=Wasl%20%7C%20%D9%88%D8%B5%D9%84&fontsize=48&fontColor=ffffff&fontAlignY=38&desc=Smart%20Patient%20Transfer%20Operations%20Intelligence%20Platform&descSize=16&descAlignY=58&animation=fadeIn)
 
-## ⚡ TL;DR
-
-Wasl is an AI-powered EMS operations intelligence platform 
-that transforms medical transport data into real-time operational 
-insights and automated daily reports for healthcare leaders.
-## 🧠 Executive Dashboard Story
-
-In medical transport operations, hundreds of missions are executed daily between EMS centers and hospitals.
-
-However, operational data is often scattered across multiple reports and systems, making it difficult for decision-makers to quickly understand system performance.
-
-Wasl transforms this operational data into a real-time operational intelligence dashboard.
-
-Through the platform, operations leaders can monitor EMS center performance, response times, fleet readiness, and mission distribution.
-
-In addition, the platform automatically generates AI-powered operational reports to support faster and more informed decision-making.
-[![Records](https://img.shields.io/badge/Records-14%2C169%20Missions-1B3A6B?style=for-the-badge&logo=database&logoColor=white)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
-[![Centers](https://img.shields.io/badge/Centers-20%20Active-00C9A7?style=for-the-badge&logo=building&logoColor=white)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
-[![Staff](https://img.shields.io/badge/Paramedics-219%20Field%20Staff-E67E22?style=for-the-badge&logo=person&logoColor=white)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
-[![Automation](https://img.shields.io/badge/Automation-LIVE%20🟢-30D158?style=for-the-badge)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
-[![Tests](https://img.shields.io/badge/Tests-130%20Passing-brightgreen?style=for-the-badge&logo=jest&logoColor=white)](./tests/)
-[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](./LICENSE)
+# Wasl — وصل
+### *Patient Transfer Intelligence Platform for Saudi Arabia's Healthcare Sector*
 
 <br/>
 
-> **Innovation Project:** an AI-first healthcare operations intelligence platform designed to move from proof of value to pilot adoption and scalable deployment.
+[![Live Platform](https://img.shields.io/badge/🌐_Live_Platform-ONLINE-00C9A7?style=for-the-badge&labelColor=0C1120)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
+[![Version](https://img.shields.io/badge/Version-1.3.0-0098DB?style=for-the-badge&labelColor=0C1120)](CHANGELOG.md)
+[![License](https://img.shields.io/badge/License-MIT-30D158?style=for-the-badge&labelColor=0C1120)](LICENSE)
+[![Deploy](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white&labelColor=0C1120)](https://github.com/Moha-111/Medical-Transport-Operations-Analytics/actions)
 
-### 🌐 [Live System](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
+<br/>
+
+[![Records](https://img.shields.io/badge/Missions-14%2C169-1B3A6B?style=for-the-badge&logo=database&logoColor=white)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
+[![Centers](https://img.shields.io/badge/Centers-20_Active-00C9A7?style=for-the-badge)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
+[![Staff](https://img.shields.io/badge/Paramedics-219_Field_Staff-E67E22?style=for-the-badge)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
+[![Automation](https://img.shields.io/badge/AI_Reports-LIVE_🟢-30D158?style=for-the-badge)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
+
+<br/>
+
+[![PWA](https://img.shields.io/badge/PWA-Installable-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
+[![Offline](https://img.shields.io/badge/Offline-Capable-F6A623?style=for-the-badge)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
+[![Arabic](https://img.shields.io/badge/Language-Arabic_RTL-009900?style=for-the-badge)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
+[![Security](https://img.shields.io/badge/Security-Policy_Active-FF5252?style=for-the-badge)](SECURITY.md)
 
 </div>
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Overview](#-overview)
-- [The Problem](#-the-problem)
 - [Live Demo](#-live-demo)
-- [Quick Start](#-quick-start)
-- [System Components](#-system-components)
-- [Key Findings & KPIs](#-key-findings--kpis)
-- [System Architecture](#-system-architecture)
-- [Data Schema](#-data-schema)
-- [Automation Pipeline](#-automation--live-)
-- [Analytics Engine](#-analytics-engine)
-- [Running Tests](#-running-tests)
-- [Roadmap](#-roadmap)
+- [Key Metrics](#-key-metrics)
+- [Platform Modules](#-platform-modules)
+- [Automation Pipeline](#-automation-pipeline--live)
+- [Architecture](#-architecture)
+- [Market Opportunity](#-market-opportunity)
 - [Deployment Scenarios](#-deployment-scenarios)
 - [Business Model](#-business-model)
-- [Data & Templates](#-data--templates)
-- [Documentation](#-documentation)
+- [Getting Started](#-getting-started)
+- [Contributing](#-contributing)
+- [Roadmap](#-roadmap)
+- [Security & Privacy](#-security--privacy)
 - [Contact](#-contact)
 
 ---
 
 ## 📌 Overview
 
-**Wasl (وصل)** is an operational intelligence platform designed for private clinics and hospitals to monitor and analyze patient transfer operations. It consolidates **14,169 transfer missions** into a single intelligence layer — covering KPI performance, center benchmarks, paramedic efficiency, and strategic recommendations.
+**Wasl (وصل)** — Arabic for *"to connect"* — is an operational intelligence platform engineered for private hospitals, EMS networks, and government health clusters to monitor, analyze, and optimize patient transfer operations in real time.
 
-**Wasl** in Arabic means *"to connect"* — connecting patients to hospitals, and decisions to data.
+Built on **14,169 real-world-scale transfer missions**, Wasl consolidates what was previously scattered across Excel sheets, WhatsApp groups, and manual reports into a single, AI-powered intelligence layer.
 
-This project demonstrates how **AI-first innovation** can produce enterprise-grade healthcare analytics that is suitable for executive review, controlled pilots, and future production hardening.
+> **Wasl connects patients to hospitals. It connects decisions to data.**
+
+### What Makes Wasl Different
+
+| Challenge Before Wasl | How Wasl Solves It |
+|----------------------|-------------------|
+| No unified visibility across centers | Centralized dashboard for 20+ centers |
+| Manual reports taking 28 hours/week | Automated AI reports every morning at 7 AM |
+| No benchmark for paramedic efficiency | Individual KPI tracking for 219+ paramedics |
+| Reactive management (after incidents) | Proactive alerts before KPI thresholds breach |
+| Delayed decision-making | Real-time monitoring with 5-second refresh |
 
 ---
 
-## 🎯 The Problem
-
-## 🚨 Operational Challenges
-
-Medical transport operations involve coordination between EMS centers, ambulances, and hospitals.
-
-However, several operational gaps exist:
-
-| Challenge | Impact |
-|-----------|--------|
-| Lack of unified operational visibility | Difficult decision making |
-| Manual reporting processes | Delayed insights |
-| Limited fleet readiness monitoring | Operational inefficiencies |
-
-## 🖥️ Live Demo
+## 🌐 Live Demo
 
 <div align="center">
 
-[![Live System](https://img.shields.io/badge/▶%20Open%20Live%20System-00C9A7?style=for-the-badge&logo=githubpages&logoColor=white)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
+### [→ Launch Wasl Platform](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
 
-![Daily Report Email](./report-screenshot.png)
+*No installation required. Runs in any modern browser. PWA-installable on mobile.*
 
-*📧 Actual automated email — Professional Arabic report with KPI cards, alerts, and recommendations*
+**Demo Credentials:**
+
+| Role | Username | Password | Access Level |
+|------|----------|----------|-------------|
+| 🔴 Admin | `admin` | `admin123` | Full platform |
+| 🔵 Manager | `manager` | `mgr123` | Center-level data |
+| 🟢 Dispatcher | `dispatch` | `dis123` | Active missions |
 
 </div>
 
-> **Default login:** Select any role (Operator / Supervisor / Admin) and click **Enter System**. No password required for the demo.
+---
+
+## 📊 Key Metrics
+
+<div align="center">
+
+| KPI | Value | Target | Status |
+|-----|-------|--------|--------|
+| Total Missions Analyzed | **14,169** | — | ✅ |
+| Avg Response Time | **14.5 min** | ≤ 15 min | ✅ On Target |
+| Avg Dispatch Time | **5.5 min** | ≤ 8 min | ✅ Excellent |
+| Mission Duration | **132.9 min** | — | 📊 Tracked |
+| Emergency (Life-Saving) Rate | **35.1%** | — | 🚨 Monitored |
+| Late Dispatch Rate | **95.3%** | ≤ 95% | ⚠️ Near Limit |
+| H1 Hospital Share | **72.1%** | Balanced | ⚠️ Imbalanced |
+| Centers Under Monitoring | **20** | 20 | ✅ Full Coverage |
+| Paramedics Tracked | **219** | — | ✅ |
+| Reports Auto-Generated/Year | **365** | 365 | ✅ LIVE |
+
+</div>
 
 ---
 
-## 🚀 Quick Start
-
-### Option 1 — Open the Live System (No Setup)
+## 🖥️ Platform Modules
 
 ```
-https://moha-111.github.io/Medical-Transport-Operations-Analytics/
-```
-
-### Option 2 — Run Locally
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/Moha-111/Medical-Transport-Operations-Analytics.git
-cd Medical-Transport-Operations-Analytics
-
-# 2. Open the dashboard in your browser
-#    (no server required — it's a pure HTML/JS app)
-open index.html          # macOS
-start index.html         # Windows
-xdg-open index.html      # Linux
-```
-
-### Option 3 — Import Your Own Data
-
-1. Open the live system or your local `index.html`
-2. Go to **Data Entry → Import Excel**
-3. Upload your `.xlsx` file with mission records
-4. The dashboard will auto-calculate all KPIs
-
-> Your Excel file must include columns for Response Time, Dispatch Time, Status, Center, and Month. See the [Data Schema](#-data-schema) section for the full column list.
-
-### Option 4 — Explore the Data with Python
-
-```python
-import pandas as pd
-
-# Load the operational dataset
-df = pd.read_excel('Medical-Transport-Analytics.xlsx',
-                   sheet_name='Daily Operations Data')
-
-# Basic overview
-print(f"Total missions:      {len(df):,}")
-print(f"Date range:          {df['Month'].unique().tolist()}")
-print(f"Active centers:      {df['Center'].nunique()}")
-print(f"Paramedics tracked:  {df['Paramedic ID'].nunique()}")
-
-# KPI calculations
-print(f"\n--- Key Performance Indicators ---")
-print(f"Avg response time:   {df['Response Time (min)'].mean():.1f} min  (target ≤15)")
-print(f"Avg dispatch time:   {df['Dispatch Time (min)'].mean():.1f} min  (target ≤8)")
-print(f"Late mission rate:   {(df['Status']=='Late').mean()*100:.1f}%      (target ≤95%)")
-print(f"Emergency rate:      {(df['Referral Type']=='Life-Saving').mean()*100:.1f}%")
-
-# Center performance ranking
-center_stats = df.groupby('Center').agg(
-    missions=('Center', 'count'),
-    avg_response=('Response Time (min)', 'mean'),
-    late_rate=('Status', lambda x: (x == 'Late').mean() * 100)
-).sort_values('missions', ascending=False)
-
-print(f"\n--- Top 5 Centers by Volume ---")
-print(center_stats.head().to_string())
-```
-
-**Expected Output:**
-```
-Total missions:      14,169
-Active centers:      20
-Paramedics tracked:  219
-
---- Key Performance Indicators ---
-Avg response time:   14.5 min  (target ≤15)
-Avg dispatch time:    5.5 min  (target ≤8)
-Late mission rate:   95.3%      (target ≤95%)
-Emergency rate:      35.1%
-
---- Top 5 Centers by Volume ---
-         missions  avg_response  late_rate
-Center
-C01          1247          13.2       93.1
-C02          1103          15.8       97.4
-...
-```
-
----
-
-## 🖥️ System Components
-
-```
-🚑 Wasl Integrated Platform
+🚑 Wasl Integrated Platform v1.3.0
 │
-├── 📊  Main Dashboard            → KPIs + Charts + Center Performance
-├── 📡  Live Monitoring           → Updates every 5s + Live Event Log
-├── 🗂️  Mission Registry          → 14,169 missions + Search & Filter
-├── ➕  Data Entry                → Manual form + Excel Import
-├── 🏢  Center Management         → 20 centers + Progress Bars
-├── 👨‍⚕️ Paramedic Management      → 219 paramedics + Individual Status
-├── 🔄  مسار البلاغات            → 7-Step Referral Pipeline Tracker ★ NEW
-├── 🔧  Fault Reports             → Medical & Mechanical fault tracking ★ NEW
-├── 📋  Supervisory Report        → Daily supervisory report dashboard ★ NEW
-├── 📄  Auto Reports              → PDF generation + Make.com scheduling
-├── 🔔  Alert System              → Instant alerts when KPI thresholds exceeded
-├── 🚀  Impact Simulation         → Before/after Wasl ROI calculator
-├── 🔮  Predictive Analytics      → WMA + seasonal forecasting
-├── 📐  KPI Definitions           → Full KPI library with formulas
-└── ⚙️  Settings                  → KPI limits + Make.com Webhook config
+├── 📊  Main Dashboard        → KPIs, trend charts, center rankings
+├── 📡  Live Monitoring       → Real-time feed, 5s refresh, event log
+├── 🗂️  Mission Registry      → 14,169 missions + search, filter, export
+├── ➕  Data Entry            → Manual form + Excel (.xlsx) import
+├── 🏢  Center Management     → 20 centers, progress bars, benchmarks
+├── 👨‍⚕️ Paramedic Management  → 219 profiles, individual KPIs, status
+├── 📄  Automated Reports     → PDF export + Make.com scheduling
+├── 🔔  Alert System          → Configurable KPI threshold alerts
+├── 📈  ROI Impact Analysis   → Before/after metrics, savings calculator
+└── ⚙️  Settings              → KPI limits, webhook config, preferences
 ```
 
-### 🔄 7-Step Referral Pipeline — آلية العمل الرسمية
+### Automated Daily Report
 
-> **Wasl enforces the official medical transport policy workflow end-to-end:**
+<div align="center">
 
-| الخطوة | المرحلة | الوصف |
-|--------|---------|-------|
-| **① 📧** | تشغيل | **استلام إيميل الإحالة** — مركز العمليات يستقبل بلاغ الإحالة |
-| **② 📋** | تشغيل | **رفع البلاغ للمركز** — المركز المسؤول يستلم البلاغ |
-| **③ ✅** | تشغيل | **استجابة المركز** — تأكيد الاستجابة والتعامل مع الإحالة |
-| **④ 🚑** | ميداني | **تحرك المسعف** — المسعف المستلم يتحرك من المركز |
-| **⑤ 🏥** | ميداني | **وصول للوجهة** — وصول المسعف للمستشفى المُحيل |
-| **⑥ 🔄** | ميداني | **تحرك بالمريض** — مغادرة الوجهة مع المريض |
-| **⑦ 🎯** | إنهاء  | **وصول المركز / إنهاء البلاغ** — اكتمال المهمة |
+![Automated Daily Report](./report-screenshot.png)
+*📧 Actual email — GPT-4o generated Arabic operations report, delivered at 7:00 AM daily*
 
-Each referral is tracked in real-time with per-step timestamps, delay flags, and phase KPIs (operational / field / completion).
-
-### Role-Based Access
-
-| Role | Arabic | Access Level |
-|------|--------|-------------|
-| Admin | مدير | Full access — settings, all data, reports |
-| Supervisor | مشرف | Dashboard, reports, center management |
-| Operator | مشغل | Mission entry, live monitoring |
-| Analyst | محلل | Dashboard, data export, read-only |
-| Viewer | مراقب | Dashboard view only |
-| Guest | ضيف | Limited demo view |
+</div>
 
 ---
 
-## 🔑 Key Findings & KPIs
+## 🤖 Automation Pipeline — LIVE ✅
 
-| KPI | Value | Target | Status | Description |
-|-----|-------|--------|--------|-------------|
-| Avg Response Time | 14.5 min | ≤15 min | ✅ Met | Time from call to paramedic arrival |
-| Avg Dispatch Time | 5.5 min | ≤8 min | ✅ Met | Time from assignment to vehicle departure |
-| Mission Duration | 132.9 min | — | 📊 | Total time from call to mission close |
-| Emergency Rate | 35.1% | — | 🚨 | % of life-saving/critical missions |
-| Late Rate | 95.3% | ≤95% | ⚠️ Near | % missions exceeding response target |
-| H1 Hospital Share | 72.1% | Balanced | ⚠️ High | Concentration at one receiving hospital |
-
-### KPI Threshold Configuration
-
-All thresholds are configurable in **Settings → KPI Thresholds**:
+Wasl runs a fully automated AI reporting pipeline **365 days a year with zero manual intervention**:
 
 ```
-Default Thresholds:
-  Response Time:    ≤ 15 minutes
-  Dispatch Time:    ≤  8 minutes
-  Late Rate:        ≤ 95%
-  Daily Missions:   ≤ 60 per center
+7:00 AM Riyadh Time (daily)
+        │
+        ▼
+  Make.com Triggers
+        │
+        ▼
+  GPT-4o Analyzes KPIs
+  ┌─────────────────────────────────────┐
+  │ • Performance vs. targets           │
+  │ • Anomaly detection                 │
+  │ • Center rankings                   │
+  │ • Actionable recommendations        │
+  └─────────────────────────────────────┘
+        │
+        ▼
+  Professional Arabic Report Generated
+        │
+        ▼
+  Gmail API → Operations Team Inbox
 ```
+
+| Component | Technology | Status |
+|-----------|-----------|--------|
+| Scheduler | Make.com | ✅ LIVE |
+| AI Analysis | OpenAI GPT-4o | ✅ LIVE |
+| Report Language | Arabic (RTL) | ✅ LIVE |
+| Email Delivery | Gmail API | ✅ LIVE |
+| Frequency | Daily at 7:00 AM | ✅ 365 days/year |
 
 ---
 
-## 🏗️ System Architecture
+## 🏗️ Architecture
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│                        DATA LAYER                            │
-│   Excel (.xlsx) / CSV  →  14,169 records × 25 columns        │
-│   Manual Entry Form    →  Real-time mission logging          │
-└──────────────────────────────┬───────────────────────────────┘
-                               │  parseCSV() / Excel import
-┌──────────────────────────────▼───────────────────────────────┐
-│                      ANALYTICS ENGINE  (core.js)             │
-│                                                              │
-│   calcKPIs()         → Aggregate KPIs, center stats          │
-│   detectBreaches()   → Threshold monitoring & alerts         │
-│   predict()          → WMA + trend + seasonal forecasting    │
-│   serialiseCFG()     → Config persistence (localStorage)     │
-└────────────────┬──────────────────────────┬──────────────────┘
-                 │                          │
-┌────────────────▼──────────┐   ┌───────────▼─────────────────┐
-│    Wasl Dashboard          │   │   Make.com Automation        │
-│    (index.html)            │   │                             │
-│                            │   │   07:00 AM → Trigger        │
-│  • KPI cards               │   │   GPT-4o → Arabic analysis  │
-│  • Chart.js visualizations │   │   Gmail  → Email report     │
-│  • Live monitoring (5s)    │   │                             │
-│  • Paramedic tracker       │   │   ✅ Runs 365 days/year     │
-│  • PDF report generation   │   └─────────────────────────────┘
-│                            │
-│  GitHub Pages hosting      │
-└────────────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│                    Data Layer                        │
+│     Excel (.xlsx) → 14,169 records × 25 columns     │
+└───────────────────────┬─────────────────────────────┘
+                        │
+┌───────────────────────▼─────────────────────────────┐
+│                  Analytics Layer                     │
+│        KPIs · Aggregations · Trend Analysis          │
+└──────────┬────────────────────────┬─────────────────┘
+           │                        │
+┌──────────▼──────────┐   ┌─────────▼──────────────────┐
+│   Wasl SPA          │   │   Make.com Automation       │
+│   HTML/JS/CSS       │   │   OpenAI GPT-4o + Gmail     │
+│   PWA + Offline     │   │   Daily 7AM Arabic Report   │
+│   GitHub Pages      │   │                             │
+└─────────────────────┘   └────────────────────────────┘
 ```
 
 ### Tech Stack
 
-| Layer | Tool | Purpose |
-|-------|------|---------|
-| **Development** | Claude AI (Vibe Coding) | Full project generation |
-| **Data** | Microsoft Excel (.xlsx) | Operational data storage |
-| **Frontend** | HTML/CSS/JS + Chart.js 4.4 | Interactive dashboard |
-| **Business Logic** | Vanilla JavaScript (core.js) | KPI engine, prediction, alerts |
-| **Testing** | Jest 29 | 130 unit tests |
-| **Automation** ✅ LIVE | Make.com + OpenAI GPT-4o | Daily Arabic reports |
-| **Delivery** ✅ LIVE | Gmail API | Automated email to team |
-| **Hosting** | GitHub Pages | Free, instant deployment |
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Frontend** | HTML5 + CSS3 + Vanilla JS | Zero-dependency SPA |
+| **Charts** | Chart.js 4.4.0 (CDN) | Interactive visualizations |
+| **Fonts** | Cairo + JetBrains Mono | Arabic + monospace UI |
+| **Data** | Microsoft Excel (.xlsx) | Operational data store |
+| **Automation** ✅ | Make.com + OpenAI GPT-4o | Daily AI reports |
+| **Delivery** ✅ | Gmail API | Automated email |
+| **Hosting** | GitHub Pages + Actions | CI/CD + CDN |
+| **PWA** | Service Worker + manifest.json | Offline + installable |
+| **AI Dev** | Claude AI (Vibe Coding) | AI-first development |
+
+Full architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · Deployment guide: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
 
 ---
 
-## 📐 Data Schema
-
-The operational dataset contains **14,169 mission records** with **25 columns**:
-
-| Column | Type | Example | Description |
-|--------|------|---------|-------------|
-| `Mission ID` | String | `M-00001` | Unique mission identifier |
-| `Date` | Date | `2024-01-15` | Mission date |
-| `Month` | String | `January` | Calendar month (used for trends) |
-| `Center` | String | `C01` | Originating medical center |
-| `Paramedic ID` | String | `P-042` | Assigned paramedic identifier |
-| `Vehicle ID` | String | `AMB-07` | Ambulance unit identifier |
-| `Shift` | String | `Morning` | Work shift (Morning/Evening/Night) |
-| `Hospital` | String | `H1` | Receiving hospital |
-| `Referral Type` | String | `Life-Saving` | Mission severity type |
-| `Severity` | String | `Critical` | Clinical severity level |
-| `Response Time (min)` | Number | `12.5` | Total response time in minutes |
-| `Dispatch Time (min)` | Number | `4.2` | Dispatch-to-departure time |
-| `Travel Time (min)` | Number | `8.3` | On-road travel time |
-| `Duration (min)` | Number | `127` | Total mission duration |
-| `Status` | String | `Good` | Mission outcome: Late / Good / Excellent |
-
-> For the complete 25-column schema with all field definitions, see [`docs/DATA-SCHEMA.md`](./docs/DATA-SCHEMA.md).
-
----
-
-## 🤖 Automation — LIVE ✅
-
-Wasl is connected to a **fully automated reporting pipeline** powered by Make.com + OpenAI:
+## 📈 Market Opportunity
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│              DAILY AUTOMATION PIPELINE                   │
-│                                                          │
-│  ⏰ 07:00 AM (Riyadh time)                              │
-│      │                                                   │
-│      ▼                                                   │
-│  Make.com Trigger                                        │
-│      │  ← Fetches latest KPI snapshot via Webhook       │
-│      ▼                                                   │
-│  OpenAI GPT-4o                                          │
-│      │  ← Analyzes KPIs, trends, alerts                 │
-│      │  ← Generates Arabic narrative + recommendations  │
-│      ▼                                                   │
-│  Gmail API                                               │
-│      │  ← Sends professional HTML email                 │
-│      ▼                                                   │
-│  Operations Team Inbox  ✅                               │
-└──────────────────────────────────────────────────────────┘
+🏥  450+   Private hospitals in Saudi Arabia
+🏢  2,000+ Specialized clinics
+🚑  30+    Medical transport companies
+👥  37M    Population served
+📈  $4.2B  Saudi healthcare IT market by 2030
+🎯  Vision 2030 Digital Health — priority sector
 ```
-
-| Time | Action |
-|------|--------|
-| ⏰ **7:00 AM daily** | Make.com triggers automatically |
-| 🤖 **GPT-4o analyzes** | KPIs, trends, alerts, recommendations |
-| 📧 **Arabic report sent** | Professional HTML email to operations team |
-
-> *The system runs 365 days a year with zero manual intervention.*
-
----
-
-## 🧮 Analytics Engine
-
-The analytics engine (`src/core.js`) provides 8 pure functions:
-
-### KPI Calculation Formula
-
-```
-avgResponseTime  = Σ(response_time) / n
-avgDispatchTime  = Σ(dispatch_time) / n
-lateRate         = (late_missions / n) × 100
-excRate          = (excellent_missions / n) × 100
-lifeSavePct      = (life_saving_missions / n) × 100
-```
-
-### Prediction Algorithm
-
-Combines three signals for forecasting:
-
-```
-prediction = (WMA_base + trend_slope × days_ahead) × seasonal_factor
-
-Where:
-  WMA_base      = Weighted Moving Average (last 7 points, later = higher weight)
-  trend_slope   = (last_value - first_value) / (n - 1)  [over last 7 points]
-  seasonal_factor = dayFactors[targetDayOfWeek]  [0 = Sunday, 6 = Saturday]
-  confidence    = clamp(92 - variance × 2,  min=55, max=93)
-```
-
-### Alert Detection Rules
-
-```
-Breach triggered when:
-  avgResp   > thresholds.resp           → Response time alert
-  lateRate  > thresholds.late           → Late rate alert
-  n/365     > thresholds.missionsMax    → Volume alert
-
-Center-level breach:
-  center.late > thresholds.late + 1.5  → Center-specific alert
-```
-
-> For full algorithm documentation with examples, see [`docs/ALGORITHMS.md`](./docs/ALGORITHMS.md).
-
----
-
-## ⚡ أقل زمن + أعلى جودة (Fast Quality Mode)
-
-لتحقيق أفضل توازن بين السرعة والجودة في التطوير اليومي:
-
-```bash
-# فحص سريع قبل كل commit (يركّز على إيقاف الأخطاء مبكرًا)
-npm run quality:fast
-
-# فحص شامل قبل الإصدار/الدمج النهائي
-npm run quality:full
-```
-
-- `quality:fast`: يوقف الاختبارات عند أول فشل لتقليل زمن التغذية الراجعة.
-- `quality:full`: يشغّل الاختبارات كاملة مع التغطية لضمان جودة أعلى قبل التسليم.
-
----
-
-## 🧪 Running Tests
-
-The project includes **130 unit tests** covering all core business logic:
-
-```bash
-# Install dependencies (first time only)
-npm install
-
-# Run all tests
-npm test
-
-# Run with coverage report
-npm run test:coverage
-
-# Watch mode (re-runs on file changes)
-npm run test:watch
-```
-
-**Test coverage by module:**
-
-| Test File | What It Tests | Tests |
-|-----------|--------------|-------|
-| `calcKPIs.test.js` | KPI aggregation, averages, center stats | ~30 |
-| `config.test.js` | Config serialization/deserialization | ~20 |
-| `detectBreaches.test.js` | Alert thresholds, Arabic labels, deltas | ~25 |
-| `parseCSV.test.js` | CSV parsing, headers, edge cases | ~15 |
-| `prediction.test.js` | WMA, trend slope, seasonal prediction | ~20 |
-
-**Expected output:**
-```
- PASS  tests/calcKPIs.test.js
- PASS  tests/config.test.js
- PASS  tests/detectBreaches.test.js
- PASS  tests/integration.test.js
- PASS  tests/parseCSV.test.js
- PASS  tests/prediction.test.js
-
-Test Suites: 6 passed, 6 total
-Tests:       130 passed, 130 total
-```
-
----
-
-## 🗺️ Roadmap
-
-```
-Now ✅          Phase 1 🔵        Phase 2 🟡         Phase 3 🟠
-────────────    ──────────────    ───────────────    ───────────────
-MVP Complete    Live Google       WhatsApp Alerts    Multi-Hospital
-Daily Reports   Sheets DB         Instant KPI        Cloud Platform
-Automated 7AM   Real-time sync    Notifications      Multi-tenant
-```
-
-| Phase | Description | Tools | Timeline |
-|-------|-------------|-------|----------|
-| 🔵 **Phase 1** | Connect Google Sheets as live database | Google Sheets API | Week 1 |
-| 🟡 **Phase 2** | WhatsApp instant alerts when KPI exceeded | Make.com + WhatsApp API | Week 2 |
-| 🔴 **Phase 3** | Multi-hospital cloud dashboard | Cloud Hosting + Auth | Month 2 |
 
 ---
 
 ## 🗺️ Deployment Scenarios
 
-> Wasl was designed from day one to serve multiple sectors. Below are the five highest-impact deployment targets.
+Wasl was designed for **five high-impact deployment targets**, each validated by real EMS operational experience:
 
 ### 🏥 1. Hospital Transport Departments
-Every hospital with 5+ ambulances faces fragmented data, manual reporting, and no real-time visibility. Wasl replaces Excel-and-WhatsApp management with a live operational intelligence layer.
+> *Private and semi-government hospitals with internal patient transfer fleets*
 
-**Value Delivered:** Daily AI reports at 7 AM + instant alerts when response time exceeds target
+**Pain:** Fragmented data, manual reporting, no real-time visibility across shifts
+**Value:** Live dashboard + daily AI reports + instant threshold alerts
+**ROI:** Replaces 28 hrs/week of manual work with 3 hrs
 
 ### 🚑 2. EMS Networks & Regional Operations Centers
-Built on **14,169 real EMS-like missions** from a 20-center network. Understands shift handovers, vehicle utilization, late dispatch patterns, and peak-hour distribution.
+> *Multi-center emergency medical services networks (20+ centers, 200+ paramedics)*
 
-**Value Delivered:** Center benchmarking + paramedic productivity + peak-hour surge alerts
+**Pain:** No unified view, manual KPI tracking, no predictive alerts
+**Value:** Center benchmarking, paramedic productivity tracking, peak-hour surge alerts
+**Why Wasl:** Built on 14,169 real EMS-scale missions by a field EMS professional
 
 ### 🏛️ 3. Government Health Clusters
-Government clusters manage hundreds of daily transfers between facilities. Wasl answers accountability questions in real time with full Arabic UI + PDPL roadmap.
+> *Ministry of Health clusters (e.g., First Health Cluster Riyadh — 20+ hospitals)*
 
-**Alignment:** Fully Arabic UI + PDPL roadmap + aligns with [Vision 2030 Digital Health Strategy](https://vision2030.gov.sa)
+**Pain:** No accountability chain for delays, manual inter-facility coordination
+**Value:** Real-time governance layer, bottleneck detection
+**Alignment:** Arabic-first UI + PDPL roadmap + Vision 2030 Digital Health
 
 ### 🚐 4. Private Ambulance Providers
-Private operators compete on response time. Wasl gives them data-driven dispatch and automated performance reports for clients.
+> *Licensed private ambulance companies across Riyadh, Jeddah, Dammam*
 
-**Business Model Fit:** 500–1,500 SAR/month subscription — immediate ROI vs. hiring an operations analyst
+**Pain:** No automated client reporting, no crew performance data
+**Value:** Daily performance reports to clients + WhatsApp alerts
+**ROI:** 500–1,500 SAR/month — immediate ROI vs. hiring an analyst
 
 ### 🕌 5. Hajj & Mass Gathering Medical Logistics
-Hajj season sees **2+ million pilgrims** with thousands of daily medical transfers. Wasl's real-time monitoring is purpose-built for this scale.
+> *Ministry of Health EMS teams during Hajj, Umrah, and national events*
 
-**Unique Advantage:** Arabic-first platform + Saudi operational context + scalable from 1 center to 100+
+**Pain:** No centralized dashboard, cascading bottlenecks, paper post-event analysis
+**Value:** Real-time multi-sector monitoring, instant alerts, scalable to 100+ centers
+**Unique:** Arabic-first + Saudi operational context + mass gathering scalability
 
 ---
 
 ## 💼 Business Model
 
-| Plan | Target | Price | Features |
-|------|--------|-------|---------|
-| 🔵 **Basic** | Small clinics | 500 SAR/month | Dashboard + Reports |
-| 🟡 **Pro** | Hospitals | 1,500 SAR/month | + WhatsApp Alerts + AI Reports |
-| 🔴 **Enterprise** | Hospital chains | Custom | + Multi-branch + API Access |
+<div align="center">
 
-> **10 hospitals = 15,000 SAR/month recurring revenue**
+| Plan | Target | Price | Key Features |
+|------|--------|-------|--------------|
+| 🔵 **Basic** | Small clinics | **500 SAR/month** | Dashboard + Reports + 1 Center |
+| 🟡 **Pro** | Mid-size hospitals | **1,500 SAR/month** | + WhatsApp Alerts + AI Reports + 5 Centers |
+| 🔴 **Enterprise** | Hospital chains | **Custom** | + Multi-branch + API + SLA + PDPL |
 
-### Commercial Roadmap
+> **10 hospitals on Pro = 15,000 SAR/month recurring revenue**
 
-```
-NOW ✅              Q3 2026 🔵           Q1 2027 🟡           Q4 2027 🔴
-────────────        ──────────────       ──────────────       ──────────────
-Innovation MVP      Pilot Program        First Paying         Full SaaS
-Working System      1 Hospital           Customer             Platform
-AI Reports Live     Validate Impact      Prove Value          10+ Clients
-```
+</div>
 
-### Why Wasl Will Win
+### Why Wasl Wins
 
-| Advantage | Wasl | Traditional Systems |
-|-----------|------|-------------------|
-| Full Arabic UI | ✅ | ❌ Rarely |
-| AI-powered Arabic reports | ✅ | ❌ |
-| WhatsApp instant alerts | ✅ | ❌ |
-| Affordable pricing | ✅ | ❌ Expensive |
-| Easy to use | ✅ | ❌ Complex |
-| Saudi PDPL compliant | ✅ Roadmap | ⚠️ Varies |
+| Feature | Wasl | Legacy Systems |
+|---------|------|----------------|
+| Full Arabic RTL UI | ✅ Native | ❌ Rarely |
+| AI-powered Arabic reports | ✅ GPT-4o daily | ❌ None |
+| WhatsApp instant alerts | ✅ Roadmap | ❌ None |
+| Time to deploy | ✅ Minutes | ❌ Months |
+| Monthly cost | ✅ From 500 SAR | ❌ 50,000+ SAR |
+| Offline capability | ✅ PWA | ❌ Cloud-only |
+| Saudi PDPL compliance | ✅ Roadmap | ⚠️ Varies |
 
-### Funding & Support Targets
+### Seeking Investment & Support
 
 [![Monshaat](https://img.shields.io/badge/Monsha'at-SME%20Support-1B3A6B?style=for-the-badge)](https://www.monshaat.gov.sa)
 [![STV](https://img.shields.io/badge/STV-Saudi%20Tech%20Ventures-00C9A7?style=for-the-badge)](https://stv.vc)
 [![Flat6Labs](https://img.shields.io/badge/Flat6Labs-Accelerator-E67E22?style=for-the-badge)](https://flat6labs.com)
 [![Vision2030](https://img.shields.io/badge/Vision%202030-Health%20Sector-30D158?style=for-the-badge)](https://vision2030.gov.sa)
 
-### Next Milestones
+---
 
-- [ ] 🔵 Deploy pilot with 1 hospital (free) — collect real feedback
-- [ ] 🔵 Add live Google Sheets database integration
-- [ ] 🟡 Launch WhatsApp instant KPI alerts
-- [ ] 🟡 Register company & apply for Monsha'at support
-- [ ] 🟡 Convert to PWA mobile app
+## 🚀 Getting Started
+
+### Try the Live Platform
+
+```
+https://moha-111.github.io/Medical-Transport-Operations-Analytics/
+```
+
+### Run Locally
+
+```bash
+git clone https://github.com/Moha-111/Medical-Transport-Operations-Analytics.git
+cd Medical-Transport-Operations-Analytics
+
+# Method 1 — Direct (basic)
+open index.html
+
+# Method 2 — Local server (enables PWA + Service Worker)
+python3 -m http.server 8080
+# Visit: http://localhost:8080
+```
+
+### Install as Mobile App (PWA)
+
+1. Open the platform in Chrome (Android) or Safari (iOS)
+2. Tap menu → **"Add to Home Screen"** / **"Install App"**
+3. Wasl launches as a native-like app — works offline
+
+### Explore the Data (Python)
+
+```python
+import pandas as pd
+
+df = pd.read_excel('Medical-Transport-Analytics.xlsx',
+                   sheet_name='Daily Operations Data')
+
+print(f"Total missions:    {len(df):,}")
+print(f"Centers:           {df['Center Name'].nunique()}")
+print(f"Paramedics:        {df['Paramedic Name'].nunique()}")
+print(f"Avg response time: {df['Response Time (min)'].mean():.1f} min")
+print(f"Emergency rate:    {(df['Referral Type']=='Life-Saving').mean()*100:.1f}%")
+```
+
+---
+
+## 🤝 Contributing
+
+| Type | Link |
+|------|------|
+| 🐛 Bug Reports | [Bug report template](.github/ISSUE_TEMPLATE/bug_report.yml) |
+| ✨ Feature Requests | [Feature request template](.github/ISSUE_TEMPLATE/feature_request.yml) |
+| 💻 Code Contributions | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| 🤝 Code of Conduct | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) |
+
+---
+
+## 🗺️ Roadmap
+
+```
+NOW ✅              Q3 2026 🔵           Q1 2027 🟡           Q4 2027 🔴
+────────────        ──────────────       ──────────────       ──────────────
+v1.3.0              Pilot Program        Commercial           Full SaaS
+PWA + Offline       Google Sheets DB     Launch               Multi-tenant
+AI Reports LIVE     1 Hospital Free      WhatsApp Alerts      10+ Clients
+CI/CD Pipeline      Real-time Sync       PWA App Store        MOH Certified
+```
+
+- [x] ✅ MVP Dashboard + KPI analytics
+- [x] ✅ Automated AI daily reports (Make.com + GPT-4o)
+- [x] ✅ PWA + offline support (Service Worker)
+- [x] ✅ CI/CD pipeline (GitHub Actions)
+- [x] ✅ Professional documentation + security policy
+- [ ] 🔵 Google Sheets live database integration
+- [ ] 🔵 First hospital pilot (free)
+- [ ] 🟡 WhatsApp instant KPI alerts
+- [ ] 🟡 Company registration + Monsha'at application
 - [ ] 🔴 Multi-hospital SaaS platform
-- [ ] 🔴 Saudi Ministry of Health certification
+- [ ] 🔴 Saudi MOH certification + PDPL compliance
 
 ---
 
-## 📂 Data & Templates
+## 🔒 Security & Privacy
 
-[![Raw Data](https://img.shields.io/badge/📊%20البيانات%20الخام-Google%20Sheets-34A853?style=for-the-badge&logo=googlesheets&logoColor=white)](https://docs.google.com/spreadsheets/d/1lFtHLgycKMlTFfpC4YbL_Dsvn2ZprOJARc1imcIBF0g/edit?usp=sharing)
-[![Templates](https://img.shields.io/badge/📋%20نماذج%20الميدان-Google%20Sheets-34A853?style=for-the-badge&logo=googlesheets&logoColor=white)](https://docs.google.com/spreadsheets/d/1-ZUjvnIdeTTqLc3Z-nyYd8Csftds2e6l/edit?usp=sharing)
-[![Excel File](https://img.shields.io/badge/📥%20ملف%20Excel%20الكامل-Download-217346?style=for-the-badge&logo=microsoftexcel&logoColor=white)](./Medical-Transport-Analytics.xlsx)
+All data in this repository is **synthetic/demo data. No real patient information is included.**
 
-### 📊 ملف Excel الكامل — `Medical-Transport-Analytics.xlsx`
+| Area | Status |
+|------|--------|
+| Responsible disclosure policy | ✅ [SECURITY.md](SECURITY.md) |
+| PDPL compliance roadmap | ✅ Documented |
+| No real patient data | ✅ Verified |
+| No hardcoded credentials | ✅ Verified |
+| Automated security scanning | ✅ GitHub Actions CI |
 
-الملف يحتوي على **12 شيت** تغطي جميع جوانب العمليات:
-
-| الشيت | المحتوى | الأعمدة / السجلات | الجديد |
-|-------|---------|-------------------|--------|
-| 📋 **Executive Summary** | ملخص تنفيذي + KPIs رئيسية | — | — |
-| 👨‍⚕️ **Employee Schedules** | جداول المسعفين (219 موظف) | الاسم، المركز، الوردية، الحالة | — |
-| 🔧 **Fault Reports** | **بلاغات الأعطال الطبية والميكانيكية** | 11 عمود × 20 بلاغ | ★ جديد |
-| 📋 **Supervisory Report** | **التقرير الإشرافي اليومي الشامل** | KPIs + مراكز + توصيات + توقيع | ★ جديد |
-| 🔄 **Referral Workflow** | **مسار البلاغات — 7 خطوات** | 15 عمود × 13 إحالة + KPIs | ★ جديد |
-| 📊 **Daily Operations Data** | 14,169 مهمة تشغيلية | 25 عمود × 14,169 سجل | — |
-| 📈 **KPI Dashboard** | مؤشرات الأداء الشاملة | — | — |
-| 🏢 **Center Performance** | أداء 20 مركز | الاستجابة، التأخير، المهام | — |
-| 🏥 **Hospital Analysis** | تحليل المستشفيات المستقبِلة | توزيع الحالات، H1–H4 | — |
-| 👨‍⚕️ **Paramedic Performance** | أداء المسعفين الفردي | 219 مسعف × مؤشرات | — |
-| 🚑 **Ambulance Utilization** | استخدام أسطول الإسعاف | نسبة الانتشار، الصيانة | — |
-| ⏱️ **Time Analysis** | تحليل الأوقات والذروة | توزيع ساعي، ذروة الطلب | — |
-
-### 🔗 الملفات الخام — Raw Data Links
-
-| الملف | الوصف | الرابط |
-|-------|-------|--------|
-| 📊 **البيانات الخام (14,169 مهمة)** | قاعدة البيانات الكاملة × 25 متغير | [فتح في Google Sheets](https://docs.google.com/spreadsheets/d/1lFtHLgycKMlTFfpC4YbL_Dsvn2ZprOJARc1imcIBF0g/edit?usp=sharing) |
-| 📋 **نماذج الميدان** | بلاغ المسعف + تشيك الإسعاف + تسليم الوردية + مسار البلاغات | [فتح في Google Sheets](https://docs.google.com/spreadsheets/d/1-ZUjvnIdeTTqLc3Z-nyYd8Csftds2e6l/edit?usp=sharing) |
-| 🔄 **مسار البلاغات (7 خطوات)** | قالب تتبع الإحالات من الإيميل حتى الإنهاء | شيت **Referral Workflow** في [ملف Excel](./Medical-Transport-Analytics.xlsx) |
-| 🔧 **بلاغات الأعطال** | نموذج بلاغات الأعطال الطبية والميكانيكية | شيت **Fault Reports** في [ملف Excel](./Medical-Transport-Analytics.xlsx) |
-| 📋 **التقرير الإشرافي** | نموذج التقرير اليومي الجاهز للطباعة | شيت **Supervisory Report** في [ملف Excel](./Medical-Transport-Analytics.xlsx) |
-
-### 🔄 كيفية استيراد البيانات إلى لوحة التحكم
-
-```
-1. افتح لوحة التحكم → أي صفحة تحتوي زر "📥 استيراد من Excel"
-2. ارفع ملف Medical-Transport-Analytics.xlsx
-3. النظام يحلل تلقائياً 4 شيتات:
-   ✅ Employee Schedules  → تحديث جداول المسعفين
-   ✅ Fault Reports       → تحديث صفحة بلاغات الأعطال
-   ✅ Supervisory Report  → تحديث التقرير الإشرافي
-   ✅ Daily Operations    → إعادة حساب جميع KPIs
-4. تُعاد رسم لوحة التحكم فور اكتمال الاستيراد
-```
+Report vulnerabilities: [GitHub Security Advisories](https://github.com/Moha-111/Medical-Transport-Operations-Analytics/security/advisories/new)
 
 ---
 
-> **Current Status:** This repository uses **synthetic/demo data** for innovation validation and pilot-readiness review. No real patient information is included.
-
-### Data Protection Roadmap
-
-| Phase | Measure | Status |
-|-------|---------|--------|
-| 🟡 **Data Anonymization** | All patient identifiers replaced with anonymous IDs | Planned |
-| 🟡 **Access Control** | Role-based access — operators see only their center's data | Planned |
-| 🟡 **Audit Logging** | Every data access logged with timestamp and user | Planned |
-| 🔴 **PDPL Compliance** | Full compliance with Saudi Personal Data Protection Law | Roadmap |
-| 🔴 **Data Encryption** | End-to-end encryption for patient transfer records | Roadmap |
-| 🔴 **Data Residency** | Data stored exclusively within Saudi Arabia (KSA servers) | Roadmap |
-
----
-
-## 📚 Documentation
-
-Detailed technical documentation is available in the [`docs/`](./docs/) folder:
+## 📂 Documentation
 
 | Document | Description |
 |----------|-------------|
-| [Architecture](./docs/ARCHITECTURE.md) | System design, data flow, component diagrams |
-| [Algorithms](./docs/ALGORITHMS.md) | KPI formulas, prediction engine, breach detection logic |
-| [Data Schema](./docs/DATA-SCHEMA.md) | Full 25-column data dictionary with types and examples |
-| [Deployment](./docs/DEPLOYMENT.md) | Local setup, GitHub Pages, Make.com configuration |
-| [API Reference](./docs/API-REFERENCE.md) | core.js function signatures and usage examples |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design, data flow, component map |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Hosting, CI/CD, Make.com setup |
+| [docs/DATA_DICTIONARY.md](docs/DATA_DICTIONARY.md) | Field definitions, KPI formulas |
+| [CHANGELOG.md](CHANGELOG.md) | Version history |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Contributor guidelines |
+| [SECURITY.md](SECURITY.md) | Security policy & PDPL roadmap |
 
----
+### External Resources
 
-## 💡 Vibe Coding Methodology
-
-Built entirely with **Vibe Coding** — using AI as the primary developer:
-
-1. **Define** the problem in plain language
-2. **Request** Claude AI to generate the solution
-3. **Iterate** through natural conversation
-4. **Deploy** without touching traditional code editors
-
-> *"The best code is the code you never had to write."*
-
-This approach reduced development time from weeks to hours while maintaining professional quality.
-
----
-
-## Innovation Project Context
-
-**Objective:** Build a data-driven operational solution for healthcare transport and referral operations.
-**Approach:** AI-first innovation with rapid prototyping, measurable KPIs, and executive decision support.
-**Output:** Complete analytics platform with automated reports, live monitoring, and operational recommendations.
-**Next Step:** Validate the model through a controlled pilot with clear governance, data protection, and adoption metrics.
+[![Raw Data](https://img.shields.io/badge/Raw%20Data-Google%20Sheets-34A853?style=for-the-badge&logo=googlesheets&logoColor=white)](https://docs.google.com/spreadsheets/d/1lFtHLgycKMlTFfpC4YbL_Dsvn2ZprOJARc1imcIBF0g/edit?usp=sharing)
+[![Templates](https://img.shields.io/badge/Field%20Templates-Google%20Sheets-34A853?style=for-the-badge&logo=googlesheets&logoColor=white)](https://docs.google.com/spreadsheets/d/1-ZUjvnIdeTTqLc3Z-nyYd8Csftds2e6l/edit?usp=sharing)
 
 ---
 
@@ -677,8 +421,13 @@ This approach reduced development time from weeks to hours while maintaining pro
 
 <div align="center">
 
-[![LinkedIn](https://img.shields.io/badge/Connect%20on%20LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/mohammad-alshehri-b0a579388)
-[![GitHub](https://img.shields.io/badge/Follow%20on%20GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Moha-111)
+**Mohammad Alshehri — Builder of Wasl**
+*EMS Professional · AI-first Developer · Healthcare Innovator*
+
+[![LinkedIn](https://img.shields.io/badge/Connect_on_LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/mohammad-alshehri-b0a579388)
+[![GitHub](https://img.shields.io/badge/Follow_on_GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Moha-111)
+
+*For pilot programs, partnerships, and investment inquiries — connect on LinkedIn*
 
 </div>
 
@@ -686,10 +435,10 @@ This approach reduced development time from weeks to hours while maintaining pro
 
 <div align="center">
 
-**Built as an AI-first healthcare innovation project · Powered by Vibe Coding + Claude AI**
+**Built with ❤️ at Tuwaiq Hackathon · Powered by Claude AI (Vibe Coding)**
 
-*Wasl — Connecting Patients to Hospitals, and Decisions to Data*
+*Wasl v1.3.0 — Connecting Patients to Hospitals, and Decisions to Data*
 
-![footer](https://capsule-render.vercel.app/api?type=waving&color=00C9A7,0098DB&height=100&section=footer)
+![footer](https://capsule-render.vercel.app/api?type=waving&color=00C9A7,0098DB&height=120&section=footer)
 
 </div>

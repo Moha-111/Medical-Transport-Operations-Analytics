@@ -1,342 +1,322 @@
-# Deployment Guide — Wasl (وصل)
-
-> Step-by-step instructions for running Wasl locally, on GitHub Pages, and configuring the automation pipeline
-
----
+# Deployment Guide — Wasl Platform (وصل)
 
 ## Table of Contents
 
-- [Prerequisites](#prerequisites)
-- [Option 1 — Open Live System (No Setup)](#option-1--open-live-system-no-setup)
-- [Option 2 — Run Locally](#option-2--run-locally)
-- [Option 3 — Deploy to GitHub Pages](#option-3--deploy-to-github-pages)
-- [Option 4 — Run Tests](#option-4--run-tests)
-- [Configuring Make.com Automation](#configuring-makecom-automation)
-- [Configuring Alert Thresholds](#configuring-alert-thresholds)
-- [Importing Your Own Data](#importing-your-own-data)
-- [Troubleshooting](#troubleshooting)
+1. [GitHub Pages (Recommended)](#github-pages)
+2. [Local Development](#local-development)
+3. [Nginx / Apache Self-Hosted](#self-hosted)
+4. [Make.com Automation Setup](#makecom-automation)
+5. [Environment Configuration](#configuration)
+6. [Monitoring Deployment Health](#monitoring)
 
 ---
 
-## Prerequisites
+## GitHub Pages (Recommended) {#github-pages}
 
-### For Local Use (No Tests)
+GitHub Pages is the recommended hosting method — zero cost, CDN-backed, automatic HTTPS.
 
-- Any modern web browser (Chrome, Firefox, Safari, Edge)
-- No Node.js, no server, no installation required
+### Automatic Deployment (CI/CD)
 
-### For Running Tests
+This repository includes a pre-configured GitHub Actions workflow that automatically deploys on every push to `main`.
 
-- **Node.js** v18 or higher → [nodejs.org](https://nodejs.org)
-- **npm** v9 or higher (included with Node.js)
-
-### For Make.com Automation
-
-- Make.com account (free tier works)
-- OpenAI API key (GPT-4o access)
-- Gmail account (for report delivery)
-
----
-
-## Option 1 — Open Live System (No Setup)
-
-The system is deployed on GitHub Pages and requires no installation:
-
-```
-https://moha-111.github.io/Medical-Transport-Operations-Analytics/
+```yaml
+# .github/workflows/deploy.yml
+# Triggers on push to main/master
+# Validates HTML → Deploys to GitHub Pages
 ```
 
-1. Open the URL in any browser
-2. Select your role on the login screen
-3. Click **Enter System**
+**Setup steps:**
 
-> The live system includes the full dataset (14,169 missions) pre-loaded for demonstration.
+1. Fork or clone this repository
+2. Go to **Settings → Pages** in your GitHub repository
+3. Set **Source** to `GitHub Actions`
+4. Push any change to `main` — deployment is automatic
+
+**Your platform will be live at:**
+```
+https://YOUR-USERNAME.github.io/Medical-Transport-Operations-Analytics/
+```
+
+### Manual Deployment
+
+```bash
+# From your repository root
+git add -A
+git commit -m "deploy: update platform"
+git push origin main
+# GitHub Actions handles the rest
+```
 
 ---
 
-## Option 2 — Run Locally
+## Local Development {#local-development}
 
-### Step 1 — Clone the Repository
+No build tools required. The platform runs directly in any browser.
+
+### Option 1: Direct File Open
 
 ```bash
 git clone https://github.com/Moha-111/Medical-Transport-Operations-Analytics.git
 cd Medical-Transport-Operations-Analytics
+open index.html              # macOS
+xdg-open index.html          # Linux
+start index.html             # Windows
 ```
 
-### Step 2 — Open the Dashboard
+### Option 2: Local HTTP Server (Recommended for PWA features)
+
+Service Worker and PWA features require HTTPS or localhost. Use a local server:
 
 ```bash
-# macOS
-open index.html
+# Python (built-in)
+python3 -m http.server 8080
+# Then open: http://localhost:8080
 
-# Windows
-start index.html
+# Node.js (npx)
+npx serve .
+# Then open: http://localhost:3000
 
-# Linux
-xdg-open index.html
-
-# Or simply drag index.html into your browser
+# VS Code: Use "Live Server" extension
 ```
 
-### Step 3 — Import the Dataset (Optional)
-
-The local version opens with demo data. To load the full dataset:
-
-1. Click **Data Entry** in the left sidebar
-2. Click **Import Excel**
-3. Select `Medical-Transport-Analytics.xlsx` from the repository folder
-4. The dashboard will automatically update with all 14,169 missions
-
----
-
-## Option 3 — Deploy to GitHub Pages
-
-### For Your Own Fork
-
-1. **Fork** the repository on GitHub
-2. Go to your fork's **Settings → Pages**
-3. Set Source to `Deploy from a branch`
-4. Select `main` branch and `/ (root)` folder
-5. Click **Save**
-
-Your deployment will be live at:
-```
-https://{your-github-username}.github.io/Medical-Transport-Operations-Analytics/
-```
-
-### Deployment Notes
-
-- GitHub Pages deploys automatically when you push to `main`
-- The deployment takes 1–3 minutes after each push
-- No build step required — `index.html` is served directly
-- HTTPS is enforced automatically
-
----
-
-## Option 4 — Run Tests
-
-### Install Dependencies
+### Option 3: Docker
 
 ```bash
-npm install
-```
+# Run with nginx
+docker run -d -p 8080:80 \
+  -v $(pwd):/usr/share/nginx/html:ro \
+  nginx:alpine
 
-This installs Jest 29 as the only development dependency.
-
-### Run All Tests
-
-```bash
-npm test
-```
-
-### Run with Coverage Report
-
-```bash
-npm run test:coverage
-```
-
-Coverage report is saved to `./coverage/` folder. Open `coverage/lcov-report/index.html` in your browser to view detailed coverage.
-
-### Run in Watch Mode
-
-```bash
-npm run test:watch
-```
-
-Useful during development — re-runs affected tests on every file save.
-
-### Expected Output
-
-```
- PASS  tests/parseCSV.test.js
- PASS  tests/calcKPIs.test.js
- PASS  tests/detectBreaches.test.js
- PASS  tests/prediction.test.js
- PASS  tests/config.test.js
- PASS  tests/integration.test.js
-
-Test Suites: 6 passed, 6 total
-Tests:       130 passed, 130 total
-Snapshots:   0 total
-Time:        ~2s
+# Open: http://localhost:8080
 ```
 
 ---
 
-## Configuring Make.com Automation
+## Self-Hosted (Nginx / Apache) {#self-hosted}
 
-### Overview
+For organizations that need to host Wasl on their own infrastructure.
 
-The daily automated report requires:
-1. A Make.com scenario
-2. The Wasl webhook URL (generated in Settings)
-3. An OpenAI API key
-4. A Gmail connection
+### Nginx Configuration
 
-### Step-by-Step Setup
+```nginx
+server {
+    listen 443 ssl http2;
+    server_name wasl.yourhospital.com;
 
-#### 1. Generate Your Webhook URL in Wasl
+    root /var/www/wasl;
+    index index.html;
 
-1. Open the dashboard → **Settings**
-2. Scroll to **Automation Configuration**
-3. Enter your Make.com webhook URL (create one in the next step)
-4. Click **Save Settings**
+    # SSL certificates (use Let's Encrypt)
+    ssl_certificate /etc/letsencrypt/live/wasl.yourhospital.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/wasl.yourhospital.com/privkey.pem;
 
-#### 2. Create the Make.com Scenario
+    # Security headers
+    add_header X-Content-Type-Options nosniff;
+    add_header X-Frame-Options SAMEORIGIN;
+    add_header X-XSS-Protection "1; mode=block";
+    add_header Referrer-Policy strict-origin-when-cross-origin;
+    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()";
 
-1. Log in to [make.com](https://make.com)
-2. Click **Create a new scenario**
-3. Add the following modules in order:
+    # Content Security Policy
+    add_header Content-Security-Policy "
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        font-src https://fonts.gstatic.com;
+        img-src 'self' data: https:;
+        connect-src 'self' https://hook.us.make.com;
+    ";
 
-**Module 1: Schedule**
-```
-Module: Schedule
-Run: Every day
-Time: 07:00
-Timezone: Asia/Riyadh
-```
+    # Cache static assets
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff2)$ {
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
 
-**Module 2: HTTP (Fetch KPI Data)**
-```
-Module: HTTP → Make a request
-URL: {your-wasl-webhook-url}
-Method: GET
-```
+    # Service Worker must be served from root
+    location /sw.js {
+        add_header Service-Worker-Allowed "/";
+        expires 0;
+    }
 
-**Module 3: OpenAI (Generate Report)**
-```
-Module: OpenAI → Create a completion
-Model: gpt-4o
-System prompt:
-  أنت محلل عمليات خبير في نقل المرضى. مهمتك هي تحليل مؤشرات الأداء اليومية
-  وإنشاء تقرير احترافي باللغة العربية. يجب أن يتضمن التقرير:
-  1. ملخص تنفيذي
-  2. أبرز المؤشرات
-  3. التنبيهات والمخاوف
-  4. التوصيات
+    # SPA routing
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
 
-User prompt:
-  بيانات اليوم: {{2.body}}
-```
-
-**Module 4: Gmail (Send Report)**
-```
-Module: Gmail → Send an email
-To: {operations-team-email}
-Subject: تقرير وصل اليومي — {{formatDate(now; "DD/MM/YYYY")}}
-Content: {{3.choices[].message.content}}
-Content type: HTML
+# Redirect HTTP to HTTPS
+server {
+    listen 80;
+    server_name wasl.yourhospital.com;
+    return 301 https://$server_name$request_uri;
+}
 ```
 
-#### 3. Test the Scenario
+### Apache Configuration (.htaccess)
 
-1. Click **Run once** in Make.com
-2. Check the Gmail inbox for the test report
-3. If successful, turn the scenario **ON** for automatic daily execution
+```apache
+# Enable HTTPS redirect
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Security headers
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options SAMEORIGIN
+Header always set X-XSS-Protection "1; mode=block"
+
+# Cache control
+<FilesMatch "\.(js|css|png|jpg|jpeg|gif|ico|svg|woff2)$">
+    ExpiresActive On
+    ExpiresDefault "access plus 30 days"
+</FilesMatch>
+
+# Service worker
+<Files "sw.js">
+    Header set Service-Worker-Allowed "/"
+    ExpiresActive On
+    ExpiresDefault "access plus 0 seconds"
+</Files>
+
+# SPA routing
+Options -MultiViews
+ErrorDocument 404 /index.html
+```
 
 ---
 
-## Configuring Alert Thresholds
+## Make.com Automation Setup {#makecom-automation}
 
-Thresholds control when the alert system fires. Configure in **Settings → KPI Thresholds**:
+The automated daily report requires a Make.com account (free tier works).
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| Response Time | 15 min | Alerts when avg exceeds this |
-| Late Rate | 95% | Alerts when late % exceeds this |
-| Daily Missions | 60 | Alerts when daily volume exceeds this per center |
+### Step 1: Create a Make.com Scenario
 
-Changes are saved to `localStorage` and persist across browser sessions.
+1. Sign up at [make.com](https://make.com)
+2. Create a new **Scenario**
+3. Add modules in this order:
 
-To reset to defaults: **Settings → Reset to Defaults**
+```
+[Schedule] → [HTTP: Get KPI Data] → [OpenAI: GPT-4o] → [Gmail: Send Email]
+```
+
+### Step 2: Configure the Schedule Module
+
+- **Type:** Every day
+- **Time:** 07:00
+- **Timezone:** Asia/Riyadh
+
+### Step 3: Configure the HTTP Module
+
+- **Method:** GET or POST
+- **URL:** Your Wasl platform URL
+- **Response:** KPI summary JSON
+
+### Step 4: Configure OpenAI Module
+
+- **Model:** gpt-4o
+- **System prompt:**
+```
+أنت محلل عمليات نقل المرضى الطبي. قم بتحليل بيانات KPI التالية وإنشاء تقرير يومي احترافي باللغة العربية. يجب أن يتضمن التقرير: ملخص الأداء، أبرز التنبيهات، والتوصيات العملية. استخدم أسلوباً مهنياً مناسباً لمديري المستشفيات.
+```
+- **Max tokens:** 2000
+
+### Step 5: Configure Gmail Module
+
+- **To:** operations-team@yourhospital.com
+- **Subject:** `تقرير وصل اليومي — {{formatDate(now; "DD/MM/YYYY")}}`
+- **Body type:** HTML
+- **Body:** Output from GPT-4o module
+
+### Step 6: Get Webhook URL
+
+1. Add a **Webhook** trigger to your scenario (optional, for manual triggers)
+2. Copy the webhook URL
+3. Paste it in **Wasl Settings → Make.com Webhook URL**
 
 ---
 
-## Importing Your Own Data
+## Environment Configuration {#configuration}
 
-### Excel Format Requirements
+Wasl uses client-side configuration via the Settings panel. No `.env` files needed.
 
-Your `.xlsx` file must:
-- Have mission records on the first sheet (or a sheet named `Daily Operations Data`)
-- Include a header row as the first row
-- Have columns for response time and status (other columns are optional)
+### Settings Panel Options
 
-**Minimum required columns:**
+| Setting | Description | Default |
+|---------|-------------|---------|
+| Max Response Time | KPI threshold for alerts (min) | 15 |
+| Max Dispatch Time | KPI threshold for alerts (min) | 8 |
+| Max Late Rate | KPI threshold for alerts (%) | 95 |
+| Make.com Webhook URL | URL for automated report triggers | (empty) |
+| Alert Notifications | Enable/disable browser notifications | On |
+
+Settings are persisted in `localStorage` and survive page refreshes.
+
+---
+
+## Monitoring Deployment Health {#monitoring}
+
+### GitHub Actions Dashboard
+
+Monitor deployment status at:
 ```
-Response Time (min)   — numeric, in minutes
-Status                — "Late", "Good", or "Excellent"
+https://github.com/YOUR-USERNAME/Medical-Transport-Operations-Analytics/actions
 ```
 
-**Recommended columns for full dashboard:**
-```
-Dispatch Time (min)
-Travel Time (min)
-Duration (min)
-Center
-Month
-Hospital
-Severity
-Shift
+### Key Checks
+
+```bash
+# Verify the site is live
+curl -I https://YOUR-USERNAME.github.io/Medical-Transport-Operations-Analytics/
+
+# Expected response:
+# HTTP/2 200
+# content-type: text/html
+
+# Verify service worker is accessible
+curl -I https://YOUR-USERNAME.github.io/Medical-Transport-Operations-Analytics/sw.js
+
+# Verify manifest is accessible
+curl -I https://YOUR-USERNAME.github.io/Medical-Transport-Operations-Analytics/manifest.json
 ```
 
-### Import Steps
+### Uptime Monitoring (Recommended Tools)
 
-1. Open the dashboard → **Data Entry**
-2. Click **Import Excel** (or drag-and-drop your file)
-3. The platform auto-detects columns using fuzzy name matching
-4. Review the KPI update on the dashboard
-5. If columns are not recognized, rename them to match the expected names (see [Data Schema](./DATA-SCHEMA.md))
+| Tool | Free Tier | URL |
+|------|-----------|-----|
+| UptimeRobot | 50 monitors | uptimerobot.com |
+| Better Uptime | 10 monitors | betteruptime.com |
+| StatusCake | Unlimited | statuscake.com |
 
 ---
 
 ## Troubleshooting
 
-### Dashboard shows no data after import
+### Platform doesn't load after deployment
 
-**Check:** Is your Excel file using the correct sheet name?
-- The platform looks for `Daily Operations Data` first, then falls back to the first sheet
+1. Check GitHub Actions logs for deployment errors
+2. Ensure GitHub Pages is set to use **GitHub Actions** source (not branch)
+3. Wait 5 minutes for CDN propagation
 
-**Check:** Does your file have a header row?
-- Row 1 must contain column names, not data
+### Charts not rendering
 
-**Check:** Are numeric columns formatted as numbers (not text)?
-- In Excel: select the column → Format Cells → Number
+1. Verify Chart.js CDN is accessible: `cdnjs.cloudflare.com`
+2. Check browser console for JavaScript errors
+3. Test on a different browser
 
----
+### Arabic fonts not loading
 
-### Tests fail with "Cannot find module"
+1. Verify Google Fonts CDN is accessible
+2. Check for Content Security Policy blocking font loading
+3. Consider self-hosting fonts for production
 
-```bash
-# Make sure dependencies are installed
-npm install
+### Service Worker not registering
 
-# Then re-run tests
-npm test
-```
-
----
-
-### Make.com webhook not receiving data
-
-**Check:** Is the webhook URL correctly pasted in Settings?
-- The URL should start with `https://hook.make.com/...`
-
-**Check:** Is the Wasl dashboard open when Make.com triggers?
-- The webhook endpoint is served by the browser; the tab must be open
+1. Must be served over HTTPS or localhost
+2. Check browser console for SW registration errors
+3. Clear browser cache and SW: DevTools → Application → Service Workers → Unregister
 
 ---
 
-### "403 Forbidden" on GitHub Pages
-
-- Ensure the repository is public (not private)
-- GitHub Pages requires public repositories on the free plan
-- Wait 5 minutes after enabling Pages for DNS propagation
-
----
-
-### Chart.js not loading (blank chart areas)
-
-The dashboard loads Chart.js from a CDN. If offline:
-1. Download Chart.js from [cdn.jsdelivr.net/npm/chart.js](https://cdn.jsdelivr.net/npm/chart.js)
-2. Save as `chart.min.js` in the repository root
-3. Edit `index.html`: replace the CDN `<script>` with `<script src="./chart.min.js">`
+*Last updated: 2026-02-27*
+*Wasl Deployment Guide v1.3.0*

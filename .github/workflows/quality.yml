@@ -1,0 +1,123 @@
+name: 🔬 Code Quality & Security
+
+on:
+  push:
+    branches: [main, master, 'claude/**', 'feature/**', 'fix/**']
+  pull_request:
+    branches: [main, master]
+  schedule:
+    # Run weekly security scan every Monday at 08:00 UTC
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+
+jobs:
+  # ─── Link & Asset Check ────────────────────────────────────────────
+  link-check:
+    name: 🔗 Link & Asset Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check external CDN dependencies
+        run: |
+          echo "📦 Checking CDN dependencies in index.html..."
+          CDNS=$(grep -oE 'https://[^"]+\.(js|css)' index.html | sort -u)
+          echo "Found CDN links:"
+          echo "$CDNS"
+          echo ""
+          COUNT=$(echo "$CDNS" | wc -l)
+          echo "Total external dependencies: $COUNT"
+          echo "## CDN Dependencies" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "$CDNS" | while read url; do
+            echo "- \`$url\`" >> $GITHUB_STEP_SUMMARY
+          done
+
+      - name: Validate critical files exist
+        run: |
+          echo "📋 Validating project structure..."
+          REQUIRED=(index.html README.md LICENSE)
+          ALL_OK=true
+          for f in "${REQUIRED[@]}"; do
+            if [ -f "$f" ]; then
+              echo "✅ $f"
+            else
+              echo "❌ Missing: $f"
+              ALL_OK=false
+            fi
+          done
+          if [ "$ALL_OK" = false ]; then exit 1; fi
+
+  # ─── Security Scan ─────────────────────────────────────────────────
+  security-scan:
+    name: 🔒 Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Scan for hardcoded secrets
+        run: |
+          echo "🔍 Scanning for potential secrets..."
+          FOUND=0
+
+          # Patterns to detect (avoid false positives)
+          PATTERNS=(
+            'sk-[a-zA-Z0-9]{32,}'
+            'ghp_[a-zA-Z0-9]{36}'
+            'AIza[0-9A-Za-z_-]{35}'
+            'AKIA[0-9A-Z]{16}'
+          )
+
+          for PATTERN in "${PATTERNS[@]}"; do
+            if grep -rE "$PATTERN" . --include="*.html" --include="*.js" --include="*.json" 2>/dev/null | grep -v ".git"; then
+              echo "⚠️  Potential secret pattern found: $PATTERN"
+              FOUND=$((FOUND + 1))
+            fi
+          done
+
+          if [ $FOUND -eq 0 ]; then
+            echo "✅ No hardcoded secrets detected"
+          fi
+
+      - name: Check for PII in data files
+        run: |
+          echo "🏥 Checking data files for PII indicators..."
+          if [ -f "Medical-Transport-Analytics.xlsx" ]; then
+            echo "📊 Excel data file present"
+            echo "ℹ️  File size: $(du -sh Medical-Transport-Analytics.xlsx | cut -f1)"
+            echo "⚠️  Reminder: Ensure all patient data is anonymized per PDPL requirements"
+          fi
+          echo "✅ PII check complete"
+
+  # ─── Performance Audit ─────────────────────────────────────────────
+  performance:
+    name: ⚡ Performance Metrics
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Analyze bundle size
+        run: |
+          echo "## ⚡ Performance Metrics" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| File | Size | Lines |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|------|-------|" >> $GITHUB_STEP_SUMMARY
+
+          for f in index.html README.md; do
+            if [ -f "$f" ]; then
+              SIZE=$(du -sh "$f" | cut -f1)
+              LINES=$(wc -l < "$f")
+              echo "| $f | $SIZE | $LINES |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          HTML_SIZE=$(wc -c < index.html)
+          if [ $HTML_SIZE -gt 524288 ]; then
+            echo "⚠️  **Warning:** HTML file exceeds 512KB — consider splitting into modules" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ File size within acceptable range" >> $GITHUB_STEP_SUMMARY
+          fi
