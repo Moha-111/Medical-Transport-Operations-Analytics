@@ -2,8 +2,94 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>وصل | نظام إدارة نقل المرضى</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>وصل | منصة ذكاء عمليات نقل المرضى — Wasl Medical Transport Intelligence</title>
+
+<!-- ═══ SEO Meta Tags ═══════════════════════════════════════════════ -->
+<meta name="description" content="وصل — منصة ذكاء عمليات نقل المرضى. تحليل 14,169 مهمة نقل، 20 مركزاً، 219 مسعفاً. تقارير AI يومية تلقائية. Wasl: Smart Patient Transfer Operations Platform for Saudi Arabia."/>
+<meta name="keywords" content="نقل المرضى, إسعاف, تحليل بيانات, لوحة تحكم, وصل, Wasl, medical transport, EMS analytics, Saudi healthcare, patient transfer, KPI dashboard"/>
+<meta name="author" content="Mohammad Alshehri — Wasl Platform"/>
+<meta name="robots" content="index, follow"/>
+<meta name="theme-color" content="#00C9A7"/>
+<meta name="color-scheme" content="dark"/>
+<meta name="generator" content="Wasl v1.3.0 — AI-powered healthcare analytics"/>
+
+<!-- ═══ Open Graph (Social Sharing) ════════════════════════════════ -->
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="وصل | منصة ذكاء عمليات نقل المرضى"/>
+<meta property="og:description" content="منصة ذكاء متكاملة لعمليات نقل المرضى — 14,169 مهمة، 20 مركزاً، تقارير AI يومية. مبنية بالذكاء الاصطناعي لقطاع الرعاية الصحية السعودي."/>
+<meta property="og:url" content="https://moha-111.github.io/Medical-Transport-Operations-Analytics/"/>
+<meta property="og:image" content="https://moha-111.github.io/Medical-Transport-Operations-Analytics/report-screenshot.png"/>
+<meta property="og:image:width" content="1280"/>
+<meta property="og:image:height" content="720"/>
+<meta property="og:image:alt" content="Wasl Dashboard — Daily AI Operations Report"/>
+<meta property="og:site_name" content="Wasl — وصل"/>
+<meta property="og:locale" content="ar_SA"/>
+<meta property="og:locale:alternate" content="en_US"/>
+
+<!-- ═══ Twitter Card ════════════════════════════════════════════════ -->
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="وصل | منصة ذكاء عمليات نقل المرضى"/>
+<meta name="twitter:description" content="Smart Patient Transfer Operations Platform — 14,169 missions, 20 centers, daily AI reports. Built for Saudi Arabia's healthcare sector."/>
+<meta name="twitter:image" content="https://moha-111.github.io/Medical-Transport-Operations-Analytics/report-screenshot.png"/>
+<meta name="twitter:creator" content="@MohammadAlshehri"/>
+
+<!-- ═══ PWA / Mobile App ════════════════════════════════════════════ -->
+<link rel="manifest" href="manifest.json"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="وصل Wasl"/>
+<meta name="application-name" content="Wasl — وصل"/>
+<meta name="msapplication-TileColor" content="#00C9A7"/>
+<meta name="msapplication-config" content="none"/>
+
+<!-- ═══ Canonical URL ═══════════════════════════════════════════════ -->
+<link rel="canonical" href="https://moha-111.github.io/Medical-Transport-Operations-Analytics/"/>
+
+<!-- ═══ Structured Data (JSON-LD) ══════════════════════════════════ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Wasl — وصل",
+  "alternateName": "Medical Transport Operations Analytics",
+  "description": "منصة ذكاء عمليات نقل المرضى — Smart Patient Transfer Operations Intelligence Platform for Saudi Arabia",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web Browser",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "SAR",
+    "description": "Demo / Open Source"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Mohammad Alshehri",
+    "url": "https://linkedin.com/in/mohammad-alshehri-b0a579388",
+    "sameAs": ["https://github.com/Moha-111"]
+  },
+  "url": "https://moha-111.github.io/Medical-Transport-Operations-Analytics/",
+  "screenshot": "https://moha-111.github.io/Medical-Transport-Operations-Analytics/report-screenshot.png",
+  "featureList": [
+    "KPI Dashboard with 14,169 mission records",
+    "Live real-time monitoring",
+    "Automated daily AI reports via GPT-4o",
+    "20 medical center management",
+    "219 paramedic profiles",
+    "Arabic RTL interface",
+    "Role-based access control",
+    "PDF report generation"
+  ],
+  "inLanguage": ["ar", "en"],
+  "countryOfOrigin": "SA",
+  "keywords": "medical transport, EMS, patient transfer, healthcare analytics, Saudi Arabia, KPI dashboard"
+}
+</script>
+
+<!-- ═══ Fonts & Dependencies ════════════════════════════════════════ -->
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
@@ -3874,6 +3960,25 @@ window.addEventListener('load', () => {
   if(page && document.getElementById('page-'+page)) navigate(page);
   else if(typeof navigate === 'function') navigate('dashboard');
 });
+
+// ── Service Worker Registration (PWA) ─────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
+      .then(reg => {
+        console.log('[Wasl] Service Worker registered:', reg.scope);
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              console.log('[Wasl] Update available — reload to apply');
+            }
+          });
+        });
+      })
+      .catch(err => console.warn('[Wasl] SW registration failed:', err));
+  });
+}
 </script>
 </body>
 </html>

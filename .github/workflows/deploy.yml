@@ -1,0 +1,107 @@
+name: 🚀 Deploy Wasl Platform
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # ─── Validate HTML Quality ─────────────────────────────────────────
+  validate:
+    name: 🔍 Validate & Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check file sizes
+        run: |
+          echo "📊 Repository file sizes:"
+          du -sh * 2>/dev/null || true
+          echo ""
+          echo "📄 HTML file lines:"
+          wc -l index.html
+
+      - name: Validate HTML structure
+        run: |
+          if [ -f index.html ]; then
+            echo "✅ index.html exists ($(wc -c < index.html) bytes)"
+          else
+            echo "❌ index.html missing"
+            exit 1
+          fi
+
+      - name: Check for sensitive data
+        run: |
+          echo "🔒 Scanning for sensitive patterns..."
+          # Check for hardcoded passwords or API keys (basic scan)
+          if grep -rE "(password\s*=\s*['\"][^'\"]{4,}['\"]|api[_-]?key\s*=\s*['\"][^'\"]{8,}['\"])" index.html --include="*.html" --include="*.js" 2>/dev/null | grep -v "demo\|example\|placeholder\|YOUR_"; then
+            echo "⚠️  Warning: Potential sensitive data found - please review"
+          else
+            echo "✅ No obvious sensitive patterns detected"
+          fi
+
+      - name: Generate build summary
+        run: |
+          echo "## 📊 Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| File | Size |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|------|" >> $GITHUB_STEP_SUMMARY
+          for f in index.html README.md; do
+            if [ -f "$f" ]; then
+              SIZE=$(du -sh "$f" | cut -f1)
+              echo "| $f | $SIZE |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Validation passed — ready for deployment" >> $GITHUB_STEP_SUMMARY
+
+  # ─── Deploy to GitHub Pages ────────────────────────────────────────
+  deploy:
+    name: 🌐 Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Deployment summary
+        run: |
+          echo "## 🚀 Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🌐 **Live URL:** ${{ steps.deployment.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Wasl** platform is now live and accessible." >> $GITHUB_STEP_SUMMARY

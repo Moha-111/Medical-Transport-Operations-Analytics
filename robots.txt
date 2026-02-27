@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Wasl — Medical Transport Intelligence Platform
+# https://moha-111.github.io/Medical-Transport-Operations-Analytics/
+
+Sitemap: https://moha-111.github.io/Medical-Transport-Operations-Analytics/sitemap.xml

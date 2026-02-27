@@ -1,0 +1,123 @@
+name: 🐛 Bug Report
+description: Report a bug or unexpected behavior in the Wasl platform
+title: "[BUG] "
+labels: ["bug", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Bug Report — Wasl Platform
+        Thank you for taking the time to report a bug. Please fill in as much detail as possible to help us resolve this quickly.
+
+  - type: checkboxes
+    id: pre-check
+    attributes:
+      label: Pre-submission checklist
+      options:
+        - label: I searched existing issues and this is not a duplicate
+          required: true
+        - label: I tested on the latest version of the platform
+          required: true
+        - label: I have NOT included any real patient data in this report
+          required: true
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: Affected Module
+      description: Which part of the Wasl platform is affected?
+      options:
+        - 📊 Main Dashboard
+        - 📡 Live Monitoring
+        - 🗂️ Mission Registry
+        - ➕ Data Entry
+        - 🏢 Center Management
+        - 👨‍⚕️ Paramedic Management
+        - 📄 Automated Reports
+        - 🔔 Alert System
+        - ⚙️ Settings
+        - 🔐 Login / Authentication
+        - 📱 Mobile / Responsive
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is
+      placeholder: "When I click on [X], the system shows [Y] instead of [Z]..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Detailed steps to reproduce the behavior
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. Scroll down to '...'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      options:
+        - Chrome (latest)
+        - Firefox (latest)
+        - Safari (latest)
+        - Edge (latest)
+        - Chrome Mobile
+        - Safari Mobile
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - 🔴 Critical — Platform unusable
+        - 🟠 High — Major feature broken
+        - 🟡 Medium — Feature partially broken
+        - 🟢 Low — Minor visual issue
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots / Screen Recordings
+      description: If applicable, add screenshots to help explain the problem (no patient data)
+      placeholder: Drag and drop images here...
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context about the problem

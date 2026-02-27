@@ -1,0 +1,105 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement for the Wasl platform
+title: "[FEATURE] "
+labels: ["enhancement", "needs-review"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Feature Request — Wasl Platform
+        We appreciate your ideas for improving Wasl! Please provide as much detail as possible.
+
+  - type: checkboxes
+    id: pre-check
+    attributes:
+      label: Pre-submission checklist
+      options:
+        - label: I searched existing issues and this is not a duplicate
+          required: true
+        - label: This feature aligns with Wasl's mission (medical transport intelligence)
+          required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Feature Category
+      options:
+        - 📊 Analytics & KPIs
+        - 📡 Real-time Monitoring
+        - 🤖 AI & Automation
+        - 📱 Mobile Experience
+        - 🌐 Multi-branch / Multi-tenant
+        - 🔗 Integration (Google Sheets, WhatsApp, etc.)
+        - 🔒 Security & Compliance (PDPL)
+        - 🇸🇦 Localization & Arabic Support
+        - 📄 Reporting
+        - ⚡ Performance
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What pain point does it address?
+      placeholder: "As a [operations manager / paramedic / hospital director], I need [feature] so that [outcome]..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the feature you'd like to see implemented
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered any alternative solutions?
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Business Priority
+      options:
+        - 🔴 Critical — Blocking hospital operations
+        - 🟠 High — Significant operational value
+        - 🟡 Medium — Nice to have
+        - 🟢 Low — Future enhancement
+    validations:
+      required: true
+
+  - type: dropdown
+    id: user_type
+    attributes:
+      label: Primary User Type
+      options:
+        - Operations Manager
+        - Hospital Director
+        - Dispatch Supervisor
+        - Paramedic / Field Staff
+        - IT Administrator
+        - Executive / C-Suite
+    validations:
+      required: true
+
+  - type: textarea
+    id: success_criteria
+    attributes:
+      label: Success Criteria
+      description: How would you know this feature is working correctly?
+      placeholder: |
+        - [ ] Criteria 1
+        - [ ] Criteria 2
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Mockups, references, or any other context
