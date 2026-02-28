@@ -104,13 +104,66 @@ async function networkFirst(request) {
   }
 }
 
-// ── Background Sync (for future use) ─────────────────────────────────
+// ── Background Sync ───────────────────────────────────────────────────
 self.addEventListener('sync', (event) => {
   if (event.tag === 'sync-missions') {
-    console.log('[Wasl SW] Background sync: missions');
-    // Future: sync pending mission data to server
+    event.waitUntil(syncPendingMissions());
   }
 });
+
+async function syncPendingMissions() {
+  let db;
+  try {
+    db = await openSyncDB();
+    const pending = await getAllFromStore(db, 'pendingRequests');
+    console.log(`[Wasl SW] Background sync: retrying ${pending.length} pending request(s)`);
+
+    for (const item of pending) {
+      try {
+        const response = await fetch(item.url, {
+          method: item.method || 'POST',
+          headers: item.headers || { 'Content-Type': 'application/json' },
+          body: item.body,
+        });
+        if (response.ok) {
+          await deleteFromStore(db, 'pendingRequests', item.id);
+          console.log('[Wasl SW] Synced pending mission request:', item.id);
+        }
+      } catch (err) {
+        console.warn('[Wasl SW] Sync failed for request:', item.id, err);
+      }
+    }
+  } finally {
+    if (db) db.close();
+  }
+}
+
+function openSyncDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('wasl-sync', 1);
+    req.onupgradeneeded = (e) => {
+      e.target.result.createObjectStore('pendingRequests', { keyPath: 'id', autoIncrement: true });
+    };
+    req.onsuccess = (e) => resolve(e.target.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function getAllFromStore(db, storeName) {
+  return new Promise((resolve, reject) => {
+    const req = db.transaction(storeName, 'readonly').objectStore(storeName).getAll();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function deleteFromStore(db, storeName, id) {
+  return new Promise((resolve, reject) => {
+    const req = db.transaction(storeName, 'readwrite').objectStore(storeName).delete(id);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
 
 // ── Push Notifications (for future use) ──────────────────────────────
 self.addEventListener('push', (event) => {
