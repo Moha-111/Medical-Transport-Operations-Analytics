@@ -153,3 +153,54 @@ describe('predict', () => {
     expect(confidence).toBeGreaterThanOrEqual(55);
   });
 });
+
+// ── predict — edge cases ───────────────────────────────────────────────────────
+describe('predict — edge cases', () => {
+  const NEUTRAL_FACTORS = [1, 1, 1, 1, 1, 1, 1];
+
+  test('does not throw with a single-element historical array', () => {
+    expect(() => predict([60], NEUTRAL_FACTORS, 0, 1)).not.toThrow();
+  });
+
+  test('returns an object with value and confidence for a single-element array', () => {
+    const result = predict([60], NEUTRAL_FACTORS, 0, 1);
+    expect(typeof result.value).toBe('number');
+    expect(typeof result.confidence).toBe('number');
+  });
+
+  test('confidence is within bounds [55, 93] for a single-element array', () => {
+    const { confidence } = predict([60], NEUTRAL_FACTORS, 0, 1);
+    expect(confidence).toBeGreaterThanOrEqual(55);
+    expect(confidence).toBeLessThanOrEqual(93);
+  });
+
+  test('does not throw with negative historical values', () => {
+    const negData = [-10, -5, -8, -3, -6, -4, -7];
+    expect(() => predict(negData, NEUTRAL_FACTORS, 0, 1)).not.toThrow();
+  });
+
+  test('returns a finite value for negative historical data', () => {
+    const { value } = predict([-10, -5, -8, -3, -6, -4, -7], NEUTRAL_FACTORS, 0, 1);
+    expect(Number.isFinite(value)).toBe(true);
+  });
+
+  test('returns a finite result for a very large daysAhead (365)', () => {
+    const history = [60, 60, 60, 60, 60, 60, 60];
+    const { value } = predict(history, NEUTRAL_FACTORS, 0, 365);
+    expect(Number.isFinite(value)).toBe(true);
+  });
+
+  test('flat history + large daysAhead still predicts near baseline (no trend)', () => {
+    const history = [60, 60, 60, 60, 60, 60, 60];
+    // Trend slope is 0 for flat data, so value ≈ 60 regardless of daysAhead
+    const { value } = predict(history, NEUTRAL_FACTORS, 0, 365);
+    expect(value).toBeCloseTo(60, 0);
+  });
+
+  test('target day-of-week 6 (Saturday) applies the correct seasonal factor', () => {
+    const history = [60, 60, 60, 60, 60, 60, 60];
+    const factors = [1, 1, 1, 1, 1, 1, 0.5]; // Saturday factor = 0.5
+    const { value } = predict(history, factors, 6, 1);
+    expect(value).toBeCloseTo(30, 0); // 60 * 0.5
+  });
+});

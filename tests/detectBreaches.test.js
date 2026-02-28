@@ -195,3 +195,89 @@ describe('detectBreaches — breach object shape', () => {
     });
   });
 });
+
+// ── Empty centers array ───────────────────────────────────────────────────────
+describe('detectBreaches — empty centers array', () => {
+  test('does not throw when centers is an empty array', () => {
+    const curr = makeKPI({ centers: [] });
+    expect(() => detectBreaches(curr, null, DEFAULT_THRESHOLDS)).not.toThrow();
+  });
+
+  test('produces no center-level breaches when centers is empty', () => {
+    const curr = makeKPI({ centers: [] });
+    const breaches = detectBreaches(curr, null, DEFAULT_THRESHOLDS);
+    expect(breaches.filter(b => b.icon === '🏥')).toHaveLength(0);
+  });
+});
+
+// ── Delta calculation ─────────────────────────────────────────────────────────
+describe('detectBreaches — delta values', () => {
+  // NOTE: The delta formula in core.js:130 is `val - prev.avgResp` for ALL
+  // 'up'-direction checks, not only for the response-time breach.
+  // The tests below document the actual runtime behaviour of the code.
+
+  test('delta is 0 for any breach when prev is null', () => {
+    const curr = makeKPI({ lateRate: 15 });
+    const lb = detectBreaches(curr, null, DEFAULT_THRESHOLDS)
+      .find(b => b.label === 'معدل التأخير');
+    expect(lb.delta).toBe(0);
+  });
+
+  test('delta is 0 for missions breach when prev is null', () => {
+    const curr = makeKPI({ n: 365 * 55 });
+    const mb = detectBreaches(curr, null, DEFAULT_THRESHOLDS)
+      .find(b => b.label === 'المهام اليومية');
+    expect(mb.delta).toBe(0);
+  });
+
+  test('delta reflects prev.avgResp for a response time breach', () => {
+    const curr = makeKPI({ avgResp: 80 });
+    const prev = makeKPI({ avgResp: 70 });
+    const rb = detectBreaches(curr, prev, DEFAULT_THRESHOLDS)
+      .find(b => b.label === 'وقت الاستجابة الكلي');
+    expect(rb.delta).toBe(10); // 80 − 70
+  });
+
+  test('delta is 0 for response breach when prev is null', () => {
+    const curr = makeKPI({ avgResp: 80 });
+    const rb = detectBreaches(curr, null, DEFAULT_THRESHOLDS)
+      .find(b => b.label === 'وقت الاستجابة الكلي');
+    expect(rb.delta).toBe(0);
+  });
+
+  test('when prev is provided, delta for lateRate breach is val − prev.avgResp', () => {
+    // The formula uses prev.avgResp as the subtrahend for all 'up' breaches.
+    // With curr.lateRate=15 and prev.avgResp=60: delta = 15 − 60 = −45
+    const curr = makeKPI({ lateRate: 15 });
+    const prev = makeKPI({ avgResp: 60 }); // default avgResp in makeKPI
+    const lb = detectBreaches(curr, prev, DEFAULT_THRESHOLDS)
+      .find(b => b.label === 'معدل التأخير');
+    expect(lb.delta).toBe(-45);
+  });
+});
+
+// ── Center + global breaches simultaneously ───────────────────────────────────
+describe('detectBreaches — center + global breach together', () => {
+  test('detects a global avgResp breach and a center late breach at the same time', () => {
+    const curr = makeKPI({
+      avgResp:  80,  // > 70 → global breach
+      lateRate:  8,  // within limit
+      centers: [{ id: 'C1', late: 20, missions: 100 }], // > 11.5 → center breach
+    });
+    const breaches = detectBreaches(curr, null, DEFAULT_THRESHOLDS);
+    expect(breaches.find(b => b.label === 'وقت الاستجابة الكلي')).toBeDefined();
+    expect(breaches.find(b => b.label.includes('C1'))).toBeDefined();
+  });
+
+  test('detects all 3 global breaches plus a center breach simultaneously', () => {
+    const curr = makeKPI({
+      avgResp:  80,       // global breach
+      lateRate: 20,       // global breach
+      n:        365 * 60, // global breach
+      centers: [{ id: 'CX', late: 30, missions: 50 }], // center breach
+    });
+    const breaches = detectBreaches(curr, null, DEFAULT_THRESHOLDS);
+    expect(breaches.length).toBeGreaterThanOrEqual(4);
+    expect(breaches.filter(b => b.icon === '🏥')).toHaveLength(1);
+  });
+});

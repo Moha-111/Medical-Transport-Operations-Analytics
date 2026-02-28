@@ -98,5 +98,37 @@ describe('parseCSV', () => {
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual({ Status: 'late' });
     });
+
+    test('handles Arabic text in headers and values', () => {
+      const csv = 'الحالة,وقت_الاستجابة\nمتأخر,72\nجيد,45';
+      const result = parseCSV(csv);
+      expect(result).toHaveLength(2);
+      expect(result[0]['الحالة']).toBe('متأخر');
+      expect(result[0]['وقت_الاستجابة']).toBe('72');
+      expect(result[1]['الحالة']).toBe('جيد');
+    });
+
+    test('handles mixed Arabic and Latin column names', () => {
+      const csv = 'ResponseMin,الحالة\n64,متأخر';
+      const result = parseCSV(csv);
+      expect(result[0].ResponseMin).toBe('64');
+      expect(result[0]['الحالة']).toBe('متأخر');
+    });
+
+    test('documents current behavior: embedded comma inside quotes is not supported', () => {
+      // The parser splits on ALL commas — RFC 4180 embedded commas are not handled.
+      // "value with, comma" is split into two cells, not one.
+      const csv = 'A,B\n"value with, comma","second"';
+      const result = parseCSV(csv);
+      // After split on comma: A gets "value with", the embedded comma becomes a separator
+      expect(result[0].A).toBe('value with');
+      expect(result[0].B).toBe('comma');
+    });
+
+    test('values with spaces (but no embedded commas) are preserved correctly', () => {
+      const csv = 'Hospital,Status\nKing Faisal,good';
+      const result = parseCSV(csv);
+      expect(result[0].Hospital).toBe('King Faisal');
+    });
   });
 });

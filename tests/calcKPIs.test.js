@@ -264,4 +264,124 @@ describe('calcKPIs — flexible column name matching', () => {
     const r = calcKPIs(rows);
     expect(r.centers[0].id).toBe('C99');
   });
+
+  test('accepts "Response_Min" (underscore variant) as the response column', () => {
+    const rows = [{ Response_Min: '75', Status: 'good' }];
+    expect(calcKPIs(rows).avgResp).toBe(75);
+  });
+
+  test('accepts "response min" (space variant) as the response column', () => {
+    const rows = [{ 'response min': '65', Status: 'good' }];
+    expect(calcKPIs(rows).avgResp).toBe(65);
+  });
+
+  test('accepts "dispatch" (shortened) as the dispatch column', () => {
+    const rows = [makeRow({ DispatchMin: undefined, dispatch: '8' })];
+    // makeRow already sets DispatchMin, so use a plain object here
+    const plain = [{ dispatch: '8', Status: 'good' }];
+    expect(calcKPIs(plain).avgDisp).toBe(8);
+  });
+});
+
+// ── shiftMap ──────────────────────────────────────────────────────────────────
+describe('calcKPIs — shiftMap', () => {
+  test('counts missions per shift correctly', () => {
+    const rows = [
+      makeRow({ Shift: 'Morning' }),
+      makeRow({ Shift: 'Morning' }),
+      makeRow({ Shift: 'Evening' }),
+      makeRow({ Shift: 'Night' }),
+    ];
+    const r = calcKPIs(rows);
+    expect(r.shiftMap.Morning).toBe(2);
+    expect(r.shiftMap.Evening).toBe(1);
+    expect(r.shiftMap.Night).toBe(1);
+  });
+
+  test('shiftMap does not include rows with empty Shift value', () => {
+    const rows = [makeRow({ Shift: '' }), makeRow({ Shift: 'Morning' })];
+    const r = calcKPIs(rows);
+    expect(Object.keys(r.shiftMap)).toEqual(['Morning']);
+  });
+
+  test('shiftMap is an empty object when all Shift values are empty', () => {
+    const rows = makeRows(3, { Shift: '' });
+    expect(calcKPIs(rows).shiftMap).toEqual({});
+  });
+
+  test('shiftMap total equals the number of rows that have a shift value', () => {
+    const rows = [
+      makeRow({ Shift: 'Morning' }),
+      makeRow({ Shift: '' }),
+      makeRow({ Shift: 'Evening' }),
+    ];
+    const r = calcKPIs(rows);
+    const total = Object.values(r.shiftMap).reduce((a, b) => a + b, 0);
+    expect(total).toBe(2);
+  });
+});
+
+// ── Center dispatch time ───────────────────────────────────────────────────────
+describe('calcKPIs — center disp (average dispatch time)', () => {
+  test('center disp is the average DispatchMin for that center', () => {
+    const rows = [
+      makeRow({ Center: 'C1', DispatchMin: '10' }),
+      makeRow({ Center: 'C1', DispatchMin: '20' }),
+    ];
+    const c1 = calcKPIs(rows).centers.find(c => c.id === 'C1');
+    expect(c1.disp).toBe(15.0);
+  });
+
+  test('center disp is 0 when dispatch time is missing from all rows', () => {
+    const rows = [{ Center: 'C1', Status: 'good' }];
+    expect(calcKPIs(rows).centers[0].disp).toBe(0);
+  });
+
+  test('center disp is independent across centers', () => {
+    const rows = [
+      makeRow({ Center: 'C1', DispatchMin: '10' }),
+      makeRow({ Center: 'C2', DispatchMin: '30' }),
+    ];
+    const r = calcKPIs(rows);
+    const c1 = r.centers.find(c => c.id === 'C1');
+    const c2 = r.centers.find(c => c.id === 'C2');
+    expect(c1.disp).toBe(10.0);
+    expect(c2.disp).toBe(30.0);
+  });
+});
+
+// ── All 12 months ─────────────────────────────────────────────────────────────
+describe('calcKPIs — full 12-month coverage', () => {
+  const ALL_MONTHS = [
+    'January','February','March','April','May','June',
+    'July','August','September','October','November','December',
+  ];
+
+  test('all 12 calendar months are correctly indexed in monthlyArr', () => {
+    const rows = ALL_MONTHS.map(m => makeRow({ Month: m }));
+    const r = calcKPIs(rows);
+    expect(r.monthlyArr).toEqual([1,1,1,1,1,1,1,1,1,1,1,1]);
+  });
+
+  test('months with multiple missions accumulate correctly', () => {
+    const rows = [
+      makeRow({ Month: 'March' }),
+      makeRow({ Month: 'March' }),
+      makeRow({ Month: 'March' }),
+      makeRow({ Month: 'July' }),
+    ];
+    const r = calcKPIs(rows);
+    expect(r.monthlyArr[2]).toBe(3); // March = index 2
+    expect(r.monthlyArr[6]).toBe(1); // July  = index 6
+    // All others should be 0
+    const others = r.monthlyArr.filter((_, i) => i !== 2 && i !== 6);
+    expect(others.every(v => v === 0)).toBe(true);
+  });
+
+  test('monthlyArr total equals n when all months are valid', () => {
+    const rows = ALL_MONTHS.map(m => makeRow({ Month: m }));
+    const r = calcKPIs(rows);
+    const total = r.monthlyArr.reduce((a, b) => a + b, 0);
+    expect(total).toBe(r.n);
+  });
 });
