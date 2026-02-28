@@ -654,6 +654,14 @@ canvas{max-height:220px;}
 .alert-toast-title{font-size:13px;font-weight:700;color:var(--text);}
 .alert-toast-msg{font-size:11px;color:var(--muted);margin-top:2px;}
 .alert-toast-time{font-size:10px;color:var(--muted);margin-top:4px;}
+
+/* ══ FLEET PAGE ════════════════════════════════════════ */
+.fleet-tabs{display:flex;gap:4px;padding:4px;background:var(--surface3);border-radius:12px;margin-bottom:4px;}
+.fleet-tab{flex:1;padding:9px 12px;background:none;border:none;border-radius:10px;color:var(--muted);cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;font-weight:600;transition:all .2s;}
+.fleet-tab.active{background:var(--surface);color:var(--teal);box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.fleet-tab:hover:not(.active){color:var(--text);}
+.hist-tab-btn{flex:1;padding:12px;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;font-family:Cairo,sans-serif;font-size:14px;transition:all .2s;}
+.hist-tab-btn.active{color:var(--teal);border-bottom-color:var(--teal);font-weight:700;}
 </style>
 </head>
 <body>
@@ -858,6 +866,10 @@ canvas{max-height:220px;}
     </div>
     <div class="nav-item" onclick="navigate('paramedics')">
       <span class="icon">👨‍⚕️</span> المسعفون
+    </div>
+    <div class="nav-item" onclick="navigate('fleet')">
+      <span class="icon">🚑</span> الأسطول
+      <span class="nav-badge green">جديد</span>
     </div>
 
     <div class="nav-section">التحليل والتقارير</div>
@@ -1785,8 +1797,305 @@ canvas{max-height:220px;}
 
   </div><!-- /page-impact -->
 
+  <!-- ══ PAGE: FLEET ════════════════════════════════════════════ -->
+  <div class="page" id="page-fleet">
+    <div class="section-header">
+      <div><h2>🚑 إدارة الأسطول</h2><p>نماذج التشييك والاستلام والتسليم والتحرك — التاريخ الطبي والميكانيكي لكل إسعاف</p></div>
+    </div>
+
+    <!-- Ambulance Registry -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header">
+        <span class="card-title">سجل الإسعافات</span>
+        <span class="card-tag tag-info" id="fleet-count-badge">6 إسعافات</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>رقم الإسعاف</th>
+              <th>لوحة الترخيص</th>
+              <th>المركز</th>
+              <th>النوع</th>
+              <th>الموديل</th>
+              <th>الحالة</th>
+              <th>السجلات</th>
+            </tr>
+          </thead>
+          <tbody id="fleet-tbody">
+            <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">جاري التحميل...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Forms Panel -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📋 النماذج الميدانية</span>
+      </div>
+      <div class="fleet-tabs">
+        <button class="fleet-tab active" id="ftab-ci" onclick="switchFleetTab('ci')">🔍 التشييك اليومي</button>
+        <button class="fleet-tab" id="ftab-ho" onclick="switchFleetTab('ho')">📦 استلام / تسليم</button>
+        <button class="fleet-tab" id="ftab-mv" onclick="switchFleetTab('mv')">🗺️ سجل التحرك</button>
+        <button class="fleet-tab" id="ftab-mt" onclick="switchFleetTab('mt')">🔧 سجل الصيانة</button>
+      </div>
+
+      <!-- Check-in Form -->
+      <div id="fpanel-ci">
+        <form id="fleet-ci-form" style="display:flex;flex-direction:column;gap:14px;padding:20px 0 8px">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>الإسعاف *</label>
+              <select id="ci-amb"></select>
+            </div>
+            <div class="form-group">
+              <label>التاريخ *</label>
+              <input type="date" id="ci-date"/>
+            </div>
+            <div class="form-group">
+              <label>المسعف المسؤول *</label>
+              <input type="text" placeholder="مثال: E36" id="ci-para"/>
+            </div>
+            <div class="form-group">
+              <label>الوردية</label>
+              <select id="ci-shift">
+                <option>صباحية</option><option>مسائية</option><option>ليلية</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>مستوى الوقود</label>
+              <select id="ci-fuel">
+                <option>ممتلئ</option><option>ثلاثة أرباع</option><option>نصف</option><option>ربع</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>الحالة الطبية للمعدات</label>
+              <select id="ci-medical">
+                <option value="سليمة">سليمة ✅</option>
+                <option value="ناقصة">ناقصة ⚠️</option>
+                <option value="تالفة">تالفة ❌</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>الحالة الميكانيكية</label>
+              <select id="ci-mechanical">
+                <option value="سليمة">سليمة ✅</option>
+                <option value="تحتاج متابعة">تحتاج متابعة ⚠️</option>
+                <option value="معطلة">معطلة ❌</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>ملاحظات</label>
+              <input type="text" placeholder="أي ملاحظات..." id="ci-notes"/>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button type="button" class="btn btn-primary" onclick="submitCheckin()">✅ حفظ التشييك</button>
+            <button type="reset" class="btn btn-secondary">مسح</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Handover Form -->
+      <div id="fpanel-ho" style="display:none">
+        <form id="fleet-ho-form" style="display:flex;flex-direction:column;gap:14px;padding:20px 0 8px">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>الإسعاف *</label>
+              <select id="ho-amb"></select>
+            </div>
+            <div class="form-group">
+              <label>رقم المهمة *</label>
+              <input type="text" placeholder="#100170" id="ho-ref"/>
+            </div>
+            <div class="form-group">
+              <label>التاريخ *</label>
+              <input type="date" id="ho-date"/>
+            </div>
+            <div class="form-group">
+              <label>نوع الحالة</label>
+              <select id="ho-type">
+                <option>إنقاذ حياة</option><option>مستقرة</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>القسم الطبي</label>
+              <select id="ho-dept">
+                <option>قلب</option><option>أعصاب</option><option>جراحة عظام</option>
+                <option>أطفال</option><option>عناية مركزة</option><option>طوارئ</option>
+                <option>أورام</option><option>رئة</option><option>جهاز هضمي</option><option>عام</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>المستشفى المستقبل</label>
+              <select id="ho-hospital">
+                <option>H1</option><option>H2</option><option>H3</option><option>H4</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>المسعف المستلِم</label>
+              <input type="text" placeholder="E01" id="ho-para"/>
+            </div>
+            <div class="form-group">
+              <label>المسعف المسلِّم</label>
+              <input type="text" placeholder="E02" id="ho-handover-para"/>
+            </div>
+            <div class="form-group" style="grid-column:1/-1">
+              <label>ملاحظات</label>
+              <input type="text" placeholder="ملاحظات الاستلام/التسليم..." id="ho-notes"/>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button type="button" class="btn btn-primary" onclick="submitHandover()">✅ حفظ الاستلام / التسليم</button>
+            <button type="reset" class="btn btn-secondary">مسح</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Movement Form -->
+      <div id="fpanel-mv" style="display:none">
+        <form id="fleet-mv-form" style="display:flex;flex-direction:column;gap:14px;padding:20px 0 8px">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>الإسعاف *</label>
+              <select id="mv-amb"></select>
+            </div>
+            <div class="form-group">
+              <label>التاريخ *</label>
+              <input type="date" id="mv-date"/>
+            </div>
+            <div class="form-group">
+              <label>وقت التحرك</label>
+              <input type="time" id="mv-time"/>
+            </div>
+            <div class="form-group">
+              <label>من (نقطة الانطلاق) *</label>
+              <input type="text" placeholder="مثال: المركز C1" id="mv-from"/>
+            </div>
+            <div class="form-group">
+              <label>إلى (نقطة الوصول) *</label>
+              <input type="text" placeholder="مثال: مستشفى H1" id="mv-to"/>
+            </div>
+            <div class="form-group">
+              <label>الغرض</label>
+              <select id="mv-purpose">
+                <option>مهمة نقل مريض</option>
+                <option>إعادة توزيع</option>
+                <option>صيانة</option>
+                <option>تموين</option>
+                <option>تدريب</option>
+                <option>أخرى</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>المسافة (كم)</label>
+              <input type="number" placeholder="45" min="0" id="mv-km"/>
+            </div>
+            <div class="form-group">
+              <label>السائق / المسعف</label>
+              <input type="text" placeholder="E36" id="mv-driver"/>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button type="button" class="btn btn-primary" onclick="submitMovement()">✅ حفظ سجل التحرك</button>
+            <button type="reset" class="btn btn-secondary">مسح</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Maintenance Form -->
+      <div id="fpanel-mt" style="display:none">
+        <form id="fleet-mt-form" style="display:flex;flex-direction:column;gap:14px;padding:20px 0 8px">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>الإسعاف *</label>
+              <select id="mt-amb"></select>
+            </div>
+            <div class="form-group">
+              <label>تاريخ الصيانة *</label>
+              <input type="date" id="mt-date"/>
+            </div>
+            <div class="form-group">
+              <label>نوع الصيانة</label>
+              <select id="mt-type">
+                <option>صيانة دورية</option>
+                <option>إصلاح عطل</option>
+                <option>تغيير زيت</option>
+                <option>فحص شامل</option>
+                <option>استبدال قطع</option>
+                <option>أخرى</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>حالة الصيانة</label>
+              <select id="mt-status">
+                <option>مكتملة</option><option>جارية</option><option>مجدولة</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>الفني المسؤول</label>
+              <input type="text" placeholder="اسم الفني" id="mt-tech"/>
+            </div>
+            <div class="form-group">
+              <label>التكلفة (ر.س)</label>
+              <input type="number" placeholder="0" min="0" id="mt-cost"/>
+            </div>
+            <div class="form-group">
+              <label>تاريخ الصيانة القادمة</label>
+              <input type="date" id="mt-next"/>
+            </div>
+            <div class="form-group" style="grid-column:1/-1">
+              <label>وصف الأعمال المنجزة *</label>
+              <input type="text" placeholder="وصف الصيانة أو العطل المُصلَح..." id="mt-desc"/>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button type="button" class="btn btn-primary" onclick="submitMaintenance()">✅ حفظ سجل الصيانة</button>
+            <button type="reset" class="btn btn-secondary">مسح</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div><!-- /page-fleet -->
+
   </div><!-- /content -->
 </div><!-- /main -->
+
+<!-- FLEET HISTORY MODAL -->
+<div id="fleet-hist-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;width:92%;max-width:900px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column">
+    <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div>
+        <h3 id="hist-amb-id" style="font-size:18px;font-weight:700;margin-bottom:4px">AMB-001</h3>
+        <p id="hist-amb-detail" style="font-size:12px;color:var(--muted)"></p>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="closeHistModal()">✕ إغلاق</button>
+    </div>
+    <div style="display:flex;border-bottom:1px solid var(--border);flex-shrink:0">
+      <button class="hist-tab-btn active" id="hist-tab-med" onclick="switchHistTab('med')">🩺 التاريخ الطبي</button>
+      <button class="hist-tab-btn" id="hist-tab-mech" onclick="switchHistTab('mech')">🔧 التاريخ الميكانيكي</button>
+    </div>
+    <div style="overflow-y:auto;flex:1;padding:16px">
+      <div id="hist-panel-med">
+        <table class="data-table">
+          <thead>
+            <tr><th>التاريخ</th><th>المهمة</th><th>القسم</th><th>نوع الحالة</th><th>المستشفى</th><th>المسعف</th></tr>
+          </thead>
+          <tbody id="hist-med-tbody"></tbody>
+        </table>
+      </div>
+      <div id="hist-panel-mech" style="display:none">
+        <table class="data-table">
+          <thead>
+            <tr><th>التاريخ</th><th>النوع</th><th>الوصف</th><th>الفني</th><th>التكلفة</th><th>الصيانة القادمة</th><th>الحالة</th></tr>
+          </thead>
+          <tbody id="hist-mech-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- NOTIFICATIONS PANEL -->
 <div id="notifPanel">
@@ -2158,7 +2467,8 @@ const PAGE_LABELS = {
   missions:'سجل المهام', entry:'إدخال بيانات',
   centers:'المراكز', paramedics:'المسعفون',
   reports:'التقارير', alerts:'التنبيهات', settings:'الإعدادات',
-  impact:'🚀 محاكاة الأثر', kpidefs:'📐 تعريفات KPI', predictions:'🔮 التنبؤ الذكي'
+  impact:'🚀 محاكاة الأثر', kpidefs:'📐 تعريفات KPI', predictions:'🔮 التنبؤ الذكي',
+  fleet:'🚑 إدارة الأسطول'
 };
 
 function navigate(page) {
@@ -2179,6 +2489,7 @@ function navigate(page) {
   if(page==='alerts') renderActionLoop();
   if(page==='kpidefs') renderKPIDefs();
   if(page==='predictions') renderPredictions();
+  if(page==='fleet') renderFleet();
 }
 
 // Hash-based routing — navigate directly via URL
@@ -3875,5 +4186,242 @@ window.addEventListener('load', () => {
   else if(typeof navigate === 'function') navigate('dashboard');
 });
 </script>
+
+<script>
+// ══ FLEET MANAGEMENT ═══════════════════════════════════════════════════════════
+
+const FLEET_KEY = 'wasl_fleet_v1';
+
+const DEFAULT_AMBULANCES = [
+  {id:'AMB-001', plate:'ص أ ب 1234', center:'C1', type:'متقدم',   model:'Toyota Hiace 2022',        status:'متاح'},
+  {id:'AMB-002', plate:'ص ج د 5678', center:'C1', type:'أساسي',   model:'Ford Transit 2021',         status:'في مهمة'},
+  {id:'AMB-003', plate:'ص ه و 9012', center:'C2', type:'نوناتال', model:'Mercedes Sprinter 2023',    status:'صيانة'},
+  {id:'AMB-004', plate:'ص ز ح 3456', center:'C2', type:'متقدم',   model:'Toyota Hiace 2022',        status:'متاح'},
+  {id:'AMB-005', plate:'ص ط ي 7890', center:'C3', type:'أساسي',   model:'Ford Transit 2021',         status:'متاح'},
+  {id:'AMB-006', plate:'ص ك ل 2345', center:'C3', type:'متقدم',   model:'Mercedes Sprinter 2022',   status:'في مهمة'},
+];
+
+function loadFleetData() {
+  try {
+    const raw = localStorage.getItem(FLEET_KEY);
+    if (!raw) return { ambulances: JSON.parse(JSON.stringify(DEFAULT_AMBULANCES)), checkins:[], handovers:[], movements:[], maintenance:[] };
+    return JSON.parse(raw);
+  } catch(e) {
+    return { ambulances: JSON.parse(JSON.stringify(DEFAULT_AMBULANCES)), checkins:[], handovers:[], movements:[], maintenance:[] };
+  }
+}
+
+function saveFleetData(data) {
+  localStorage.setItem(FLEET_KEY, JSON.stringify(data));
+}
+
+// ── Render fleet page ──────────────────────────────────────────────────────────
+function renderFleet() {
+  const data = loadFleetData();
+  renderFleetTable(data.ambulances);
+  populateAmbSelects(data.ambulances);
+  const badge = document.getElementById('fleet-count-badge');
+  if (badge) badge.textContent = data.ambulances.length + ' إسعافات';
+}
+
+function renderFleetTable(ambulances) {
+  const tbody = document.getElementById('fleet-tbody');
+  if (!tbody) return;
+  const statusColor = { 'متاح':'var(--green)', 'في مهمة':'var(--amber)', 'صيانة':'var(--red)' };
+  tbody.innerHTML = ambulances.map(a => `
+    <tr>
+      <td><strong>${a.id}</strong></td>
+      <td>${a.plate}</td>
+      <td>${a.center}</td>
+      <td>${a.type}</td>
+      <td>${a.model}</td>
+      <td><span style="color:${statusColor[a.status]||'var(--muted)'};font-weight:600">${a.status}</span></td>
+      <td>
+        <button class="btn btn-secondary btn-sm" onclick="openAmbHistory('${a.id}')">📋 السجل الكامل</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function populateAmbSelects(ambulances) {
+  const opts = ambulances.map(a => `<option value="${a.id}">${a.id} — ${a.plate} (${a.center})</option>`).join('');
+  ['ci-amb','ho-amb','mv-amb','mt-amb'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = opts;
+  });
+}
+
+// ── Tab switching ──────────────────────────────────────────────────────────────
+function switchFleetTab(tab) {
+  ['ci','ho','mv','mt'].forEach(t => {
+    const btn = document.getElementById('ftab-' + t);
+    const panel = document.getElementById('fpanel-' + t);
+    if (btn) btn.classList.toggle('active', t === tab);
+    if (panel) panel.style.display = t === tab ? 'block' : 'none';
+  });
+}
+
+function switchHistTab(tab) {
+  ['med','mech'].forEach(t => {
+    const btn = document.getElementById('hist-tab-' + t);
+    const panel = document.getElementById('hist-panel-' + t);
+    if (btn) btn.classList.toggle('active', t === tab);
+    if (panel) panel.style.display = t === tab ? 'block' : 'none';
+  });
+}
+
+// ── Check-in form ──────────────────────────────────────────────────────────────
+function submitCheckin() {
+  const date = document.getElementById('ci-date').value;
+  const para = document.getElementById('ci-para').value.trim();
+  if (!date || !para) { showToast('يرجى تحديد التاريخ وإدخال اسم المسعف', 'error'); return; }
+  const data = loadFleetData();
+  data.checkins.push({
+    id:         'CHK-' + Date.now(),
+    ambId:      document.getElementById('ci-amb').value,
+    date,
+    paramedic:  para,
+    shift:      document.getElementById('ci-shift').value,
+    fuel:       document.getElementById('ci-fuel').value,
+    medical:    document.getElementById('ci-medical').value,
+    mechanical: document.getElementById('ci-mechanical').value,
+    notes:      document.getElementById('ci-notes').value,
+    ts:         Date.now(),
+  });
+  saveFleetData(data);
+  document.getElementById('fleet-ci-form').reset();
+  showToast('✅ تم حفظ نموذج التشييك اليومي', 'success');
+}
+
+// ── Handover (استلام/تسليم) form ───────────────────────────────────────────────
+function submitHandover() {
+  const date = document.getElementById('ho-date').value;
+  const ref  = document.getElementById('ho-ref').value.trim();
+  if (!date || !ref) { showToast('يرجى تحديد التاريخ ورقم المهمة', 'error'); return; }
+  const data = loadFleetData();
+  data.handovers.push({
+    id:            'HO-' + Date.now(),
+    ambId:         document.getElementById('ho-amb').value,
+    missionRef:    ref,
+    date,
+    type:          document.getElementById('ho-type').value,
+    dept:          document.getElementById('ho-dept').value,
+    hospital:      document.getElementById('ho-hospital').value,
+    paramedic:     document.getElementById('ho-para').value.trim(),
+    handoverPara:  document.getElementById('ho-handover-para').value.trim(),
+    notes:         document.getElementById('ho-notes').value,
+    ts:            Date.now(),
+  });
+  saveFleetData(data);
+  document.getElementById('fleet-ho-form').reset();
+  showToast('✅ تم حفظ نموذج الاستلام / التسليم', 'success');
+}
+
+// ── Movement log form ──────────────────────────────────────────────────────────
+function submitMovement() {
+  const date = document.getElementById('mv-date').value;
+  const from = document.getElementById('mv-from').value.trim();
+  const to   = document.getElementById('mv-to').value.trim();
+  if (!date || !from || !to) { showToast('يرجى تحديد التاريخ ونقطتي الانطلاق والوصول', 'error'); return; }
+  const data = loadFleetData();
+  data.movements.push({
+    id:      'MV-' + Date.now(),
+    ambId:   document.getElementById('mv-amb').value,
+    date,
+    time:    document.getElementById('mv-time').value,
+    from,
+    to,
+    purpose: document.getElementById('mv-purpose').value,
+    km:      document.getElementById('mv-km').value,
+    driver:  document.getElementById('mv-driver').value.trim(),
+    ts:      Date.now(),
+  });
+  saveFleetData(data);
+  document.getElementById('fleet-mv-form').reset();
+  showToast('✅ تم حفظ سجل التحرك', 'success');
+}
+
+// ── Maintenance form ───────────────────────────────────────────────────────────
+function submitMaintenance() {
+  const date = document.getElementById('mt-date').value;
+  const desc = document.getElementById('mt-desc').value.trim();
+  if (!date || !desc) { showToast('يرجى تحديد التاريخ ووصف الصيانة', 'error'); return; }
+  const data  = loadFleetData();
+  const ambId = document.getElementById('mt-amb').value;
+  const status= document.getElementById('mt-status').value;
+  data.maintenance.push({
+    id:          'MT-' + Date.now(),
+    ambId,
+    date,
+    type:        document.getElementById('mt-type').value,
+    description: desc,
+    technician:  document.getElementById('mt-tech').value.trim(),
+    cost:        document.getElementById('mt-cost').value,
+    nextService: document.getElementById('mt-next').value,
+    status,
+    ts:          Date.now(),
+  });
+  // Sync ambulance status
+  const amb = data.ambulances.find(a => a.id === ambId);
+  if (amb) {
+    if (status === 'جارية')   amb.status = 'صيانة';
+    if (status === 'مكتملة' && amb.status === 'صيانة') amb.status = 'متاح';
+  }
+  saveFleetData(data);
+  document.getElementById('fleet-mt-form').reset();
+  renderFleetTable(data.ambulances);
+  showToast('✅ تم حفظ سجل الصيانة', 'success');
+}
+
+// ── Ambulance history modal ────────────────────────────────────────────────────
+function openAmbHistory(ambId) {
+  const data = loadFleetData();
+  const amb  = data.ambulances.find(a => a.id === ambId);
+  if (!amb) return;
+
+  document.getElementById('hist-amb-id').textContent     = amb.id;
+  document.getElementById('hist-amb-detail').textContent = amb.plate + ' | ' + amb.center + ' | ' + amb.type + ' | ' + amb.model;
+
+  // Medical history — from handovers
+  const medRows = data.handovers.filter(h => h.ambId === ambId).reverse();
+  document.getElementById('hist-med-tbody').innerHTML = medRows.length
+    ? medRows.map(h => `<tr>
+        <td>${h.date}</td>
+        <td>${h.missionRef}</td>
+        <td>${h.dept}</td>
+        <td>${h.type}</td>
+        <td>${h.hospital}</td>
+        <td>${h.paramedic || '—'}</td>
+      </tr>`).join('')
+    : '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:28px">لا يوجد تاريخ طبي مسجّل لهذا الإسعاف</td></tr>';
+
+  // Mechanical history — from maintenance
+  const mechRows = data.maintenance.filter(m => m.ambId === ambId).reverse();
+  document.getElementById('hist-mech-tbody').innerHTML = mechRows.length
+    ? mechRows.map(m => `<tr>
+        <td>${m.date}</td>
+        <td>${m.type}</td>
+        <td>${m.description}</td>
+        <td>${m.technician || '—'}</td>
+        <td>${m.cost ? m.cost + ' ر.س' : '—'}</td>
+        <td>${m.nextService || '—'}</td>
+        <td><span style="color:${m.status==='مكتملة'?'var(--green)':'var(--amber)'};font-weight:600">${m.status}</span></td>
+      </tr>`).join('')
+    : '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:28px">لا يوجد تاريخ ميكانيكي مسجّل لهذا الإسعاف</td></tr>';
+
+  switchHistTab('med');
+  document.getElementById('fleet-hist-modal').style.display = 'flex';
+}
+
+function closeHistModal() {
+  document.getElementById('fleet-hist-modal').style.display = 'none';
+}
+
+// Close modal on backdrop click
+document.getElementById('fleet-hist-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeHistModal();
+});
+</script>
+
 </body>
 </html>
