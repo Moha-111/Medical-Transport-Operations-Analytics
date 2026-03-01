@@ -51,7 +51,7 @@ Wasl is a client-side, single-page application (SPA) built as a **zero-backend, 
 ### Module Map
 
 ```
-index.html (3,879 lines)
+index.html (~4,000 lines)
 │
 ├── <head>
 │   ├── Meta tags (SEO, PWA, OG)
