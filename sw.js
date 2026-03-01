@@ -114,23 +114,39 @@ self.addEventListener('sync', (event) => {
 
 // ── Push Notifications (for future use) ──────────────────────────────
 self.addEventListener('push', (event) => {
-  if (!event.data) return;
+  event.waitUntil((async () => {
+    if (!event.data) {
+      return;
+    }
 
-  const data = event.data.json();
-  const options = {
-    body: data.body || 'تنبيه جديد من منصة وصل',
-    icon: './manifest.json',
-    badge: './manifest.json',
-    dir: 'rtl',
-    lang: 'ar',
-    tag: data.tag || 'wasl-alert',
-    requireInteraction: data.critical || false,
-    data: { url: data.url || './' },
-  };
+    let data = {};
+    try {
+      data = event.data.json();
+    } catch (e) {
+      try {
+        const text = await event.data.text();
+        data = { body: text };
+      } catch (innerError) {
+        data = {};
+      }
+    }
 
-  event.waitUntil(
-    self.registration.showNotification(data.title || 'وصل — تنبيه', options)
-  );
+    const options = {
+      body: data.body || 'تنبيه جديد من منصة وصل',
+      icon: './icons/icon-192x192.png',
+      badge: './icons/icon-192x192.png',
+      dir: 'rtl',
+      lang: 'ar',
+      tag: data.tag || 'wasl-alert',
+      requireInteraction: data.critical || false,
+      data: { url: data.url || './' },
+    };
+
+    await self.registration.showNotification(
+      data.title || 'وصل — تنبيه',
+      options
+    );
+  })());
 });
 
 self.addEventListener('notificationclick', (event) => {
