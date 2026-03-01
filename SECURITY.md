@@ -65,7 +65,9 @@ Please provide:
 ### Data Protection
 - **Demo data only** — no real patient information in this repository
 - All data in `Medical-Transport-Analytics.xlsx` is **synthetic**
-- No data is transmitted to external servers from the client
+- By default, the client does not send application data to external endpoints
+- When a Make.com webhook URL is configured, the app sends alert payloads (operational metrics and alert metadata, not real patient identifiers) to that user-controlled URL via HTTPS
+- The app loads assets from third-party CDNs (e.g., Chart.js, Google Fonts), which receive standard HTTP request data (such as IP address and user agent) from the browser
 
 ### PDPL Compliance Roadmap
 
