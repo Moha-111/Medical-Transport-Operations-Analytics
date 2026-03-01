@@ -8,11 +8,13 @@
 
 <br/>
 
+[![CI](https://github.com/Moha-111/Medical-Transport-Operations-Analytics/actions/workflows/ci.yml/badge.svg)](https://github.com/Moha-111/Medical-Transport-Operations-Analytics/actions/workflows/ci.yml)
+[![Deploy](https://github.com/Moha-111/Medical-Transport-Operations-Analytics/actions/workflows/deploy.yml/badge.svg)](https://github.com/Moha-111/Medical-Transport-Operations-Analytics/actions/workflows/deploy.yml)
 [![Records](https://img.shields.io/badge/Records-14%2C169%20Missions-1B3A6B?style=for-the-badge&logo=database&logoColor=white)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
 [![Centers](https://img.shields.io/badge/Centers-20%20Active-00C9A7?style=for-the-badge&logo=building&logoColor=white)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
 [![Staff](https://img.shields.io/badge/Paramedics-219%20Field%20Staff-E67E22?style=for-the-badge&logo=person&logoColor=white)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
 [![Automation](https://img.shields.io/badge/Automation-LIVE%20🟢-30D158?style=for-the-badge)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
-[![Tests](https://img.shields.io/badge/Tests-110%20Passing-brightgreen?style=for-the-badge&logo=jest&logoColor=white)](./tests/)
+[![Tests](https://img.shields.io/badge/Tests-176%20Passing-brightgreen?style=for-the-badge&logo=jest&logoColor=white)](./tests/)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](./LICENSE)
 
 <br/>
@@ -544,6 +546,66 @@ AI Reports Live     Collect Feedback     Prove Value          10+ Clients
 | 🔴 **PDPL Compliance** | Full compliance with Saudi Personal Data Protection Law | Roadmap |
 | 🔴 **Data Encryption** | End-to-end encryption for patient transfer records | Roadmap |
 | 🔴 **Data Residency** | Data stored exclusively within Saudi Arabia (KSA servers) | Roadmap |
+
+---
+
+## ⚙️ CI/CD Pipeline
+
+The project uses **GitHub Actions** for automated testing and deployment.
+
+### Continuous Integration
+
+Every push to any branch and every pull request triggers the CI workflow:
+
+```
+Push / PR  →  Checkout  →  npm ci  →  npm run test:ci  →  Coverage Report
+               (Ubuntu)    (Node 18 / 20 / 22 matrix)       (artifact)
+```
+
+| What it does | Details |
+|---|---|
+| **Test matrix** | Node.js 18, 20, and 22 — in parallel |
+| **Test command** | `npm run test:ci` (Jest `--ci --forceExit`) |
+| **Coverage report** | Generated on Node 20, uploaded as a workflow artifact (14 days) |
+| **Job summary** | Coverage % table written to the GitHub Actions summary page |
+| **Concurrency** | In-progress runs on the same branch are cancelled when a new push arrives |
+
+### Continuous Deployment
+
+Pushing to `main` triggers the deploy workflow (only if tests pass):
+
+```
+Push to main
+     │
+     ▼
+Test gate  ──── FAIL ──→  ✋ Deploy blocked
+     │
+   PASS
+     │
+     ▼
+Configure GitHub Pages
+     │
+     ▼
+Upload static site (index.html + assets)
+     │
+     ▼
+Deploy to GitHub Pages  →  Live URL 🚀
+```
+
+| What it does | Details |
+|---|---|
+| **Gate** | Full test suite must pass before deploy proceeds |
+| **Target** | GitHub Pages — static hosting, HTTPS enforced |
+| **Live URL** | `https://moha-111.github.io/Medical-Transport-Operations-Analytics/` |
+| **Manual trigger** | Available via **Run workflow** button in the Actions tab |
+| **Concurrency** | Only one deploy runs at a time; latest commit wins |
+
+### Workflow Files
+
+| File | Trigger | Purpose |
+|------|---------|---------|
+| [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) | Every push / PR | Run 176 tests across Node 18, 20, 22 |
+| [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml) | Push to `main` | Deploy dashboard to GitHub Pages |
 
 ---
 

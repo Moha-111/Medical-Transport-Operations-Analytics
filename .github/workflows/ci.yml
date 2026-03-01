@@ -1,0 +1,90 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# CI — Continuous Integration
+#
+# Runs on every push to any branch and on every pull request targeting
+# main or master. Tests are executed against three Node.js versions to
+# catch version-specific regressions early.
+#
+# Jobs:
+#   test — install deps, run the full Jest suite, upload coverage report
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: CI
+
+on:
+  push:
+    branches: ['**']           # run on every branch push
+  pull_request:
+    branches: [main, master]   # run on PRs targeting the default branch
+
+# Cancel redundant runs on the same branch/PR to save runner minutes
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ───────────────────────────────────────────────────────────────────────────
+  test:
+    name: Tests · Node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false          # run all matrix jobs even if one fails
+      matrix:
+        node: ['18.x', '20.x', '22.x']
+
+    steps:
+      # 1. Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Set up the specified Node.js version with npm cache
+      - name: Set up Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'npm'
+
+      # 3. Install exact dependency versions from package-lock.json
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. Run the full test suite in CI mode
+      #    --ci       : disables interactive watch mode, fails on unexpected snapshots
+      #    --forceExit: ensures Jest exits cleanly even with open handles
+      - name: Run tests
+        run: npm run test:ci
+
+      # 5. Generate a coverage report (only on the primary Node version)
+      - name: Generate coverage report
+        if: matrix.node == '20.x'
+        run: npm run test:coverage
+
+      # 6. Upload the HTML coverage report as a downloadable workflow artifact
+      - name: Upload coverage report
+        if: matrix.node == '20.x'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 14
+
+      # 7. Write a coverage summary to the GitHub Actions job summary page
+      - name: Write coverage summary
+        if: matrix.node == '20.x'
+        run: |
+          echo "## 📊 Test Coverage" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Category   | Coverage |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------|----------|" >> $GITHUB_STEP_SUMMARY
+          node -e "
+            const fs = require('fs');
+            const data = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8'));
+            const t = data.total;
+            console.log('| Statements | ' + t.statements.pct + '% |');
+            console.log('| Branches   | ' + t.branches.pct   + '% |');
+            console.log('| Functions  | ' + t.functions.pct  + '% |');
+            console.log('| Lines      | ' + t.lines.pct      + '% |');
+          " >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> Full HTML report available in the **coverage-report** artifact above." >> $GITHUB_STEP_SUMMARY
