@@ -2370,7 +2370,7 @@ function processExcelFile(file) {
       SYNC.mode = 'excel';
       SYNC.totalRows = kpis.n;
 
-      statusEl.innerHTML = `✅ <strong>${file.name}</strong> — ${kpis.n.toLocaleString('ar')} مهمة`;
+      statusEl.textContent = `✅ ${file.name} — ${kpis.n.toLocaleString('ar')} مهمة`;
       showToast(`✅ تم تحميل ${kpis.n.toLocaleString('ar')} مهمة من Excel — الداشبورد محدّث!`, 'success');
 
     } catch (err) {
