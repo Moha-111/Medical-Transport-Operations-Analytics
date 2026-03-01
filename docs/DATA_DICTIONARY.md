@@ -64,7 +64,7 @@ Includes: travel, patient assessment, transfer, handover
 
 ```
 Late Rate = (Missions where Dispatch Time > Threshold) / Total Missions × 100
-Target: ≤ 95% (i.e., at most 5% late missions)
+Target: ≤ 5% (i.e., at most 5% late missions)
 ```
 
 ### Emergency Rate (نسبة الطوارئ)
