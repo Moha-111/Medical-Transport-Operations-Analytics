@@ -12,28 +12,4 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://moha-111.github.io/Medical-Transport-Operations-Analytics/"/>
   </url>
 
-  <!-- Dashboard Section -->
-  <url>
-    <loc>https://moha-111.github.io/Medical-Transport-Operations-Analytics/#dashboard</loc>
-    <lastmod>2026-02-27</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <!-- Live Monitoring -->
-  <url>
-    <loc>https://moha-111.github.io/Medical-Transport-Operations-Analytics/#monitoring</loc>
-    <lastmod>2026-02-27</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Mission Registry -->
-  <url>
-    <loc>https://moha-111.github.io/Medical-Transport-Operations-Analytics/#registry</loc>
-    <lastmod>2026-02-27</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
 </urlset>
