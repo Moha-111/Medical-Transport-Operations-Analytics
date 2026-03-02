@@ -631,6 +631,72 @@ canvas{max-height:220px;}
 .delta-up{background:rgba(255,82,82,.15);color:var(--red);}
 .delta-down{background:rgba(48,209,88,.15);color:var(--green);}
 
+/* ══ LOAD INDICATOR PAGE ════════════════════════════════════════ */
+.load-gauge-grid{
+  display:grid;grid-template-columns:repeat(5,1fr);
+  gap:12px;margin-bottom:18px;
+}
+.load-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:14px;text-align:center;
+  cursor:default;transition:transform .2s,border-color .2s;
+  position:relative;overflow:hidden;
+}
+.load-card:hover{transform:translateY(-2px);}
+.load-card.load-critical{border-color:rgba(255,82,82,.4);background:rgba(255,82,82,.04);}
+.load-card.load-high{border-color:rgba(246,166,35,.4);background:rgba(246,166,35,.04);}
+.load-card.load-medium{border-color:rgba(0,152,219,.4);background:rgba(0,152,219,.04);}
+.load-card.load-low{border-color:rgba(48,209,88,.25);}
+.load-gauge-wrap{
+  width:82px;height:82px;margin:0 auto 8px;position:relative;
+}
+.load-gauge-wrap svg{transform:rotate(-90deg);}
+.gauge-bg{fill:none;stroke:rgba(255,255,255,.07);stroke-width:8;}
+.gauge-fill{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1.2s ease,stroke .5s;}
+.gauge-label{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.gauge-pct{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;line-height:1;}
+.gauge-icon{font-size:10px;margin-top:2px;}
+.load-center-id{font-size:11px;font-weight:800;color:var(--muted);margin-bottom:3px;}
+.load-center-name{font-size:9.5px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.load-stats-mini{display:flex;justify-content:center;gap:8px;margin-top:6px;}
+.lsm{font-size:9.5px;color:var(--muted);text-align:center;}
+.lsm .v{font-weight:700;font-size:11px;color:var(--text);display:block;}
+/* best center recommendation */
+.best-center-banner{
+  background:linear-gradient(135deg,rgba(0,201,167,.12),rgba(0,152,219,.07));
+  border:1px solid rgba(0,201,167,.3);border-radius:16px;
+  padding:18px 22px;display:flex;align-items:center;gap:18px;margin-bottom:16px;
+}
+.bcb-icon{font-size:34px;flex-shrink:0;}
+.bcb-info{flex:1;}
+.bcb-info h3{font-size:14px;font-weight:700;color:var(--teal);margin-bottom:3px;}
+.bcb-info p{font-size:12px;color:var(--muted);}
+.bcb-badge{
+  background:rgba(0,201,167,.15);border:1px solid rgba(0,201,167,.3);
+  border-radius:12px;padding:10px 18px;text-align:center;flex-shrink:0;
+}
+.bcb-badge .bv{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;color:var(--teal);}
+.bcb-badge .bl{font-size:10px;color:var(--muted);margin-top:2px;}
+/* alerts smart */
+.smart-alert-item{
+  display:flex;gap:10px;align-items:flex-start;padding:11px 14px;
+  background:rgba(255,255,255,.025);border-radius:10px;
+  border-right:3px solid;animation:slideIn .3s ease;margin-bottom:6px;
+}
+.sa-icon{font-size:18px;flex-shrink:0;}
+.sa-body{flex:1;}
+.sa-title{font-size:12.5px;font-weight:700;margin-bottom:2px;}
+.sa-desc{font-size:11px;color:var(--muted);}
+.sa-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);white-space:nowrap;}
+@keyframes loadPulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+.load-card.load-critical .gauge-pct{animation:loadPulse 1.4s infinite;}
+/* effort table */
+.effort-bar{flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;display:inline-block;width:80px;vertical-align:middle;margin:0 6px;}
+.effort-fill{height:100%;border-radius:3px;transition:width .8s ease;}
+
 /* ══ LIVE ALERT TOAST STACK ════════════════════════════════════ */
 #alert-stack{
   position:fixed;bottom:24px;left:24px;z-index:9997;
@@ -878,6 +944,10 @@ canvas{max-height:220px;}
     </div>
     <div class="nav-item" onclick="navigate('kpidefs')">
       <span class="icon">📐</span> تعريفات KPI
+    </div>
+    <div class="nav-item" onclick="navigate('loadindicator')">
+      <span class="icon">⚡</span> مؤشر الأحمال
+      <span class="nav-badge" style="background:rgba(0,201,167,.2);color:var(--teal)">جديد</span>
     </div>
     <div class="nav-item" onclick="navigate('settings')">
       <span class="icon">⚙️</span> الإعدادات
@@ -1785,6 +1855,98 @@ canvas{max-height:220px;}
 
   </div><!-- /page-impact -->
 
+  <!-- ══ PAGE: LOAD INDICATOR ══════════════════════════════════ -->
+  <div class="page" id="page-loadindicator">
+    <div class="section-header">
+      <div>
+        <h2>⚡ مؤشر الأحمال التشغيلية</h2>
+        <p>جدولة المراكز اللحظية · اقتراح أفضل مركز دعم · مراقبة جهد الفرق</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="live-indicator"><div class="pulse"></div> تحديث تلقائي</div>
+        <button class="btn btn-secondary btn-sm" onclick="renderLoadIndicator()">🔄 تحديث</button>
+      </div>
+    </div>
+
+    <!-- KPI SUMMARY STRIP -->
+    <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px;">
+      <div class="kpi" style="--c:var(--red)">
+        <div class="kpi-label">مراكز في الخطر</div>
+        <div class="kpi-val" id="li-critical">0</div>
+        <div class="kpi-sub">حِمل &gt; 85%</div>
+      </div>
+      <div class="kpi" style="--c:var(--amber)">
+        <div class="kpi-label">مراكز مرتفعة الحِمل</div>
+        <div class="kpi-val" id="li-high">0</div>
+        <div class="kpi-sub">حِمل 60–85%</div>
+      </div>
+      <div class="kpi" style="--c:var(--teal)">
+        <div class="kpi-label">متوسط الحِمل الكلي</div>
+        <div class="kpi-val" id="li-avg">0<small style="font-size:14px">%</small></div>
+        <div class="kpi-sub">عبر 20 مركز</div>
+      </div>
+      <div class="kpi" style="--c:var(--green)">
+        <div class="kpi-label">مسعفون متاحون</div>
+        <div class="kpi-val" id="li-free">0</div>
+        <div class="kpi-sub">جاهزون للتعزيز</div>
+      </div>
+    </div>
+
+    <!-- BEST CENTER RECOMMENDATION -->
+    <div class="best-center-banner" id="li-best-banner">
+      <div class="bcb-icon">🏆</div>
+      <div class="bcb-info">
+        <h3 id="li-best-title">جارٍ التحليل...</h3>
+        <p id="li-best-desc">يتم تحليل بيانات المراكز لاختيار أفضل مركز دعم</p>
+      </div>
+      <div class="bcb-badge">
+        <div class="bv" id="li-best-load">—</div>
+        <div class="bl">نسبة الحِمل</div>
+      </div>
+    </div>
+
+    <!-- LOAD GAUGES GRID (20 centers) -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header">
+        <span class="card-title">مستوى الحِمل اللحظي — 20 مركز</span>
+        <span class="card-tag tag-live">لحظي</span>
+      </div>
+      <div class="load-gauge-grid" id="li-gauges-grid">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- TEAM EFFORT TABLE -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">مراقبة جهد الفرق</span>
+          <span class="card-tag tag-warn">مراقبة</span>
+        </div>
+        <table class="tbl" style="font-size:12px;">
+          <thead><tr>
+            <th>المركز</th>
+            <th>المسعفون</th>
+            <th>في مهمة</th>
+            <th>جهد الفريق</th>
+            <th>الحالة</th>
+          </tr></thead>
+          <tbody id="li-effort-body"></tbody>
+        </table>
+      </div>
+
+      <!-- SMART ALERTS -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">التنبيهات الذكية للعمليات</span>
+          <span class="card-tag tag-alert">ذكاء اصطناعي</span>
+        </div>
+        <div id="li-alerts-feed" style="max-height:320px;overflow-y:auto;"></div>
+      </div>
+    </div>
+
+  </div><!-- /page-loadindicator -->
+
   </div><!-- /content -->
 </div><!-- /main -->
 
@@ -2158,7 +2320,8 @@ const PAGE_LABELS = {
   missions:'سجل المهام', entry:'إدخال بيانات',
   centers:'المراكز', paramedics:'المسعفون',
   reports:'التقارير', alerts:'التنبيهات', settings:'الإعدادات',
-  impact:'🚀 محاكاة الأثر', kpidefs:'📐 تعريفات KPI', predictions:'🔮 التنبؤ الذكي'
+  impact:'🚀 محاكاة الأثر', kpidefs:'📐 تعريفات KPI', predictions:'🔮 التنبؤ الذكي',
+  loadindicator:'⚡ مؤشر الأحمال'
 };
 
 function navigate(page) {
@@ -2179,6 +2342,7 @@ function navigate(page) {
   if(page==='alerts') renderActionLoop();
   if(page==='kpidefs') renderKPIDefs();
   if(page==='predictions') renderPredictions();
+  if(page==='loadindicator') renderLoadIndicator();
 }
 
 // Hash-based routing — navigate directly via URL
@@ -3843,6 +4007,201 @@ function renderImpactCharts() {
     });
   }
 }
+
+// ══ LOAD INDICATOR ══════════════════════════════════════════════
+const LI_CENTERS = [
+  {id:'C1',  name:'الرياض الرئيسي',  capacity:14, paramedics:18},
+  {id:'C2',  name:'جدة الغربي',      capacity:10, paramedics:14},
+  {id:'C3',  name:'مكة المكرمة',     capacity:12, paramedics:16},
+  {id:'C4',  name:'المدينة المنورة', capacity:9,  paramedics:12},
+  {id:'C5',  name:'الدمام الشرقي',   capacity:11, paramedics:15},
+  {id:'C6',  name:'الطائف',          capacity:8,  paramedics:10},
+  {id:'C7',  name:'تبوك الشمالي',    capacity:7,  paramedics:9},
+  {id:'C8',  name:'أبها الجنوبي',    capacity:8,  paramedics:11},
+  {id:'C9',  name:'الجبيل الصناعي',  capacity:10, paramedics:13},
+  {id:'C10', name:'حائل',            capacity:6,  paramedics:8},
+  {id:'C11', name:'القصيم',          capacity:9,  paramedics:12},
+  {id:'C12', name:'ينبع',            capacity:7,  paramedics:9},
+  {id:'C13', name:'الأحساء',         capacity:8,  paramedics:10},
+  {id:'C14', name:'نجران',           capacity:6,  paramedics:8},
+  {id:'C15', name:'الباحة',          capacity:5,  paramedics:7},
+  {id:'C16', name:'الجوف',           capacity:5,  paramedics:7},
+  {id:'C17', name:'عرعر',            capacity:5,  paramedics:6},
+  {id:'C18', name:'سكاكا',           capacity:5,  paramedics:6},
+  {id:'C19', name:'بيشة',            capacity:6,  paramedics:7},
+  {id:'C20', name:'رفحاء',           capacity:4,  paramedics:5},
+];
+
+// Realistic load seeds that evolve over time
+const LI_BASE_LOADS = [88,42,76,55,91,38,62,47,83,29,71,56,44,67,33,58,39,52,48,25];
+let _liLoadState = LI_BASE_LOADS.map(v=>v);
+let _liInterval = null;
+
+function _liGetLoad(idx) {
+  // Drift the load slightly each refresh to simulate live data
+  const drift = (Math.random()-0.45)*5;
+  let v = _liLoadState[idx] + drift;
+  v = Math.max(5, Math.min(99, v));
+  _liLoadState[idx] = v;
+  return Math.round(v);
+}
+
+function _liColor(pct) {
+  if(pct >= 86) return 'var(--red)';
+  if(pct >= 60) return 'var(--amber)';
+  if(pct >= 35) return 'var(--teal2)';
+  return 'var(--green)';
+}
+function _liClass(pct) {
+  if(pct >= 86) return 'load-critical';
+  if(pct >= 60) return 'load-high';
+  if(pct >= 35) return 'load-medium';
+  return 'load-low';
+}
+function _liLabel(pct) {
+  if(pct >= 86) return {text:'حرج', chip:'chip-crit'};
+  if(pct >= 60) return {text:'مرتفع', chip:'chip-warn'};
+  if(pct >= 35) return {text:'متوسط', chip:'chip-info'};
+  return {text:'منخفض', chip:'chip-ok'};
+}
+
+function _liGaugeSVG(pct, color) {
+  const r = 34, circ = 2*Math.PI*r;
+  const offset = circ*(1-pct/100);
+  return `<svg width="82" height="82" viewBox="0 0 82 82">
+    <circle class="gauge-bg" cx="41" cy="41" r="${r}"/>
+    <circle class="gauge-fill" cx="41" cy="41" r="${r}"
+      stroke="${color}"
+      stroke-dasharray="${circ.toFixed(1)}"
+      stroke-dashoffset="${offset.toFixed(1)}"/>
+  </svg>`;
+}
+
+function renderLoadIndicator() {
+  const grid = document.getElementById('li-gauges-grid');
+  const effortBody = document.getElementById('li-effort-body');
+  const alertsFeed = document.getElementById('li-alerts-feed');
+  if(!grid) return;
+
+  let loads = [], critCount=0, highCount=0, totalFree=0;
+  let gaugesHTML = '', effortHTML = '', alertsHTML = '';
+  const nowStr = new Date().toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+
+  LI_CENTERS.forEach((c, i) => {
+    const pct = _liGetLoad(i);
+    const color = _liColor(pct);
+    const cls = _liClass(pct);
+    const lbl = _liLabel(pct);
+    const active = Math.round(pct/100 * c.capacity);
+    const onMission = Math.round(pct/100 * c.paramedics);
+    const free = c.paramedics - onMission;
+    loads.push(pct);
+    if(pct>=86) critCount++;
+    else if(pct>=60) highCount++;
+    totalFree += Math.max(0, free);
+
+    // Gauge card
+    gaugesHTML += `<div class="load-card ${cls}">
+      <div class="load-center-id">${c.id}</div>
+      <div class="load-gauge-wrap">
+        ${_liGaugeSVG(pct,color)}
+        <div class="gauge-label">
+          <span class="gauge-pct" style="color:${color}">${pct}%</span>
+          <span class="gauge-icon">${pct>=86?'🔴':pct>=60?'🟡':pct>=35?'🔵':'🟢'}</span>
+        </div>
+      </div>
+      <div class="load-center-name" title="${c.name}">${c.name}</div>
+      <div class="load-stats-mini">
+        <div class="lsm"><span class="v">${active}</span>نشط</div>
+        <div class="lsm"><span class="v">${free}</span>متاح</div>
+        <div class="lsm"><span class="v">${c.paramedics}</span>فريق</div>
+      </div>
+    </div>`;
+
+    // Effort row
+    const effort = Math.min(100, Math.round(onMission/c.paramedics*100));
+    const effortColor = effort>=86?'var(--red)':effort>=60?'var(--amber)':'var(--teal)';
+    effortHTML += `<tr>
+      <td><strong>${c.id}</strong> <span style="color:var(--muted);font-size:11px">${c.name}</span></td>
+      <td>${c.paramedics}</td>
+      <td>${onMission}</td>
+      <td style="white-space:nowrap">
+        <span class="effort-bar"><span class="effort-fill" style="width:${effort}%;background:${effortColor}"></span></span>
+        <span style="font-size:11px;font-weight:700;color:${effortColor}">${effort}%</span>
+      </td>
+      <td><span class="chip ${lbl.chip}">${lbl.text}</span></td>
+    </tr>`;
+  });
+
+  // Update KPIs
+  const avg = Math.round(loads.reduce((a,b)=>a+b,0)/loads.length);
+  document.getElementById('li-critical').textContent = critCount;
+  document.getElementById('li-high').textContent = highCount;
+  document.getElementById('li-avg').innerHTML = `${avg}<small style="font-size:14px">%</small>`;
+  document.getElementById('li-free').textContent = totalFree;
+
+  // Best center (lowest load)
+  const bestIdx = loads.indexOf(Math.min(...loads));
+  const best = LI_CENTERS[bestIdx];
+  const bestPct = loads[bestIdx];
+  const bestActive = Math.round(bestPct/100*best.capacity);
+  const bestFree = best.paramedics - Math.round(bestPct/100*best.paramedics);
+  document.getElementById('li-best-title').textContent =
+    `✅ أفضل مركز للدعم: ${best.id} — ${best.name}`;
+  document.getElementById('li-best-desc').textContent =
+    `طاقة فائضة: ${best.capacity - bestActive} مهمة · ${bestFree} مسعف متاح · أقل حمل في الشبكة — مناسب لاستقبال تحويلات فورية`;
+  document.getElementById('li-best-load').textContent = bestPct+'%';
+
+  // Smart alerts
+  const alerts = [];
+  LI_CENTERS.forEach((c, i) => {
+    const pct = loads[i];
+    const free = c.paramedics - Math.round(pct/100*c.paramedics);
+    if(pct >= 95)
+      alerts.push({icon:'🚨',color:'var(--red)',title:`${c.id} — حِمل بالغ ${pct}%`,
+        desc:`المركز في حالة حرجة. يُنصح بتحويل المهام فوراً إلى ${LI_CENTERS[bestIdx].id}`,sev:'critical'});
+    else if(pct >= 85)
+      alerts.push({icon:'⚠️',color:'var(--amber)',title:`${c.id} — حِمل مرتفع ${pct}%`,
+        desc:`الطاقة الاستيعابية تقترب من الحد الأقصى. رصد مستمر مطلوب`,sev:'warning'});
+    if(free <= 1 && c.paramedics >= 6)
+      alerts.push({icon:'👨‍⚕️',color:'var(--red)',title:`${c.id} — شُح المسعفين`,
+        desc:`${free} مسعف فقط متاح من ${c.paramedics}. يُوصى بتعزيز الفريق`,sev:'critical'});
+  });
+  // Always add best center tip
+  alerts.push({icon:'🏆',color:'var(--teal)',
+    title:`اقتراح: وجّه التحويلات إلى ${LI_CENTERS[bestIdx].id}`,
+    desc:`حِمل ${loads[bestIdx]}% فقط — ${LI_CENTERS[bestIdx].name} الأكثر استعداداً حالياً`,sev:'info'});
+  if(avg > 70)
+    alerts.push({icon:'📊',color:'var(--amber)',
+      title:`متوسط الحِمل الكلي مرتفع: ${avg}%`,
+      desc:'يُنصح بمراجعة توزيع المهام بين المراكز واستدعاء طواقم احتياطية',sev:'warning'});
+
+  alerts.sort((a,b)=>a.sev==='critical'?-1:b.sev==='critical'?1:0);
+  alerts.slice(0,8).forEach(a => {
+    alertsHTML += `<div class="smart-alert-item" style="border-right-color:${a.color}">
+      <span class="sa-icon">${a.icon}</span>
+      <div class="sa-body">
+        <div class="sa-title" style="color:${a.color}">${a.title}</div>
+        <div class="sa-desc">${a.desc}</div>
+      </div>
+      <span class="sa-time">${nowStr}</span>
+    </div>`;
+  });
+
+  grid.innerHTML = gaugesHTML;
+  effortBody.innerHTML = effortHTML;
+  alertsFeed.innerHTML = alertsHTML;
+}
+
+// Auto-refresh load indicator every 5 seconds when page is active
+function _liStartAutoRefresh() {
+  if(_liInterval) clearInterval(_liInterval);
+  _liInterval = setInterval(()=>{
+    const page = document.getElementById('page-loadindicator');
+    if(page && page.classList.contains('active')) renderLoadIndicator();
+  }, 5000);
+}
+_liStartAutoRefresh();
 
 // — يضمن عمل جميع الدوال ══
 const _safe = (fn, name) => {
