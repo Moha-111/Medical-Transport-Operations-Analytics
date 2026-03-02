@@ -697,6 +697,44 @@ canvas{max-height:220px;}
 .effort-bar{flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;display:inline-block;width:80px;vertical-align:middle;margin:0 6px;}
 .effort-fill{height:100%;border-radius:3px;transition:width .8s ease;}
 
+/* ══ FLEET READINESS PAGE ════════════════════════════════════════ */
+.chk-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.chk-item{display:flex;align-items:center;gap:10px;padding:10px 12px;
+  background:rgba(255,255,255,.025);border-radius:9px;cursor:pointer;
+  border:1px solid transparent;transition:.15s;user-select:none;}
+.chk-item:hover{border-color:rgba(0,201,167,.25);}
+.chk-item.chk-checked{background:rgba(0,201,167,.08);border-color:rgba(0,201,167,.3);}
+.chk-item.chk-fail{background:rgba(255,82,82,.08);border-color:rgba(255,82,82,.3);}
+.chk-box{width:18px;height:18px;border-radius:5px;border:2px solid var(--border);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:.15s;font-size:11px;}
+.chk-item.chk-checked .chk-box{background:var(--teal);border-color:var(--teal);color:#000;}
+.chk-item.chk-fail .chk-box{background:var(--red);border-color:var(--red);color:#fff;}
+.chk-label{font-size:12.5px;}
+.chk-section-title{font-size:11px;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px;
+  display:flex;align-items:center;gap:8px;}
+.chk-section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.fleet-mini-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.fms{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;}
+.fms-val{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:800;line-height:1.1;}
+.fms-lbl{font-size:10px;color:var(--muted);margin-top:4px;}
+.rm-ring{width:110px;height:110px;margin:0 auto 10px;position:relative;}
+.rm-ring svg{transform:rotate(-90deg);}
+.rm-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.rm-pct{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:800;}
+.rm-lbl{font-size:9px;color:var(--muted);margin-top:2px;}
+.fault-add-form{display:none;background:rgba(255,255,255,.025);border-radius:12px;
+  padding:14px;margin-bottom:12px;border:1px solid var(--border);animation:slideIn .25s ease;}
+.fault-add-form.open{display:block;}
+.fault-form-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+.instant-alert{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;
+  border-radius:10px;margin-bottom:6px;border-right:3px solid;animation:slideIn .3s ease;
+  background:rgba(255,255,255,.022);}
+.ia-body .ia-title{font-size:12.5px;font-weight:700;margin-bottom:2px;}
+.ia-body .ia-desc{font-size:11px;color:var(--muted);}
+.ia-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);white-space:nowrap;}
+
 /* ══ LIVE ALERT TOAST STACK ════════════════════════════════════ */
 #alert-stack{
   position:fixed;bottom:24px;left:24px;z-index:9997;
@@ -947,6 +985,10 @@ canvas{max-height:220px;}
     </div>
     <div class="nav-item" onclick="navigate('loadindicator')">
       <span class="icon">⚡</span> مؤشر الأحمال
+      <span class="nav-badge" style="background:rgba(0,201,167,.2);color:var(--teal)">جديد</span>
+    </div>
+    <div class="nav-item" onclick="navigate('readiness')">
+      <span class="icon">🛻</span> جاهزية الأسطول
       <span class="nav-badge" style="background:rgba(0,201,167,.2);color:var(--teal)">جديد</span>
     </div>
     <div class="nav-item" onclick="navigate('settings')">
@@ -1947,6 +1989,174 @@ canvas{max-height:220px;}
 
   </div><!-- /page-loadindicator -->
 
+  <!-- ══ PAGE: FLEET READINESS ══════════════════════════════════ -->
+  <div class="page" id="page-readiness">
+    <div class="section-header">
+      <div>
+        <h2>🛻 جاهزية الأسطول</h2>
+        <p>تشييك يومي · أعطال طبية وميكانيكية · تنبيهات فورية · مؤشرات الجاهزية</p>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary btn-sm" onclick="renderReadiness()">🔄 تحديث</button>
+        <button class="btn btn-primary btn-sm" onclick="openChecklistForm()">📋 تشييك جديد</button>
+      </div>
+    </div>
+
+    <!-- ①  لوحة مؤشرات الجاهزية -->
+    <div class="fleet-mini-stats" id="fr-kpi-strip">
+      <div class="fms">
+        <div class="fms-val" id="fr-total" style="color:var(--teal)">30</div>
+        <div class="fms-lbl">إجمالي السيارات</div>
+      </div>
+      <div class="fms">
+        <div class="fms-val" id="fr-ready" style="color:var(--green)">—</div>
+        <div class="fms-lbl">جاهزة للعمل</div>
+      </div>
+      <div class="fms">
+        <div class="fms-val" id="fr-med-faults" style="color:var(--amber)">—</div>
+        <div class="fms-lbl">أعطال طبية مفتوحة</div>
+      </div>
+      <div class="fms">
+        <div class="fms-val" id="fr-mech-faults" style="color:var(--red)">—</div>
+        <div class="fms-lbl">أعطال ميكانيكية مفتوحة</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:16px">
+      <!-- Readiness Ring + center breakdown -->
+      <div class="card" style="display:flex;align-items:center;gap:20px;">
+        <div style="text-align:center;flex-shrink:0;">
+          <div class="rm-ring" id="fr-ring-wrap">
+            <svg width="110" height="110" viewBox="0 0 110 110">
+              <circle fill="none" stroke="rgba(255,255,255,.07)" stroke-width="9" cx="55" cy="55" r="46"/>
+              <circle id="fr-ring-fill" fill="none" stroke="var(--green)" stroke-width="9"
+                stroke-linecap="round" cx="55" cy="55" r="46"
+                stroke-dasharray="289.0" stroke-dashoffset="289.0"/>
+            </svg>
+            <div class="rm-center">
+              <span class="rm-pct" id="fr-ring-pct" style="color:var(--green)">—%</span>
+              <span class="rm-lbl">جاهزية</span>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--muted)">نسبة جاهزية الأسطول</div>
+        </div>
+        <div style="flex:1">
+          <div class="progress-row"><span class="progress-label">🟢 جاهزة</span><div class="progress-bar"><div class="progress-fill" id="fr-pb-ready" style="background:var(--green);width:0%"></div></div><span class="progress-val" id="fr-pv-ready">—</span></div>
+          <div class="progress-row"><span class="progress-label">🔴 طبي</span><div class="progress-bar"><div class="progress-fill" id="fr-pb-med" style="background:var(--amber);width:0%"></div></div><span class="progress-val" id="fr-pv-med">—</span></div>
+          <div class="progress-row"><span class="progress-label">🔧 ميكانيكي</span><div class="progress-bar"><div class="progress-fill" id="fr-pb-mech" style="background:var(--red);width:0%"></div></div><span class="progress-val" id="fr-pv-mech">—</span></div>
+          <div class="progress-row"><span class="progress-label">🕐 صيانة</span><div class="progress-bar"><div class="progress-fill" id="fr-pb-maint" style="background:var(--muted);width:0%"></div></div><span class="progress-val" id="fr-pv-maint">—</span></div>
+        </div>
+      </div>
+
+      <!-- ④ التنبيهات الفورية -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">④ التنبيهات الفورية</span>
+          <span class="card-tag tag-alert" id="fr-alert-count">0 تنبيه</span>
+        </div>
+        <div id="fr-alerts-feed" style="max-height:230px;overflow-y:auto;"></div>
+      </div>
+    </div>
+
+    <!-- ① نموذج التشييك اليومي -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header">
+        <span class="card-title">① نموذج التشييك اليومي الإلكتروني</span>
+        <button class="btn btn-secondary btn-sm" onclick="toggleChecklist()" id="fr-chk-toggle">▼ عرض النموذج</button>
+      </div>
+      <div id="fr-checklist-wrap" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+          <div class="form-group">
+            <label>رقم السيارة</label>
+            <select id="chk-ambulance">
+              <option value="">اختر السيارة...</option>
+              <option>A-01 | C1 الرياض</option><option>A-02 | C1 الرياض</option>
+              <option>B-01 | C2 جدة</option><option>B-02 | C2 جدة</option>
+              <option>C-01 | C3 مكة</option><option>C-02 | C3 مكة</option>
+              <option>D-01 | C5 الدمام</option><option>D-02 | C5 الدمام</option>
+              <option>E-01 | C9 الجبيل</option><option>F-01 | C11 القصيم</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>المشرف المسؤول</label>
+            <input type="text" id="chk-supervisor" placeholder="الاسم الكامل">
+          </div>
+          <div class="form-group">
+            <label>الوردية</label>
+            <select id="chk-shift">
+              <option>صباحية 06:00–14:00</option>
+              <option>مسائية 14:00–22:00</option>
+              <option>ليلية 22:00–06:00</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="chk-section-title">🩺 المعدات الطبية</div>
+        <div class="chk-grid" id="chk-medical-items"></div>
+
+        <div class="chk-section-title">🔧 الفحص الميكانيكي</div>
+        <div class="chk-grid" id="chk-mech-items"></div>
+
+        <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
+          <button class="btn btn-primary" onclick="submitChecklist()">✅ حفظ التشييك</button>
+          <button class="btn btn-secondary" onclick="resetChecklist()">🔄 مسح</button>
+          <span id="chk-progress-text" style="font-size:12px;color:var(--muted);margin-right:auto"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- ② سجل الأعطال الطبية -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">② سجل الأعطال الطبية</span>
+          <button class="btn btn-danger btn-sm" onclick="toggleFaultForm('med')">➕ تسجيل عطل</button>
+        </div>
+        <div class="fault-add-form" id="fr-fault-form-med">
+          <div class="fault-form-row">
+            <div class="form-group"><label>السيارة</label><input type="text" id="fm-amb" placeholder="مثال: A-03"></div>
+            <div class="form-group"><label>المركز</label><input type="text" id="fm-center" placeholder="مثال: C1"></div>
+            <div class="form-group"><label>الخطورة</label>
+              <select id="fm-sev"><option value="حرج">🔴 حرج</option><option value="عالي">🟡 عالي</option><option value="متوسط">🔵 متوسط</option><option value="منخفض">⚪ منخفض</option></select>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:10px"><label>وصف العطل</label><input type="text" id="fm-desc" placeholder="صف العطل الطبي بالتفصيل..."></div>
+          <button class="btn btn-primary btn-sm" onclick="addFault('med')">حفظ</button>
+          <button class="btn btn-secondary btn-sm" onclick="toggleFaultForm('med')">إلغاء</button>
+        </div>
+        <table class="tbl" style="font-size:12px">
+          <thead><tr><th>السيارة</th><th>الوصف</th><th>الخطورة</th><th>الوقت</th><th>الحالة</th></tr></thead>
+          <tbody id="fr-med-faults-body"></tbody>
+        </table>
+      </div>
+
+      <!-- ③ سجل الأعطال الميكانيكية -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">③ سجل الأعطال الميكانيكية</span>
+          <button class="btn btn-danger btn-sm" onclick="toggleFaultForm('mech')">➕ تسجيل عطل</button>
+        </div>
+        <div class="fault-add-form" id="fr-fault-form-mech">
+          <div class="fault-form-row">
+            <div class="form-group"><label>السيارة</label><input type="text" id="fk-amb" placeholder="مثال: D-09"></div>
+            <div class="form-group"><label>المركز</label><input type="text" id="fk-center" placeholder="مثال: C5"></div>
+            <div class="form-group"><label>الخطورة</label>
+              <select id="fk-sev"><option value="حرج">🔴 حرج</option><option value="عالي">🟡 عالي</option><option value="متوسط">🔵 متوسط</option><option value="منخفض">⚪ منخفض</option></select>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:10px"><label>وصف العطل</label><input type="text" id="fk-desc" placeholder="صف العطل الميكانيكي بالتفصيل..."></div>
+          <button class="btn btn-primary btn-sm" onclick="addFault('mech')">حفظ</button>
+          <button class="btn btn-secondary btn-sm" onclick="toggleFaultForm('mech')">إلغاء</button>
+        </div>
+        <table class="tbl" style="font-size:12px">
+          <thead><tr><th>السيارة</th><th>الوصف</th><th>الخطورة</th><th>الوقت</th><th>الحالة</th></tr></thead>
+          <tbody id="fr-mech-faults-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /page-readiness -->
+
   </div><!-- /content -->
 </div><!-- /main -->
 
@@ -2321,7 +2531,7 @@ const PAGE_LABELS = {
   centers:'المراكز', paramedics:'المسعفون',
   reports:'التقارير', alerts:'التنبيهات', settings:'الإعدادات',
   impact:'🚀 محاكاة الأثر', kpidefs:'📐 تعريفات KPI', predictions:'🔮 التنبؤ الذكي',
-  loadindicator:'⚡ مؤشر الأحمال'
+  loadindicator:'⚡ مؤشر الأحمال', readiness:'🛻 جاهزية الأسطول'
 };
 
 function navigate(page) {
@@ -2343,6 +2553,7 @@ function navigate(page) {
   if(page==='kpidefs') renderKPIDefs();
   if(page==='predictions') renderPredictions();
   if(page==='loadindicator') renderLoadIndicator();
+  if(page==='readiness') renderReadiness();
 }
 
 // Hash-based routing — navigate directly via URL
@@ -4006,6 +4217,290 @@ function renderImpactCharts() {
       }
     });
   }
+}
+
+// ══ FLEET READINESS ══════════════════════════════════════════════
+
+// ── Data ──────────────────────────────────────────────────────
+const FR_MED_ITEMS = [
+  'جهاز الأوكسجين — مستوى كافٍ',
+  'جهاز إزالة الرجفان AED',
+  'كيس الإنعاش (Ambu Bag)',
+  'جهاز قياس ضغط الدم',
+  'جهاز قياس الأكسجين (Pulse Oximeter)',
+  'مخزون أدوية الطوارئ',
+  'لوح التثبيت الشوكي',
+  'طقم الجبائر والضمادات',
+  'خطوط IV والمحاليل',
+  'معدات الحروق وضربة الشمس',
+];
+const FR_MECH_ITEMS = [
+  'مستوى الوقود ≥ 25%',
+  'ضغط الإطارات وسلامتها',
+  'الفرامل والمكابح',
+  'مستوى زيت المحرك',
+  'مستوى ماء الراديتير',
+  'أضواء الطوارئ والصفارة',
+  'الأضواء الأمامية والخلفية',
+  'جهاز الاتصالات / الراديو',
+  'نظام التبريد والتدفئة',
+  'اللوحة الدورية ساري المفعول',
+];
+
+// State: item key → 'ok' | 'fail' | null
+let _chkState = {};
+FR_MED_ITEMS.forEach((_,i)=>{ _chkState['med_'+i]=null; });
+FR_MECH_ITEMS.forEach((_,i)=>{ _chkState['mec_'+i]=null; });
+
+// Pre-loaded fault data
+let FR_MED_FAULTS = [
+  {id:'FM001',amb:'A-12',center:'C3',desc:'بطارية جهاز AED منتهية الصلاحية',sev:'حرج',time:'08:15',status:'قيد المعالجة'},
+  {id:'FM002',amb:'B-05',center:'C7',desc:'مستوى الأكسجين أقل من 20%',sev:'عالي',time:'10:30',status:'مفتوح'},
+  {id:'FM003',amb:'C-18',center:'C1',desc:'دواء منتهي الصلاحية في الحقيبة',sev:'متوسط',time:'أمس 15:40',status:'مغلق'},
+  {id:'FM004',amb:'D-07',center:'C5',desc:'جهاز قياس الأكسجين لا يعمل',sev:'عالي',time:'11:05',status:'مفتوح'},
+];
+let FR_MECH_FAULTS = [
+  {id:'FK001',amb:'D-09',center:'C5',desc:'إطار خلفي مثقوب',sev:'حرج',time:'07:00',status:'قيد المعالجة'},
+  {id:'FK002',amb:'E-02',center:'C11',desc:'عطل في صفارة الطوارئ',sev:'عالي',time:'09:45',status:'مفتوح'},
+  {id:'FK003',amb:'F-14',center:'C2',desc:'مستوى زيت المحرك منخفض',sev:'منخفض',time:'أمس 18:00',status:'مغلق'},
+  {id:'FK004',amb:'G-07',center:'C8',desc:'جهاز الراديو لا يعمل',sev:'متوسط',time:'11:20',status:'مفتوح'},
+  {id:'FK005',amb:'A-03',center:'C1',desc:'مستوى الوقود 15% فقط',sev:'حرج',time:'06:50',status:'مفتوح'},
+];
+
+// ── Checklist UI ──────────────────────────────────────────────
+function buildChecklistUI() {
+  const med = document.getElementById('chk-medical-items');
+  const mec = document.getElementById('chk-mech-items');
+  if(!med || !mec) return;
+  med.innerHTML = FR_MED_ITEMS.map((label,i)=>_chkItemHTML('med_'+i, label)).join('');
+  mec.innerHTML = FR_MECH_ITEMS.map((label,i)=>_chkItemHTML('mec_'+i, label)).join('');
+  _updateChkProgress();
+}
+function _chkItemHTML(key, label) {
+  const st = _chkState[key];
+  const cls = st==='ok'?'chk-checked':st==='fail'?'chk-fail':'';
+  const icon = st==='ok'?'✓':st==='fail'?'✗':'';
+  return `<div class="chk-item ${cls}" onclick="cycleChk('${key}',this)">
+    <div class="chk-box">${icon}</div>
+    <span class="chk-label">${label}</span>
+  </div>`;
+}
+function cycleChk(key, el) {
+  const cur = _chkState[key];
+  _chkState[key] = cur===null?'ok':cur==='ok'?'fail':null;
+  const st = _chkState[key];
+  el.className = 'chk-item'+(st==='ok'?' chk-checked':st==='fail'?' chk-fail':'');
+  el.querySelector('.chk-box').textContent = st==='ok'?'✓':st==='fail'?'✗':'';
+  _updateChkProgress();
+}
+function _updateChkProgress() {
+  const all = Object.keys(_chkState).length;
+  const done = Object.values(_chkState).filter(v=>v!==null).length;
+  const fail = Object.values(_chkState).filter(v=>v==='fail').length;
+  const el = document.getElementById('chk-progress-text');
+  if(el) el.textContent = `${done}/${all} بنود مكتملة${fail>0?' — ⚠️ '+fail+' بنود فاشلة':''}`;
+}
+function resetChecklist() {
+  Object.keys(_chkState).forEach(k=>_chkState[k]=null);
+  buildChecklistUI();
+}
+function toggleChecklist() {
+  const wrap = document.getElementById('fr-checklist-wrap');
+  const btn  = document.getElementById('fr-chk-toggle');
+  const open = wrap.style.display==='block';
+  wrap.style.display = open?'none':'block';
+  btn.textContent = open?'▼ عرض النموذج':'▲ إخفاء النموذج';
+  if(!open) buildChecklistUI();
+}
+function openChecklistForm() {
+  const wrap = document.getElementById('fr-checklist-wrap');
+  const btn  = document.getElementById('fr-chk-toggle');
+  wrap.style.display='block';
+  btn.textContent='▲ إخفاء النموذج';
+  buildChecklistUI();
+  wrap.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function submitChecklist() {
+  const amb  = document.getElementById('chk-ambulance')?.value;
+  const sup  = document.getElementById('chk-supervisor')?.value;
+  if(!amb){ showToast('الرجاء اختيار رقم السيارة','error'); return; }
+  const fails = Object.entries(_chkState).filter(([,v])=>v==='fail');
+  const done  = Object.values(_chkState).filter(v=>v!==null).length;
+  if(done===0){ showToast('الرجاء إكمال بنود التشييك أولاً','error'); return; }
+  // Auto-create faults for failed items
+  fails.forEach(([key])=>{
+    const isMed = key.startsWith('med_');
+    const idx   = parseInt(key.split('_')[1]);
+    const label = isMed ? FR_MED_ITEMS[idx] : FR_MECH_ITEMS[idx];
+    const now   = new Date().toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});
+    const fault = {
+      id: (isMed?'FM':'FK')+String(Math.floor(Math.random()*900)+100),
+      amb: amb.split('|')[0].trim(),
+      center: (amb.match(/C\d+/)||['—'])[0],
+      desc: label+' — فشل التشييك',
+      sev: 'عالي', time: now, status: 'مفتوح'
+    };
+    if(isMed) FR_MED_FAULTS.unshift(fault);
+    else FR_MECH_FAULTS.unshift(fault);
+  });
+  showToast(`✅ تم حفظ تشييك ${amb.split('|')[0].trim()} — ${done} بند${fails.length>0?' ('+fails.length+' أعطال مسجلة)':''}`, 'success');
+  resetChecklist();
+  renderReadiness();
+}
+
+// ── Fault log ─────────────────────────────────────────────────
+function toggleFaultForm(type) {
+  const el = document.getElementById('fr-fault-form-'+type);
+  el.classList.toggle('open');
+}
+function addFault(type) {
+  const prefix = type==='med'?'fm':'fk';
+  const amb  = document.getElementById(prefix+'-amb')?.value.trim();
+  const ctr  = document.getElementById(prefix+'-center')?.value.trim();
+  const sev  = document.getElementById(prefix+'-sev')?.value;
+  const desc = document.getElementById(prefix+'-desc')?.value.trim();
+  if(!amb||!desc){ showToast('الرجاء تعبئة جميع الحقول','error'); return; }
+  const now = new Date().toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});
+  const fault = {
+    id:(type==='med'?'FM':'FK')+String(Math.floor(Math.random()*900)+100),
+    amb, center:ctr||'—', desc, sev, time:now, status:'مفتوح'
+  };
+  if(type==='med') FR_MED_FAULTS.unshift(fault);
+  else FR_MECH_FAULTS.unshift(fault);
+  toggleFaultForm(type);
+  showToast(`✅ تم تسجيل العطل: ${desc.slice(0,30)}...`,'success');
+  renderReadiness();
+}
+function closeFault(type, id) {
+  const arr = type==='med'?FR_MED_FAULTS:FR_MECH_FAULTS;
+  const f = arr.find(x=>x.id===id);
+  if(f){ f.status='مغلق'; renderReadiness(); showToast('تم إغلاق العطل ✅','success'); }
+}
+
+// ── Render ────────────────────────────────────────────────────
+function renderReadiness() {
+  const total = 30;
+  const medOpen  = FR_MED_FAULTS.filter(f=>f.status!=='مغلق').length;
+  const mechOpen = FR_MECH_FAULTS.filter(f=>f.status!=='مغلق').length;
+  const inMaint  = 2; // static: scheduled maintenance
+  const broken   = Math.min(total-1, medOpen + mechOpen);
+  const ready    = Math.max(0, total - broken - inMaint);
+  const pct      = Math.round(ready/total*100);
+  const pctColor = pct>=85?'var(--green)':pct>=65?'var(--amber)':'var(--red)';
+
+  // KPI strip
+  _setText('fr-total', total);
+  _setText('fr-ready', ready);
+  _setText('fr-med-faults', medOpen);
+  _setText('fr-mech-faults', mechOpen);
+
+  // Ring gauge
+  const circ = 2*Math.PI*46; // r=46
+  const offset = circ*(1-pct/100);
+  const fill = document.getElementById('fr-ring-fill');
+  if(fill){ fill.style.strokeDashoffset=offset.toFixed(1); fill.style.stroke=pctColor; }
+  const pctEl = document.getElementById('fr-ring-pct');
+  if(pctEl){ pctEl.textContent=pct+'%'; pctEl.style.color=pctColor; }
+
+  // Progress bars
+  _setProgress('fr-pb-ready','fr-pv-ready', Math.round(ready/total*100), ready, 'var(--green)');
+  _setProgress('fr-pb-med',  'fr-pv-med',   Math.round(medOpen/total*100), medOpen, 'var(--amber)');
+  _setProgress('fr-pb-mech', 'fr-pv-mech',  Math.round(mechOpen/total*100), mechOpen, 'var(--red)');
+  _setProgress('fr-pb-maint','fr-pv-maint', Math.round(inMaint/total*100), inMaint, 'var(--muted)');
+
+  // Fault tables
+  _renderFaultTable('fr-med-faults-body',  FR_MED_FAULTS,  'med');
+  _renderFaultTable('fr-mech-faults-body', FR_MECH_FAULTS, 'mech');
+
+  // Instant alerts
+  _renderInstantAlerts(medOpen, mechOpen, pct);
+}
+
+function _setText(id, val) {
+  const el = document.getElementById(id); if(el) el.textContent=val;
+}
+function _setProgress(barId, valId, pct, rawVal, color) {
+  const b=document.getElementById(barId), v=document.getElementById(valId);
+  if(b){ b.style.width=pct+'%'; b.style.background=color; }
+  if(v) v.textContent=rawVal;
+}
+function _sevChip(sev) {
+  const map={حرج:'chip-crit',عالي:'chip-warn',متوسط:'chip-info',منخفض:''};
+  return `<span class="chip ${map[sev]||''}">${sev}</span>`;
+}
+function _statusCls(s) {
+  if(s==='مفتوح') return 'fault-status-open chip';
+  if(s==='قيد المعالجة') return 'fault-status-wip chip';
+  return 'fault-status-closed chip';
+}
+function _renderFaultTable(tbodyId, arr, type) {
+  const tbody = document.getElementById(tbodyId);
+  if(!tbody) return;
+  tbody.innerHTML = arr.slice(0,8).map(f=>`
+    <tr>
+      <td><strong>${f.amb}</strong><br><span style="color:var(--muted);font-size:10px">${f.center}</span></td>
+      <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${f.desc}">${f.desc}</td>
+      <td>${_sevChip(f.sev)}</td>
+      <td style="font-family:monospace;font-size:11px">${f.time}</td>
+      <td>
+        <span class="${_statusCls(f.status)}">${f.status}</span>
+        ${f.status!=='مغلق'?`<button class="btn btn-secondary btn-sm" style="padding:3px 8px;font-size:10px;margin-right:4px" onclick="closeFault('${type}','${f.id}')">إغلاق</button>`:''}
+      </td>
+    </tr>`).join('');
+}
+
+function _renderInstantAlerts(medOpen, mechOpen, readyPct) {
+  const feed = document.getElementById('fr-alerts-feed');
+  if(!feed) return;
+  const nowStr = new Date().toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});
+  const alerts = [];
+
+  // Critical faults
+  FR_MED_FAULTS.filter(f=>f.sev==='حرج'&&f.status!=='مغلق').forEach(f=>{
+    alerts.push({icon:'🚨',color:'var(--red)',
+      title:`عطل طبي حرج — ${f.amb} (${f.center})`,
+      desc:f.desc, sev:0});
+  });
+  FR_MECH_FAULTS.filter(f=>f.sev==='حرج'&&f.status!=='مغلق').forEach(f=>{
+    alerts.push({icon:'🔧',color:'var(--red)',
+      title:`عطل ميكانيكي حرج — ${f.amb} (${f.center})`,
+      desc:f.desc, sev:0});
+  });
+  // High severity
+  FR_MED_FAULTS.filter(f=>f.sev==='عالي'&&f.status==='مفتوح').forEach(f=>{
+    alerts.push({icon:'⚠️',color:'var(--amber)',
+      title:`عطل طبي عالي — ${f.amb}`,desc:f.desc,sev:1});
+  });
+  FR_MECH_FAULTS.filter(f=>f.sev==='عالي'&&f.status==='مفتوح').forEach(f=>{
+    alerts.push({icon:'⚠️',color:'var(--amber)',
+      title:`عطل ميكانيكي عالي — ${f.amb}`,desc:f.desc,sev:1});
+  });
+  // Readiness warning
+  if(readyPct<70)
+    alerts.push({icon:'📉',color:'var(--red)',
+      title:`جاهزية الأسطول منخفضة: ${readyPct}%`,
+      desc:'أقل من الحد المقبول 70% — يُوصى باستدعاء سيارات احتياطية',sev:0});
+  if(medOpen>2)
+    alerts.push({icon:'🩺',color:'var(--amber)',
+      title:`${medOpen} أعطال طبية مفتوحة`,
+      desc:'يُوصى بمراجعة مخزون المستلزمات الطبية وإعادة التجهيز',sev:1});
+  if(mechOpen>3)
+    alerts.push({icon:'🔩',color:'var(--amber)',
+      title:`${mechOpen} أعطال ميكانيكية مفتوحة`,
+      desc:'يُوصى بإرسال فريق الصيانة للمراكز المتضررة',sev:1});
+
+  const count = document.getElementById('fr-alert-count');
+  if(count) count.textContent = alerts.length+' تنبيه';
+
+  feed.innerHTML = alerts.slice(0,10).map(a=>`
+    <div class="instant-alert" style="border-right-color:${a.color}">
+      <span style="font-size:18px;flex-shrink:0">${a.icon}</span>
+      <div class="ia-body" style="flex:1">
+        <div class="ia-title" style="color:${a.color}">${a.title}</div>
+        <div class="ia-desc">${a.desc}</div>
+      </div>
+      <span class="ia-time">${nowStr}</span>
+    </div>`).join('') || '<div style="text-align:center;padding:20px;color:var(--muted)">✅ لا توجد تنبيهات فورية</div>';
 }
 
 // ══ LOAD INDICATOR ══════════════════════════════════════════════
