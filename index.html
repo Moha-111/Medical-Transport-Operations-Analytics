@@ -862,6 +862,13 @@ canvas{max-height:220px;}
     </div>
 
     <div class="nav-section">التحليل والتقارير</div>
+    <div class="nav-item" onclick="navigate('faults')">
+      <span class="icon">🔧</span> بلاغات الأعطال
+      <span class="nav-badge" style="background:rgba(255,82,82,.3);color:#FF5252" id="faults-badge">10</span>
+    </div>
+    <div class="nav-item" onclick="navigate('supervision')">
+      <span class="icon">📋</span> التقرير الإشرافي
+    </div>
     <div class="nav-item" onclick="navigate('reports')">
       <span class="icon">📄</span> التقارير
     </div>
@@ -1815,6 +1822,177 @@ canvas{max-height:220px;}
 
   </div><!-- /page-impact -->
 
+  <!-- ══ PAGE: FAULT REPORTS ══════════════════════════════════════ -->
+  <div class="page" id="page-faults">
+    <div class="section-header">
+      <div><h2>بلاغات الأعطال</h2><p>الأعطال الطبية والميكانيكية — مرتبط بملف Excel</p></div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="grid-4" style="margin-bottom:20px">
+      <div class="kpi" style="--c:var(--red)">
+        <div class="kpi-label">إجمالي البلاغات المفتوحة</div>
+        <div class="kpi-val" id="faults-open">—</div>
+        <div class="kpi-sub">تحتاج متابعة فورية</div>
+      </div>
+      <div class="kpi" style="--c:var(--red)">
+        <div class="kpi-label">بلاغات حرجة</div>
+        <div class="kpi-val" id="faults-critical">—</div>
+        <div class="kpi-sub">تدخل عاجل مطلوب</div>
+      </div>
+      <div class="kpi" style="--c:var(--teal2)">
+        <div class="kpi-label">أعطال طبية</div>
+        <div class="kpi-val" id="faults-medical">—</div>
+        <div class="kpi-sub">معدات وأجهزة</div>
+      </div>
+      <div class="kpi" style="--c:var(--amber)">
+        <div class="kpi-label">أعطال ميكانيكية</div>
+        <div class="kpi-val" id="faults-mech">—</div>
+        <div class="kpi-sub">مركبات وإسعاف</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+      <button id="ftab-btn-all"  class="btn btn-primary btn-sm"   onclick="switchFaultTab('all')">الكل</button>
+      <button id="ftab-btn-med"  class="btn btn-secondary btn-sm" onclick="switchFaultTab('med')">🏥 طبية</button>
+      <button id="ftab-btn-mec"  class="btn btn-secondary btn-sm" onclick="switchFaultTab('mec')">🔧 ميكانيكية</button>
+      <button id="ftab-btn-open" class="btn btn-secondary btn-sm" onclick="switchFaultTab('open')">🔴 مفتوحة</button>
+      <div style="margin-right:auto;display:flex;align-items:center;gap:8px;">
+        <label style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+                      background:var(--surface2);border:1px solid var(--border);
+                      border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;
+                      color:var(--teal);">
+          <input type="file" accept=".xlsx,.csv" style="display:none" onchange="handleFileUpload(this)"/>
+          📥 استيراد من Excel
+        </label>
+        <span id="faults-source-tag" style="display:none" class="card-tag tag-live" style="font-size:10px">من Excel</span>
+      </div>
+    </div>
+
+    <!-- Fault Table -->
+    <div class="card">
+      <table class="tbl">
+        <thead><tr>
+          <th>رقم البلاغ</th><th>التاريخ</th><th>المركز</th><th>النوع</th>
+          <th>وصف العطل</th><th>الخطورة</th><th>المُبلِّغ</th>
+          <th>الحالة</th><th>مدة التوقف</th>
+        </tr></thead>
+        <tbody id="faults-body"></tbody>
+      </table>
+    </div>
+  </div><!-- /page-faults -->
+
+  <!-- ══ PAGE: SUPERVISORY REPORT ═════════════════════════════════ -->
+  <div class="page" id="page-supervision">
+    <div class="section-header">
+      <div><h2>التقرير الإشرافي</h2><p>التقرير اليومي الشامل — مرتبط بملف Excel</p></div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ طباعة</button>
+        <label style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+                      background:var(--surface2);border:1px solid var(--border);
+                      border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--teal);">
+          <input type="file" accept=".xlsx,.csv" style="display:none" onchange="handleFileUpload(this)"/>
+          📥 تحديث من Excel
+        </label>
+      </div>
+    </div>
+
+    <!-- Report date banner -->
+    <div style="background:linear-gradient(135deg,rgba(27,58,107,.3),rgba(13,115,119,.2));
+                border:1px solid rgba(0,201,167,.2);border-radius:14px;
+                padding:16px 24px;margin-bottom:20px;display:flex;align-items:center;gap:16px;">
+      <span style="font-size:32px">📋</span>
+      <div>
+        <div style="font-weight:800;font-size:15px" id="supv-date-title">التقرير الإشرافي اليومي</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:3px" id="supv-date-sub">
+          الثلاثاء 03/03/2026 | الفترة: وردية كاملة 24 ساعة | المشرف: أحمد العمري
+        </div>
+      </div>
+      <div style="margin-right:auto;text-align:center;">
+        <span id="supv-source-tag" style="display:none" class="card-tag tag-live">من Excel</span>
+      </div>
+    </div>
+
+    <!-- KPI Summary grid -->
+    <div class="grid-4" style="margin-bottom:20px">
+      <div class="kpi" style="--c:var(--teal)">
+        <div class="kpi-label">إجمالي المهام اليوم</div>
+        <div class="kpi-val" id="supv-missions">47</div>
+        <div class="kpi-sub" style="color:var(--green)">+7 عن الهدف</div>
+      </div>
+      <div class="kpi" style="--c:var(--amber)">
+        <div class="kpi-label">متوسط وقت الاستجابة</div>
+        <div class="kpi-val" id="supv-resp">64.3 د</div>
+        <div class="kpi-sub" style="color:var(--amber)">⚠ فوق الهدف 60 د</div>
+      </div>
+      <div class="kpi" style="--c:var(--red)">
+        <div class="kpi-label">معدل التأخير</div>
+        <div class="kpi-val" id="supv-late">95.3%</div>
+        <div class="kpi-sub" style="color:var(--amber)">⚠ فوق الحد 95%</div>
+      </div>
+      <div class="kpi" style="--c:var(--green)">
+        <div class="kpi-label">حالات إنقاذ الحياة</div>
+        <div class="kpi-val" id="supv-lifesave">17</div>
+        <div class="kpi-sub" style="color:var(--green)">36.2% من الإجمالي</div>
+      </div>
+    </div>
+
+    <!-- Two-column layout -->
+    <div class="grid-2" style="margin-bottom:16px;">
+      <!-- Center performance -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🏢 أداء المراكز</span>
+          <span class="card-tag tag-alert">يحتاج مراجعة</span>
+        </div>
+        <div id="supv-centers-content"></div>
+      </div>
+      <!-- Fault summary -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🔧 ملخص الأعطال</span>
+          <span class="card-tag tag-alert" id="supv-faults-tag">20 بلاغ</span>
+        </div>
+        <div id="supv-faults-content"></div>
+      </div>
+    </div>
+
+    <!-- Staff + Recommendations -->
+    <div class="grid-2" style="margin-bottom:16px;">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">👨‍⚕️ الحضور والانتشار</span>
+          <span class="card-tag" style="background:rgba(255,82,82,.15);color:var(--red)">2 غائب</span>
+        </div>
+        <div id="supv-staff-content"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📋 التوصيات والإجراءات</span>
+          <span class="card-tag tag-info">6 توصيات</span>
+        </div>
+        <div id="supv-recs-content"></div>
+      </div>
+    </div>
+
+    <!-- Sign-off -->
+    <div class="card" style="border:1px solid rgba(0,201,167,.25);">
+      <div style="display:flex;align-items:center;gap:16px;padding:8px 0;">
+        <span style="font-size:28px">✍️</span>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:13px">توقيع المشرف</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px">
+            المشرف المناوب: <strong>أحمد العمري</strong> &nbsp;|&nbsp;
+            التاريخ: <strong>03/03/2026</strong> &nbsp;|&nbsp;
+            القطاع: الإسعاف والنقل الطبي
+          </div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="showToast('تم اعتماد التقرير الإشرافي ✅','success')">اعتماد التقرير</button>
+      </div>
+    </div>
+  </div><!-- /page-supervision -->
+
   </div><!-- /content -->
 </div><!-- /main -->
 
@@ -1946,6 +2124,62 @@ const FEED_POOL = [
 ];
 
 const recentEntries = [];
+
+// ══ FAULT REPORTS DATA ═══════════════════════════════════════════════
+// النوع: طبي | ميكانيكي  |  الخطورة: حرج | عالي | متوسط | منخفض
+// الحالة: مفتوح | قيد التنفيذ | محلول | مغلق
+let FAULTS_DATA = [
+  {id:'F002',dt:'2026-03-03 07:30',center:'C4',asset:'DEF-C4-01', desc:'عطل في جهاز إزالة الرجفان',   sev:'حرج',        by:'E73',  status:'مفتوح',        downtime:180, type:'طبي'},
+  {id:'F008',dt:'2026-03-03 08:45',center:'C1',asset:'IVP-C1-01', desc:'خطأ في مضخة الحقن الوريدي',  sev:'عالي',       by:'E18',  status:'قيد التنفيذ',  downtime:120, type:'طبي'},
+  {id:'F004',dt:'2026-03-02 22:10',center:'C3',asset:'SUC-C3-02', desc:'جهاز الشفط لا يعمل',          sev:'عالي',       by:'E55',  status:'مفتوح',        downtime:95,  type:'طبي'},
+  {id:'F009',dt:'2026-03-02 19:00',center:'C15',asset:'MON-C15-01',desc:'جهاز رصد المريض لا يتصل',   sev:'متوسط',      by:'E190', status:'مفتوح',        downtime:60,  type:'طبي'},
+  {id:'F006',dt:'2026-03-02 14:20',center:'C2',asset:'BAG-C2-04', desc:'حقيبة الإنعاش تالفة',         sev:'متوسط',      by:'E29',  status:'مفتوح',        downtime:0,   type:'طبي'},
+  {id:'F010',dt:'2026-03-02 11:05',center:'C9',asset:'OXY-C9-03', desc:'مزود الأكسجين الاحتياطي فارغ',sev:'عالي',      by:'E150', status:'محلول',        downtime:45,  type:'طبي'},
+  {id:'F003',dt:'2026-03-01 16:30',center:'C1',asset:'ECG-C1-03', desc:'شاشة جهاز الـ ECG مكسورة',   sev:'متوسط',      by:'E13',  status:'محلول',        downtime:360, type:'طبي'},
+  {id:'F005',dt:'2026-03-01 09:15',center:'C5',asset:'OXI-C5-01', desc:'مقياس الأكسجين لا يعمل',     sev:'منخفض',      by:'E81',  status:'محلول',        downtime:30,  type:'طبي'},
+  {id:'F007',dt:'2026-02-28 20:00',center:'C7',asset:'BPM-C7-02', desc:'جهاز قياس ضغط الدم معطل',    sev:'منخفض',      by:'E108', status:'محلول',        downtime:20,  type:'طبي'},
+  {id:'F001',dt:'2026-02-28 06:00',center:'C6',asset:'CPR-C6-01', desc:'لوح الإنعاش CPR تالف',        sev:'متوسط',      by:'E92',  status:'محلول',        downtime:0,   type:'طبي'},
+  {id:'F011',dt:'2026-03-03 06:15',center:'C6',asset:'A15',       desc:'نظام الإنذار والإضاءة معطل',  sev:'حرج',        by:'E92',  status:'مفتوح',        downtime:240, type:'ميكانيكي'},
+  {id:'F018',dt:'2026-03-03 07:00',center:'C6',asset:'A15',       desc:'المولد الاحتياطي لا يشتغل',   sev:'حرج',        by:'E97',  status:'قيد التنفيذ',  downtime:180, type:'ميكانيكي'},
+  {id:'F013',dt:'2026-03-03 08:00',center:'C4',asset:'A12',       desc:'آلية السرير المتحرك مكسورة',  sev:'عالي',       by:'E67',  status:'مفتوح',        downtime:150, type:'ميكانيكي'},
+  {id:'F012',dt:'2026-03-02 21:30',center:'C5',asset:'A08',       desc:'تكييف سيارة الإسعاف لا يعمل', sev:'متوسط',     by:'E78',  status:'قيد التنفيذ',  downtime:90,  type:'ميكانيكي'},
+  {id:'F017',dt:'2026-03-02 17:45',center:'C7',asset:'A17',       desc:'شاشة الاتصال الداخلي معطلة',  sev:'متوسط',      by:'E108', status:'مفتوح',        downtime:0,   type:'ميكانيكي'},
+  {id:'F020',dt:'2026-03-02 14:00',center:'C9',asset:'A21',       desc:'نظام الكاميرا الخلفية معطل',  sev:'منخفض',      by:'E150', status:'مفتوح',        downtime:0,   type:'ميكانيكي'},
+  {id:'F015',dt:'2026-03-02 10:20',center:'C3',asset:'A05',       desc:'مضخة الوقود تحتاج صيانة',     sev:'عالي',       by:'E41',  status:'محلول',        downtime:480, type:'ميكانيكي'},
+  {id:'F014',dt:'2026-03-01 22:00',center:'C2',asset:'A19',       desc:'جهاز GPS معطل',               sev:'متوسط',      by:'E36',  status:'محلول',        downtime:120, type:'ميكانيكي'},
+  {id:'F019',dt:'2026-03-01 15:30',center:'C2',asset:'A03',       desc:'باب المريض صعوبة في الفتح',   sev:'متوسط',      by:'E33',  status:'محلول',        downtime:60,  type:'ميكانيكي'},
+  {id:'F016',dt:'2026-02-28 09:00',center:'C1',asset:'A02',       desc:'ضغط الإطار منخفض',            sev:'منخفض',      by:'E13',  status:'محلول',        downtime:20,  type:'ميكانيكي'},
+];
+
+// ══ SUPERVISORY REPORT DATA ═══════════════════════════════════════════
+const SUPERVISION_DATA = {
+  date: '03/03/2026', dayAr: 'الثلاثاء', supervisor: 'أحمد العمري',
+  kpis: [
+    {metric:'مهام اليوم',      val:'47 مهمة', target:'≥ 40',   delta:'+7',    status:'جيد',    trend:'↗'},
+    {metric:'وقت الاستجابة',   val:'64.3 د',  target:'≤ 60 د', delta:'+4.3 د',status:'تحذير',  trend:'↗'},
+    {metric:'معدل التأخير',    val:'95.3%',   target:'≤ 95%',  delta:'+0.3%', status:'تحذير',  trend:'↗'},
+    {metric:'إنقاذ الحياة',    val:'17 حالة', target:'≥ 30%',  delta:'36.2%', status:'جيد',    trend:'→'},
+    {metric:'وقت الإرسال',     val:'5.5 د',   target:'≤ 8 د',  delta:'-2.5 د',status:'ممتاز',  trend:'↘'},
+    {metric:'أداء جيد/ممتاز',  val:'4.7%',    target:'≥ 5%',   delta:'-0.3%', status:'تحذير',  trend:'→'},
+  ],
+  centers: [
+    {id:'C5', missions:74, resp:'63.5 د', late:'94.1%', present:'4/4', rating:'✅ الأفضل', note:'أقل معدل تأخير'},
+    {id:'C3', missions:71, resp:'63.6 د', late:'94.6%', present:'2/3', rating:'✅ جيد',    note:'مسعف غائب'},
+    {id:'C2', missions:68, resp:'64.0 د', late:'95.1%', present:'4/4', rating:'→ مقبول',  note:'قريب من الحد'},
+    {id:'C1', missions:89, resp:'64.3 د', late:'95.4%', present:'3/3', rating:'⚠ مراجعة', note:'ضغط عالٍ'},
+    {id:'C4', missions:61, resp:'63.8 د', late:'95.8%', present:'2/3', rating:'⚠ مراجعة', note:'عطل + غائب'},
+    {id:'C6', missions:58, resp:'64.8 د', late:'96.4%', present:'1/2', rating:'🚨 حرج',   note:'2 عطل حرج'},
+  ],
+  staff: {scheduled:18, present:16, absent:2, absentIds:'E73 (C4) ، E97 (C6)', off:2},
+  recs: [
+    {priority:'🔴 عاجل',   text:'إصلاح نظام الإنذار A15 (C6) فوراً', owner:'الصيانة',    due:'اليوم',         status:'مفتوح'},
+    {priority:'🔴 عاجل',   text:'توفير جهاز إزالة رجفان بديل C4',    owner:'المستودع',   due:'اليوم',         status:'مفتوح'},
+    {priority:'🟠 مهم',    text:'متابعة غياب E73 و E97',              owner:'الموارد البشرية',due:'اليوم',     status:'جارٍ'},
+    {priority:'🟠 مهم',    text:'مراجعة توزيع المهام في C6',          owner:'المشرف المناوب',due:'هذا الأسبوع',status:'جارٍ'},
+    {priority:'🟡 متابعة', text:'معايرة أجهزة ECG في C1',            owner:'الفني الطبي',  due:'خلال 3 أيام', status:'مجدول'},
+    {priority:'🟢 روتيني', text:'صيانة دورية أسطول C3',              owner:'الصيانة',      due:'الأسبوع القادم',status:'مجدول'},
+  ],
+};
 
 // ══ CHART DEFAULTS ═══════════════════════════════════════════
 Chart.defaults.color = '#5E7391';
@@ -2194,6 +2428,169 @@ function switchParaTab(tab) {
   }
 }
 
+// ══ RENDER FAULT REPORTS ══════════════════════════════════════════════
+function renderFaults(filter) {
+  filter = filter || 'all';
+  // Compute KPIs
+  const open     = FAULTS_DATA.filter(f => f.status === 'مفتوح' || f.status === 'قيد التنفيذ');
+  const critical = FAULTS_DATA.filter(f => f.sev === 'حرج');
+  const medical  = FAULTS_DATA.filter(f => f.type === 'طبي');
+  const mech     = FAULTS_DATA.filter(f => f.type === 'ميكانيكي');
+
+  const setEl = (id, v) => { const e = document.getElementById(id); if(e) e.textContent = v; };
+  setEl('faults-open',     open.length);
+  setEl('faults-critical', critical.length);
+  setEl('faults-medical',  medical.length);
+  setEl('faults-mech',     mech.length);
+  const badge = document.getElementById('faults-badge');
+  if (badge) badge.textContent = open.length;
+
+  // Filter rows
+  const rows = filter === 'med'  ? medical
+             : filter === 'mec'  ? mech
+             : filter === 'open' ? open
+             : FAULTS_DATA;
+
+  const SEV_CHIP = {
+    'حرج':  'chip-crit', 'عالي': 'chip-warn',
+    'متوسط':'chip-info',  'منخفض':'chip-ok',
+  };
+  const STAT_CHIP = {
+    'مفتوح':       'chip-crit',
+    'قيد التنفيذ': 'chip-warn',
+    'محلول':       'chip-ok',
+    'مغلق':        'chip-info',
+  };
+  const TYPE_ICON = { 'طبي':'🏥', 'ميكانيكي':'🔧' };
+
+  const tbody = document.getElementById('faults-body');
+  if (!tbody) return;
+  tbody.innerHTML = rows.map(f => `
+    <tr style="${f.sev==='حرج'&&f.status==='مفتوح' ? 'background:rgba(255,82,82,0.05);' : ''}">
+      <td style="font-family:'JetBrains Mono',monospace;color:var(--teal);font-size:12px">${f.id}</td>
+      <td style="font-size:11px;color:var(--muted)">${f.dt}</td>
+      <td><strong>${f.center}</strong></td>
+      <td><span class="chip ${f.type==='طبي'?'chip-info':'chip-warn'}" style="font-size:10px">${TYPE_ICON[f.type]} ${f.type}</span></td>
+      <td style="max-width:220px;font-size:12px">${f.desc}</td>
+      <td><span class="chip ${SEV_CHIP[f.sev]||'chip-info'}" style="font-size:10px">${f.sev}</span></td>
+      <td style="font-size:11px">${f.by}</td>
+      <td><span class="chip ${STAT_CHIP[f.status]||'chip-info'}" style="font-size:10px">${f.status}</span></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${f.downtime>120?'var(--red)':'var(--muted)'}">${f.downtime ? f.downtime+' د' : '—'}</td>
+    </tr>`).join('');
+}
+
+function switchFaultTab(tab) {
+  ['all','med','mec','open'].forEach(t => {
+    const b = document.getElementById(`ftab-btn-${t}`);
+    if (b) b.className = t === tab ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm';
+  });
+  renderFaults(tab);
+}
+
+// ══ RENDER SUPERVISORY REPORT ══════════════════════════════════════════
+function renderSupervision() {
+  const d = SUPERVISION_DATA;
+
+  // KPI section (already static in HTML, but update from data)
+  const setEl = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+  setEl('supv-missions',  d.kpis[0]?.val || '47');
+  setEl('supv-resp',      d.kpis[1]?.val || '64.3 د');
+  setEl('supv-late',      d.kpis[2]?.val || '95.3%');
+  setEl('supv-lifesave',  d.kpis[3]?.val || '17');
+
+  // Centers table
+  const cenEl = document.getElementById('supv-centers-content');
+  if (cenEl) cenEl.innerHTML = `
+    <table class="tbl" style="font-size:11px">
+      <thead><tr>
+        <th>المركز</th><th>المهام</th><th>الاستجابة</th>
+        <th>التأخير</th><th>الحضور</th><th>التقييم</th>
+      </tr></thead>
+      <tbody>${d.centers.map(c => {
+        const isCrit = c.rating.includes('🚨'); const isWarn = c.rating.includes('⚠');
+        return `<tr style="${isCrit?'background:rgba(255,82,82,0.06)':isWarn?'background:rgba(246,166,35,0.06)':''}">
+          <td><strong>${c.id}</strong></td>
+          <td>${c.missions}</td>
+          <td>${c.resp}</td>
+          <td style="color:${parseFloat(c.late)>96?'var(--red)':parseFloat(c.late)>95?'var(--amber)':'var(--green)'}">${c.late}</td>
+          <td>${c.present}</td>
+          <td style="font-size:10px;color:${isCrit?'var(--red)':isWarn?'var(--amber)':'var(--green)'}">${c.rating}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+
+  // Fault summary
+  const faultsEl = document.getElementById('supv-faults-content');
+  if (faultsEl) {
+    const fOpen  = FAULTS_DATA.filter(f => f.status==='مفتوح').length;
+    const fInPr  = FAULTS_DATA.filter(f => f.status==='قيد التنفيذ').length;
+    const fCrit  = FAULTS_DATA.filter(f => f.sev==='حرج').length;
+    const fMed   = FAULTS_DATA.filter(f => f.type==='طبي').length;
+    const fMec   = FAULTS_DATA.filter(f => f.type==='ميكانيكي').length;
+    const tag    = document.getElementById('supv-faults-tag');
+    if (tag) tag.textContent = `${fOpen + fInPr} مفتوح`;
+    faultsEl.innerHTML = [
+      {label:'الإجمالي',         val:FAULTS_DATA.length, color:'var(--text)'},
+      {label:'🔴 مفتوح',         val:fOpen,  color:'var(--red)'},
+      {label:'🟡 قيد التنفيذ',  val:fInPr,  color:'var(--amber)'},
+      {label:'✅ محلول',         val:FAULTS_DATA.length - fOpen - fInPr, color:'var(--green)'},
+      {label:'🏥 طبية',          val:fMed,   color:'var(--teal2)'},
+      {label:'🔧 ميكانيكية',    val:fMec,   color:'var(--amber)'},
+      {label:'⚡ حرجة',         val:fCrit,  color:'var(--red)'},
+    ].map(row => `
+      <div style="display:flex;justify-content:space-between;align-items:center;
+                  padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:12px">${row.label}</span>
+        <strong style="font-size:14px;color:${row.color}">${row.val}</strong>
+      </div>`).join('');
+  }
+
+  // Staff attendance
+  const staffEl = document.getElementById('supv-staff-content');
+  if (staffEl) {
+    const s = d.staff;
+    staffEl.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:10px;padding:4px 0">
+        ${[
+          {label:'مجدولون اليوم', val:s.scheduled, color:'var(--teal)'},
+          {label:'حاضرون ونشطون', val:s.present,   color:'var(--green)'},
+          {label:'غائبون مجدولون',val:s.absent,    color:'var(--red)'},
+          {label:'إجازة / يوم راحة',val:s.off,     color:'var(--muted)'},
+        ].map(row => `
+          <div style="display:flex;justify-content:space-between;align-items:center;
+                      padding:6px 10px;border-radius:8px;
+                      background:${row.color==='var(--red)'?'rgba(255,82,82,0.08)':'var(--surface3)'}">
+            <span style="font-size:12px">${row.label}</span>
+            <strong style="color:${row.color};font-size:16px">${row.val}</strong>
+          </div>`).join('')}
+        <div style="font-size:11px;color:var(--red);padding:4px 2px">
+          ⚠ الغائبون: ${s.absentIds}
+        </div>
+      </div>`;
+  }
+
+  // Recommendations
+  const recsEl = document.getElementById('supv-recs-content');
+  if (recsEl) {
+    recsEl.innerHTML = d.recs.map(r => {
+      const isUrgent = r.priority.includes('🔴');
+      const isImp    = r.priority.includes('🟠');
+      return `
+        <div style="padding:8px 12px;border-radius:8px;margin-bottom:8px;
+                    border-right:3px solid ${isUrgent?'var(--red)':isImp?'var(--amber)':'var(--teal)'};
+                    background:${isUrgent?'rgba(255,82,82,0.06)':isImp?'rgba(246,166,35,0.06)':'var(--surface3)'}">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:11px;font-weight:700">${r.priority}</span>
+            <span class="chip ${r.status==='مفتوح'?'chip-crit':r.status==='جارٍ'?'chip-warn':'chip-info'}"
+                  style="font-size:9px">${r.status}</span>
+          </div>
+          <div style="font-size:12px;margin-top:4px">${r.text}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">${r.owner} — ${r.due}</div>
+        </div>`;
+    }).join('');
+  }
+}
+
 function renderMissions() {
   const tbody = document.getElementById('missions-body');
   tbody.innerHTML = MISSIONS_SAMPLE.map(m=>`<tr>
@@ -2334,27 +2731,28 @@ const PAGE_LABELS = {
   missions:'سجل المهام', entry:'إدخال بيانات',
   centers:'المراكز', paramedics:'المسعفون',
   reports:'التقارير', alerts:'التنبيهات', settings:'الإعدادات',
-  impact:'🚀 محاكاة الأثر', kpidefs:'📐 تعريفات KPI', predictions:'🔮 التنبؤ الذكي'
+  impact:'🚀 محاكاة الأثر', kpidefs:'📐 تعريفات KPI', predictions:'🔮 التنبؤ الذكي',
+  faults:'🔧 بلاغات الأعطال', supervision:'📋 التقرير الإشرافي'
 };
 
 function navigate(page) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
+  const pageEl = document.getElementById('page-'+page);
+  if (!pageEl) return;
+  pageEl.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>{
     if(n.getAttribute('onclick')?.includes(`'${page}'`)) n.classList.add('active');
   });
   document.getElementById('pageLabel').textContent = PAGE_LABELS[page]||page;
   if(document.getElementById('notifPanel')) document.getElementById('notifPanel').style.display='none';
   window.location.hash = page;
-  if(page==='impact'){
-    renderImpactTable();
-    renderSavings();
-    setTimeout(renderImpactCharts, 100);
-  }
-  if(page==='alerts') renderActionLoop();
-  if(page==='kpidefs') renderKPIDefs();
+  if(page==='impact'){renderImpactTable();renderSavings();setTimeout(renderImpactCharts,100);}
+  if(page==='alerts')      renderActionLoop();
+  if(page==='kpidefs')     renderKPIDefs();
   if(page==='predictions') renderPredictions();
+  if(page==='faults')      renderFaults();
+  if(page==='supervision') renderSupervision();
 }
 
 // Hash-based routing — navigate directly via URL
@@ -2426,7 +2824,21 @@ function processUploadedFile(file) {
         if (rows > 0) results.push(`جدول الموظفين: ${rows} مسعف`);
       }
 
-      // ── 2. Parse Daily Operations Data sheet ──────────────────────
+      // ── 2. Parse Fault Reports sheet ──────────────────────────────
+      const FAULT_SHEET = 'Fault Reports';
+      if (wb.SheetNames.includes(FAULT_SHEET)) {
+        const n = importFaultSheet(wb.Sheets[FAULT_SHEET]);
+        if (n > 0) results.push(`بلاغات الأعطال: ${n} بلاغ`);
+      }
+
+      // ── 3. Parse Supervisory Report sheet ─────────────────────────
+      const SUPV_SHEET = 'Supervisory Report';
+      if (wb.SheetNames.includes(SUPV_SHEET)) {
+        const ok = importSupervisionSheet(wb.Sheets[SUPV_SHEET]);
+        if (ok) results.push('التقرير الإشرافي: محدَّث');
+      }
+
+      // ── 4. Parse Daily Operations Data sheet ──────────────────────
       const OPS_SHEET = 'Daily Operations Data';
       if (wb.SheetNames.includes(OPS_SHEET)) {
         const csv     = XLSX.utils.sheet_to_csv(wb.Sheets[OPS_SHEET]);
@@ -2517,6 +2929,96 @@ function importScheduleSheet(sheet) {
     showScheduleImportBanner(count);
   }
   return count;
+}
+
+// ── Parse Fault Reports sheet → update FAULTS_DATA ───────────────────
+function importFaultSheet(sheet) {
+  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+  let count  = 0;
+  let inData = false;
+
+  for (const row of rows) {
+    const marker = String(row[0] || '').trim();
+    if (marker === '##FAULT##' && String(row[1] || '').toLowerCase() === 'id') {
+      inData = true; continue;
+    }
+    if (!inData || marker !== '##FAULT##') continue;
+
+    const entry = {
+      id:       String(row[1]  || '').trim(),
+      dt:       String(row[2]  || '').trim(),
+      center:   String(row[3]  || '').trim(),
+      asset:    String(row[4]  || '').trim(),
+      desc:     String(row[5]  || '').trim(),
+      sev:      String(row[6]  || '').trim(),
+      by:       String(row[7]  || '').trim(),
+      status:   String(row[8]  || '').trim(),
+      downtime: parseInt(row[9]) || 0,
+      type:     String(row[10] || '').trim(),
+    };
+    if (!entry.id) continue;
+    const idx = FAULTS_DATA.findIndex(f => f.id === entry.id);
+    if (idx >= 0) FAULTS_DATA[idx] = entry; else FAULTS_DATA.push(entry);
+    count++;
+  }
+
+  if (count > 0) {
+    const tag = document.getElementById('faults-source-tag');
+    if (tag) tag.style.display = '';
+    // Refresh if faults page is currently visible
+    if (document.getElementById('page-faults')?.classList.contains('active')) renderFaults();
+    // Sync fault summary in supervision page if open
+    if (document.getElementById('page-supervision')?.classList.contains('active')) renderSupervision();
+  }
+  return count;
+}
+
+// ── Parse Supervisory Report sheet → update SUPERVISION_DATA ──────────
+function importSupervisionSheet(sheet) {
+  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+  let   inData = false;
+  let   count  = 0;
+
+  for (const row of rows) {
+    const marker = String(row[0] || '').trim();
+    if (marker === '##SUPV##' && String(row[1] || '').toLowerCase() === 'metric') {
+      inData = true; continue;
+    }
+    if (!inData || marker !== '##SUPV##') continue;
+
+    const metric = String(row[1] || '').trim();
+    const val    = row[2];
+    const target = row[3];
+    const status = String(row[4] || '').trim();
+    const delta  = String(row[5] || '').trim();
+    const note   = String(row[6] || '').trim();
+
+    // Map machine-readable keys to SUPERVISION_DATA KPI entries
+    const kpiMap = {
+      'مهام_اليوم':          0, 'وقت_الاستجابة':          1,
+      'معدل_التأخير':         2, 'إنقاذ_الحياة':           3,
+      'وقت_الإرسال':          4, 'أداء_جيد/ممتاز':          5,
+    };
+    if (metric in kpiMap) {
+      const ki = kpiMap[metric];
+      if (SUPERVISION_DATA.kpis[ki]) {
+        SUPERVISION_DATA.kpis[ki].val    = String(val);
+        SUPERVISION_DATA.kpis[ki].status = status;
+        SUPERVISION_DATA.kpis[ki].delta  = delta;
+      }
+      count++;
+    }
+    // Update staff attendance data
+    if (metric === 'مسعفون_مجدولون') SUPERVISION_DATA.staff.scheduled = parseInt(val) || SUPERVISION_DATA.staff.scheduled;
+    if (metric === 'مسعفون_غائبون')  SUPERVISION_DATA.staff.absent    = parseInt(val) || SUPERVISION_DATA.staff.absent;
+  }
+
+  if (count > 0) {
+    const tag = document.getElementById('supv-source-tag');
+    if (tag) tag.style.display = '';
+    if (document.getElementById('page-supervision')?.classList.contains('active')) renderSupervision();
+  }
+  return count > 0;
 }
 
 // ── Banner shown after a successful schedule import ───────────────────
@@ -2665,6 +3167,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderMissions();
   renderAlerts();
   renderReportsHistory();
+  renderFaults();
+  renderSupervision();
   // Initial feed
   for(let i=0;i<5;i++) setTimeout(()=>addFeedItem('live-feed'),i*300);
   // Loops
