@@ -862,6 +862,10 @@ canvas{max-height:220px;}
     </div>
 
     <div class="nav-section">التحليل والتقارير</div>
+    <div class="nav-item" onclick="navigate('workflow')">
+      <span class="icon">🔄</span> مسار البلاغات
+      <span class="nav-badge" style="background:rgba(0,201,167,.25);color:var(--teal)" id="wf-nav-badge">7</span>
+    </div>
     <div class="nav-item" onclick="navigate('faults')">
       <span class="icon">🔧</span> بلاغات الأعطال
       <span class="nav-badge" style="background:rgba(255,82,82,.3);color:#FF5252" id="faults-badge">10</span>
@@ -1883,6 +1887,68 @@ canvas{max-height:220px;}
     </div>
   </div><!-- /page-faults -->
 
+  <!-- ══ PAGE: REFERRAL WORKFLOW TRACKER ══════════════════════════ -->
+  <div class="page" id="page-workflow">
+    <div class="section-header">
+      <div>
+        <h2>مسار البلاغات — Referral Pipeline</h2>
+        <p>تتبع الخطوات السبع من استلام الإيميل حتى إنهاء البلاغ</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <label style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+                      background:var(--surface2);border:1px solid var(--border);
+                      border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--teal);">
+          <input type="file" accept=".xlsx,.csv" style="display:none" onchange="handleFileUpload(this)"/>
+          📥 استيراد من Excel
+        </label>
+      </div>
+    </div>
+
+    <!-- ── مخطط الخطوات السبع ────────────────────────────────────── -->
+    <div class="card" style="margin-bottom:20px;padding:18px 24px">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:14px;letter-spacing:.5px">
+        آلية العمل — الدورة الكاملة لمعالجة الإحالة الطبية
+      </div>
+      <div id="wf-steps-banner" style="display:flex;align-items:stretch;gap:0;overflow-x:auto;padding-bottom:4px"></div>
+    </div>
+
+    <!-- ── KPI Cards ───────────────────────────────────────────── -->
+    <div class="grid-4" style="margin-bottom:20px">
+      <div class="kpi" style="--c:var(--teal)">
+        <div class="kpi-label">إجمالي البلاغات النشطة</div>
+        <div class="kpi-val" id="wf-kpi-active">—</div>
+        <div class="kpi-sub">في مراحل مختلفة</div>
+      </div>
+      <div class="kpi" style="--c:var(--amber)">
+        <div class="kpi-label">متوسط المرحلة التشغيلية</div>
+        <div class="kpi-val"><span id="wf-kpi-ops">—</span><small style="font-size:13px"> د</small></div>
+        <div class="kpi-sub">الخطوات 1 → 4</div>
+      </div>
+      <div class="kpi" style="--c:var(--teal2)">
+        <div class="kpi-label">متوسط وقت الرحلة</div>
+        <div class="kpi-val"><span id="wf-kpi-trav">—</span><small style="font-size:13px"> د</small></div>
+        <div class="kpi-sub">الخطوات 4 → 5</div>
+      </div>
+      <div class="kpi" style="--c:var(--green)">
+        <div class="kpi-label">متوسط إجمالي البلاغ</div>
+        <div class="kpi-val"><span id="wf-kpi-total">—</span><small style="font-size:13px"> د</small></div>
+        <div class="kpi-sub">الخطوة 1 → 7</div>
+      </div>
+    </div>
+
+    <!-- ── Tabs Filter ─────────────────────────────────────────── -->
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+      <button id="wftab-all"       class="btn btn-primary btn-sm"   onclick="switchWFTab('all')">الكل</button>
+      <button id="wftab-active"    class="btn btn-secondary btn-sm" onclick="switchWFTab('active')">🟡 جارية</button>
+      <button id="wftab-completed" class="btn btn-secondary btn-sm" onclick="switchWFTab('completed')">✅ مكتملة</button>
+      <button id="wftab-delayed"   class="btn btn-secondary btn-sm" onclick="switchWFTab('delayed')">🔴 متأخرة</button>
+      <span id="wf-count-badge" style="margin-right:auto;font-size:12px;color:var(--muted)"></span>
+    </div>
+
+    <!-- ── Mission Pipeline Cards ─────────────────────────────── -->
+    <div id="wf-cards-container" style="display:flex;flex-direction:column;gap:14px"></div>
+  </div><!-- /page-workflow -->
+
   <!-- ══ PAGE: SUPERVISORY REPORT ═════════════════════════════════ -->
   <div class="page" id="page-supervision">
     <div class="section-header">
@@ -2115,15 +2181,124 @@ const MISSIONS_SAMPLE = [
 const MONTHLY = [1227,1087,1207,1157,1202,1167,1191,1189,1157,1209,1185,1191];
 const MONTHS  = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 const FEED_POOL = [
-  {c:'var(--red)',   t:'مهمة طوارئ',        d:'مركز C1 — قسم القلب → H1'},
-  {c:'var(--green)', t:'مهمة مكتملة',       d:'مركز C3 — 138 دقيقة'},
-  {c:'var(--teal2)', t:'إرسال سيارة إسعاف', d:'A19 ← مريض مستقر — C2'},
-  {c:'var(--amber)', t:'تجاوز وقت الاستجابة',d:'مركز C6 — 18.2 دقيقة'},
-  {c:'var(--green)', t:'عودة للمركز',        d:'E81 — اكتملت المهمة'},
-  {c:'var(--red)',   t:'حالة إنقاذ حياة',   d:'مركز C5 — قسم الأعصاب'},
+  {c:'var(--red)',    t:'إيميل إحالة وارد',      d:'مركز العمليات — رفع بلاغ جديد #100170'},
+  {c:'var(--amber)',  t:'بلاغ مرفوع للمركز C1',  d:'قسم القلب — إنقاذ حياة — انتظار استجابة'},
+  {c:'var(--teal2)', t:'تحرك المسعف E13',         d:'C1 → مستشفى H1 — بلاغ #100165'},
+  {c:'var(--teal)',  t:'وصول للوجهة',             d:'E81 وصل مستشفى H2 — بلاغ #100162'},
+  {c:'var(--green)', t:'تحرك بالمريض',            d:'E45 تحرك من H3 — وجهة C3'},
+  {c:'var(--green)', t:'إنهاء البلاغ',            d:'E36 وصل المركز C2 — اكتمل #100158'},
+  {c:'var(--teal2)', t:'إرسال سيارة إسعاف',      d:'A19 ← مريض مستقر — C2'},
+  {c:'var(--amber)', t:'تجاوز وقت الاستجابة',    d:'مركز C6 — 18.2 دقيقة'},
+  {c:'var(--red)',   t:'حالة إنقاذ حياة',         d:'مركز C5 — قسم الأعصاب'},
 ];
 
 const recentEntries = [];
+
+// ══ REFERRAL WORKFLOW — 7-STEP PIPELINE ══════════════════════════════
+// الخطوة 1: استلام إيميل الإحالة بمركز العمليات
+// الخطوة 2: رفع البلاغ للمركز المسؤول
+// الخطوة 3: استجابة المركز للبلاغ
+// الخطوة 4: تحرك المسعف من المركز
+// الخطوة 5: وصول للوجهة (المستشفى المُحيل)
+// الخطوة 6: تحرك من الوجهة بالمريض
+// الخطوة 7: وصول المركز وإنهاء البلاغ
+const WORKFLOW_STEPS_DEF = [
+  {id:1, label:'استلام إيميل الإحالة',       icon:'📧', phase:'تشغيل'},
+  {id:2, label:'رفع البلاغ للمركز',          icon:'📋', phase:'تشغيل'},
+  {id:3, label:'استجابة المركز للبلاغ',      icon:'✅', phase:'تشغيل'},
+  {id:4, label:'تحرك المسعف من المركز',      icon:'🚑', phase:'ميداني'},
+  {id:5, label:'وصول للوجهة',               icon:'🏥', phase:'ميداني'},
+  {id:6, label:'تحرك من الوجهة بالمريض',    icon:'🔄', phase:'ميداني'},
+  {id:7, label:'وصول المركز / إنهاء البلاغ',icon:'🎯', phase:'إنهاء'},
+];
+
+// بيانات الإحالات مع مسار الخطوات السبع
+// الحالة الكلية: مكتمل | جارٍ | متأخر | ملغى
+// كل خطوة: {time:'HH:MM', done:bool, delayed:bool}
+let WORKFLOW_DATA = [
+  // ─── مكتملة ────────────────────────────────────────────────────────
+  {ref:'#100150',date:'2026-03-03',dept:'قلب',    type:'إنقاذ حياة',center:'C1',para:'E13',hospital:'H1',reason:'نقص تخصصي',
+   status:'مكتمل',currentStep:7,
+   steps:[{t:'06:05',done:true},{t:'06:08',done:true},{t:'06:13',done:true},{t:'06:17',done:true},{t:'06:52',done:true},{t:'07:09',done:true},{t:'07:48',done:true}]},
+
+  {ref:'#100151',date:'2026-03-03',dept:'أعصاب',  type:'مستقرة',   center:'C2',para:'E36',hospital:'H2',reason:'نقص معدات',
+   status:'مكتمل',currentStep:7,
+   steps:[{t:'06:30',done:true},{t:'06:34',done:true},{t:'06:40',done:true},{t:'06:44',done:true},{t:'07:10',done:true},{t:'07:28',done:true},{t:'08:05',done:true}]},
+
+  {ref:'#100152',date:'2026-03-03',dept:'أطفال',  type:'مستقرة',   center:'C5',para:'E81',hospital:'H3',reason:'كاث لاب',
+   status:'مكتمل',currentStep:7,
+   steps:[{t:'07:00',done:true},{t:'07:04',done:true},{t:'07:09',done:true},{t:'07:12',done:true},{t:'07:38',done:true},{t:'07:55',done:true},{t:'08:28',done:true}]},
+
+  {ref:'#100153',date:'2026-03-03',dept:'طوارئ',  type:'إنقاذ حياة',center:'C3',para:'E45',hospital:'H1',reason:'نقص تخصصي',
+   status:'مكتمل',currentStep:7,
+   steps:[{t:'07:20',done:true},{t:'07:23',done:true},{t:'07:29',done:true},{t:'07:33',done:true},{t:'08:12',done:true},{t:'08:30',done:true},{t:'09:08',done:true}]},
+
+  {ref:'#100154',date:'2026-03-03',dept:'رئة',    type:'مستقرة',   center:'C7',para:'E108',hospital:'H4',reason:'نقص معدات',
+   status:'مكتمل',currentStep:7,
+   steps:[{t:'07:45',done:true},{t:'07:49',done:true},{t:'07:55',done:true},{t:'07:58',done:true},{t:'08:29',done:true},{t:'08:49',done:true},{t:'09:22',done:true}]},
+
+  // ─── متأخرة (مكتملة لكن تجاوزت المعيار) ───────────────────────────
+  {ref:'#100155',date:'2026-03-03',dept:'باطنية', type:'مستقرة',   center:'C6',para:'E92',hospital:'H2',reason:'نقص تخصصي',
+   status:'متأخر',currentStep:7,
+   steps:[{t:'08:00',done:true},{t:'08:06',done:true},{t:'08:17',done:true,delayed:true},{t:'08:22',done:true},{t:'09:10',done:true,delayed:true},{t:'09:32',done:true},{t:'10:28',done:true}]},
+
+  {ref:'#100156',date:'2026-03-03',dept:'أورام',  type:'مستقرة',   center:'C4',para:'E67',hospital:'H3',reason:'كاث لاب',
+   status:'متأخر',currentStep:7,
+   steps:[{t:'08:10',done:true},{t:'08:14',done:true},{t:'08:26',done:true,delayed:true},{t:'08:31',done:true},{t:'09:24',done:true,delayed:true},{t:'09:48',done:true},{t:'10:41',done:true}]},
+
+  // ─── جارية — خطوة 5 إلى 6 ──────────────────────────────────────────
+  {ref:'#100157',date:'2026-03-03',dept:'قلب',    type:'إنقاذ حياة',center:'C2',para:'E29',hospital:'H1',reason:'نقص تخصصي',
+   status:'جارٍ',currentStep:5,
+   steps:[{t:'09:00',done:true},{t:'09:04',done:true},{t:'09:09',done:true},{t:'09:13',done:true},{t:'09:48',done:true},{t:'',done:false},{t:'',done:false}]},
+
+  {ref:'#100158',date:'2026-03-03',dept:'عظام',   type:'مستقرة',   center:'C1',para:'E18',hospital:'H2',reason:'نقص معدات',
+   status:'جارٍ',currentStep:6,
+   steps:[{t:'09:15',done:true},{t:'09:18',done:true},{t:'09:24',done:true},{t:'09:28',done:true},{t:'10:02',done:true},{t:'10:20',done:true},{t:'',done:false}]},
+
+  {ref:'#100159',date:'2026-03-03',dept:'أعصاب',  type:'إنقاذ حياة',center:'C8',para:'E33',hospital:'H1',reason:'نقص تخصصي',
+   status:'جارٍ',currentStep:4,
+   steps:[{t:'09:40',done:true},{t:'09:44',done:true},{t:'09:51',done:true},{t:'09:55',done:true},{t:'',done:false},{t:'',done:false},{t:'',done:false}]},
+
+  // ─── في مرحلة التشغيل (خطوات 1-3) ──────────────────────────────────
+  {ref:'#100160',date:'2026-03-03',dept:'طوارئ',  type:'إنقاذ حياة',center:'C5',para:'E78',hospital:'H3',reason:'كاث لاب',
+   status:'جارٍ',currentStep:3,
+   steps:[{t:'10:30',done:true},{t:'10:33',done:true},{t:'10:38',done:true},{t:'',done:false},{t:'',done:false},{t:'',done:false},{t:'',done:false}]},
+
+  {ref:'#100161',date:'2026-03-03',dept:'رئة',    type:'مستقرة',   center:'C3',para:'E55',hospital:'H4',reason:'نقص معدات',
+   status:'جارٍ',currentStep:2,
+   steps:[{t:'10:45',done:true},{t:'10:48',done:true},{t:'',done:false},{t:'',done:false},{t:'',done:false},{t:'',done:false},{t:'',done:false}]},
+
+  {ref:'#100162',date:'2026-03-03',dept:'قلب',    type:'إنقاذ حياة',center:'C6',para:'E97',hospital:'H1',reason:'نقص تخصصي',
+   status:'جارٍ',currentStep:1,
+   steps:[{t:'10:58',done:true},{t:'',done:false},{t:'',done:false},{t:'',done:false},{t:'',done:false},{t:'',done:false},{t:'',done:false}]},
+];
+
+// ── Computed KPIs from workflow
+function calcWorkflowKPIs() {
+  const done = WORKFLOW_DATA.filter(m => m.currentStep >= 7);
+  const mins = (t1, t2) => {
+    if (!t1 || !t2) return null;
+    const [h1,m1] = t1.split(':').map(Number);
+    const [h2,m2] = t2.split(':').map(Number);
+    return (h2*60+m2) - (h1*60+m1);
+  };
+  const avg = arr => arr.filter(v=>v!==null&&v>0).length
+    ? (arr.filter(v=>v!==null&&v>0).reduce((a,b)=>a+b,0) /
+       arr.filter(v=>v!==null&&v>0).length).toFixed(1)
+    : '—';
+
+  const ops   = done.map(m => mins(m.steps[0]?.t, m.steps[3]?.t));  // 1→4 (تشغيل)
+  const trav1 = done.map(m => mins(m.steps[3]?.t, m.steps[4]?.t));  // 4→5 (سفر)
+  const scene = done.map(m => mins(m.steps[4]?.t, m.steps[5]?.t));  // 5→6 (موقع)
+  const trav2 = done.map(m => mins(m.steps[5]?.t, m.steps[6]?.t));  // 6→7 (عودة)
+  const total = done.map(m => mins(m.steps[0]?.t, m.steps[6]?.t));  // 1→7 (إجمالي)
+  return {
+    ops:avg(ops), trav1:avg(trav1), scene:avg(scene), trav2:avg(trav2), total:avg(total),
+    active:    WORKFLOW_DATA.filter(m=>m.status==='جارٍ').length,
+    completed: done.length,
+    delayed:   WORKFLOW_DATA.filter(m=>m.status==='متأخر').length,
+  };
+}
 
 // ══ FAULT REPORTS DATA ═══════════════════════════════════════════════
 // النوع: طبي | ميكانيكي  |  الخطورة: حرج | عالي | متوسط | منخفض
@@ -2426,6 +2601,151 @@ function switchParaTab(tab) {
     btnList.className     = 'btn btn-secondary btn-sm';
     btnSchedule.className = 'btn btn-primary btn-sm';
   }
+}
+
+// ══ RENDER WORKFLOW — REFERRAL PIPELINE TRACKER ═══════════════════════
+function renderWorkflow(filter) {
+  filter = filter || 'all';
+
+  const kpis = calcWorkflowKPIs();
+  const setEl = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+  setEl('wf-kpi-active', kpis.active);
+  setEl('wf-kpi-ops',    kpis.ops);
+  setEl('wf-kpi-trav',   kpis.trav1);
+  setEl('wf-kpi-total',  kpis.total);
+
+  // Update nav badge
+  const navBadge = document.getElementById('wf-nav-badge');
+  if (navBadge) navBadge.textContent = WORKFLOW_DATA.filter(m => m.status === 'جارٍ').length;
+
+  // ── Banner: الخطوات السبع ─────────────────────────────────────────
+  const banner = document.getElementById('wf-steps-banner');
+  if (banner) {
+    const PHASE_BG = {تشغيل:'rgba(0,201,167,.12)', ميداني:'rgba(0,152,219,.12)', إنهاء:'rgba(48,209,88,.12)'};
+    const PHASE_C  = {تشغيل:'var(--teal)',          ميداني:'var(--teal2)',        إنهاء:'var(--green)'};
+    banner.innerHTML = WORKFLOW_STEPS_DEF.map((s, i) => `
+      <div style="flex:1;min-width:100px;display:flex;flex-direction:column;align-items:center;
+                  background:${PHASE_BG[s.phase]};
+                  border-right:${i<6?'2px dashed rgba(255,255,255,0.08)':'none'};
+                  padding:10px 6px 8px;position:relative">
+        <div style="font-size:20px;margin-bottom:4px">${s.icon}</div>
+        <div style="font-size:9px;font-weight:800;color:${PHASE_C[s.phase]};
+                    background:${PHASE_C[s.phase]}22;border-radius:20px;
+                    padding:1px 8px;margin-bottom:5px">${s.phase}</div>
+        <div style="font-size:10px;font-weight:700;text-align:center;line-height:1.4">${s.label}</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:3px">الخطوة ${s.id}</div>
+        ${i < 6 ? `<div style="position:absolute;left:-10px;top:50%;transform:translateY(-50%);
+                              font-size:16px;color:var(--border);z-index:1">→</div>` : ''}
+      </div>`).join('');
+  }
+
+  // ── Filter missions ───────────────────────────────────────────────
+  const missions = filter === 'active'    ? WORKFLOW_DATA.filter(m => m.status === 'جارٍ')
+                 : filter === 'completed' ? WORKFLOW_DATA.filter(m => m.status === 'مكتمل')
+                 : filter === 'delayed'   ? WORKFLOW_DATA.filter(m => m.status === 'متأخر')
+                 : WORKFLOW_DATA;
+
+  const countBadge = document.getElementById('wf-count-badge');
+  if (countBadge) countBadge.textContent = `${missions.length} بلاغ`;
+
+  // ── Build mission pipeline cards ──────────────────────────────────
+  const container = document.getElementById('wf-cards-container');
+  if (!container) return;
+
+  const STATUS_STYLE = {
+    'مكتمل': {bg:'rgba(48,209,88,.08)', border:'var(--green)',  chip:'chip-ok'},
+    'متأخر':  {bg:'rgba(255,82,82,.06)', border:'var(--red)',   chip:'chip-crit'},
+    'جارٍ':   {bg:'rgba(0,201,167,.06)', border:'var(--teal)', chip:'chip-info'},
+  };
+  const TYPE_CHIP = {'إنقاذ حياة':'chip-crit','مستقرة':'chip-ok'};
+
+  container.innerHTML = missions.map(m => {
+    const ss = STATUS_STYLE[m.status] || STATUS_STYLE['جارٍ'];
+    const pct = Math.round(((m.currentStep - 1) / 6) * 100);
+    const barColor = m.status==='متأخر' ? 'var(--red)' :
+                     m.status==='مكتمل' ? 'var(--green)' : 'var(--teal)';
+
+    // compute total elapsed for completed missions
+    let elapsedStr = '';
+    if (m.steps[0]?.t && m.steps[m.currentStep-1]?.t) {
+      const [h1,mi1] = m.steps[0].t.split(':').map(Number);
+      const [h2,mi2] = m.steps[m.currentStep-1].t.split(':').map(Number);
+      const diff = (h2*60+mi2) - (h1*60+mi1);
+      elapsedStr = diff + ' د';
+    }
+
+    // Step dots row
+    const stepDots = WORKFLOW_STEPS_DEF.map((s, i) => {
+      const step = m.steps[i];
+      const isDone    = step?.done;
+      const isDelayed = step?.delayed;
+      const isCurrent = (i + 1) === m.currentStep && m.status !== 'مكتمل';
+      const dotColor  = isDelayed ? 'var(--red)' : isDone ? 'var(--green)' :
+                        isCurrent ? 'var(--amber)' : 'var(--border)';
+      const dotBg     = isDelayed ? 'rgba(255,82,82,.15)' : isDone ? 'rgba(48,209,88,.15)' :
+                        isCurrent ? 'rgba(246,166,35,.15)' : 'var(--surface3)';
+      return `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;min-width:0">
+          <div style="width:28px;height:28px;border-radius:50%;
+                      border:2px solid ${dotColor};background:${dotBg};
+                      display:flex;align-items:center;justify-content:center;
+                      font-size:${isDone?'11':'13'}px;
+                      box-shadow:${isCurrent?`0 0 8px ${dotColor}50`:'none'};
+                      transition:all .3s">
+            ${isDone ? (isDelayed ? '⚠' : '✓') : isCurrent ? s.icon : '○'}
+          </div>
+          <div style="font-size:8px;text-align:center;color:${isDone?'var(--text)':'var(--muted)'};
+                      line-height:1.2;max-width:60px;overflow:hidden">${s.label}</div>
+          <div style="font-size:8px;color:${isDelayed?'var(--red)':isDone?'var(--teal)':'var(--muted)'};
+                      font-family:'JetBrains Mono',monospace">
+            ${step?.t || (isCurrent ? '⏳ الآن' : '—')}
+          </div>
+        </div>
+        ${i < 6 ? `<div style="flex:0 0 16px;align-self:flex-start;padding-top:12px;
+                                color:${isDone?'var(--green)':'var(--border)'};font-size:14px">→</div>` : ''}`;
+    }).join('');
+
+    return `
+      <div class="card" style="border-right:4px solid ${ss.border};background:${ss.bg};padding:16px 20px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+          <div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--teal);font-size:13px">${m.ref}</div>
+          <span class="chip ${TYPE_CHIP[m.type]||'chip-info'}" style="font-size:9px">${m.type}</span>
+          <span style="font-size:12px;color:var(--muted)">${m.dept} — ${m.center} / ${m.para}</span>
+          <span style="font-size:11px;color:var(--muted)">→ ${m.hospital}</span>
+          <span class="chip ${ss.chip}" style="font-size:9px;margin-right:auto">${m.status}</span>
+          ${elapsedStr ? `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">${elapsedStr}</span>` : ''}
+        </div>
+        <!-- Progress bar -->
+        <div style="background:var(--surface3);border-radius:4px;height:4px;margin-bottom:14px;overflow:hidden">
+          <div style="width:${pct}%;height:100%;background:${barColor};border-radius:4px;transition:width .4s"></div>
+        </div>
+        <!-- Step dots -->
+        <div style="display:flex;align-items:flex-start;gap:0">${stepDots}</div>
+      </div>`;
+  }).join('');
+}
+
+function switchWFTab(tab) {
+  ['all','active','completed','delayed'].forEach(t => {
+    const b = document.getElementById(`wftab-${t}`);
+    if (b) b.className = t === tab ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm';
+  });
+  renderWorkflow(tab);
+}
+
+// ── Add a new referral from the entry form to WORKFLOW_DATA ───────────
+function addWorkflowEntry(ref, dept, type, center, hospital, reason) {
+  const now = new Date();
+  const hhmm = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  WORKFLOW_DATA.unshift({
+    ref: '#' + ref, date: new Date().toISOString().split('T')[0],
+    dept, type, center, para: '—', hospital: hospital || 'H1', reason: reason || '—',
+    status: 'جارٍ', currentStep: 1,
+    steps: [{t:hhmm,done:true},{t:'',done:false},{t:'',done:false},
+            {t:'',done:false},{t:'',done:false},{t:'',done:false},{t:'',done:false}],
+  });
+  const b = document.getElementById('wf-nav-badge');
+  if (b) b.textContent = WORKFLOW_DATA.filter(m => m.status==='جارٍ').length;
 }
 
 // ══ RENDER FAULT REPORTS ══════════════════════════════════════════════
@@ -2732,7 +3052,8 @@ const PAGE_LABELS = {
   centers:'المراكز', paramedics:'المسعفون',
   reports:'التقارير', alerts:'التنبيهات', settings:'الإعدادات',
   impact:'🚀 محاكاة الأثر', kpidefs:'📐 تعريفات KPI', predictions:'🔮 التنبؤ الذكي',
-  faults:'🔧 بلاغات الأعطال', supervision:'📋 التقرير الإشرافي'
+  faults:'🔧 بلاغات الأعطال', supervision:'📋 التقرير الإشرافي',
+  workflow:'🔄 مسار البلاغات — Referral Pipeline'
 };
 
 function navigate(page) {
@@ -2753,6 +3074,7 @@ function navigate(page) {
   if(page==='predictions') renderPredictions();
   if(page==='faults')      renderFaults();
   if(page==='supervision') renderSupervision();
+  if(page==='workflow')    renderWorkflow();
 }
 
 // Hash-based routing — navigate directly via URL
@@ -2784,13 +3106,18 @@ function showToast(msg, type='info') {
 
 // ══ FORM SUBMIT ═══════════════════════════════════════════════
 function submitMission() {
-  const ref = document.getElementById('f-ref').value || String(Math.floor(Math.random()*90000)+100100);
-  const dept = document.getElementById('f-dept').value;
-  const type = document.getElementById('f-type').value;
-  if(!ref){showToast('الرجاء إدخال رقم الإحالة','error');return;}
+  const ref      = document.getElementById('f-ref').value      || String(Math.floor(Math.random()*90000)+100100);
+  const dept     = document.getElementById('f-dept').value;
+  const type     = document.getElementById('f-type').value;
+  const center   = document.getElementById('f-center').value   || 'C1';
+  const hospital = document.getElementById('f-hospital').value || 'H1';
+  const reason   = document.getElementById('f-reason').value   || '—';
+  if (!ref) { showToast('الرجاء إدخال رقم الإحالة','error'); return; }
   recentEntries.push({ref, dept, type});
   renderRecentEntries();
-  showToast(`تم حفظ المهمة #${ref} بنجاح ✅`,'success');
+  // ── الخطوة 1: تسجيل استلام إيميل الإحالة في مسار البلاغات ──────
+  addWorkflowEntry(ref, dept, type, center, hospital, reason);
+  showToast(`✅ تم حفظ الإحالة #${ref} — الخطوة 1: استلام الإيميل مسجّل في مسار البلاغات`, 'success');
   document.getElementById('missionForm').reset();
 }
 
@@ -3169,6 +3496,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderReportsHistory();
   renderFaults();
   renderSupervision();
+  renderWorkflow();
   // Initial feed
   for(let i=0;i<5;i++) setTimeout(()=>addFeedItem('live-feed'),i*300);
   // Loops
