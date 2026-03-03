@@ -1252,7 +1252,7 @@ canvas{max-height:220px;}
     <!-- ══ PAGE: PARAMEDICS ════════════════════════════════════ -->
     <div class="page" id="page-paramedics">
       <div class="section-header">
-        <div><h2>المسعفون</h2><p>219 مسعف نشط</p></div>
+        <div><h2>المسعفون</h2><p>219 مسعف نشط | جدول الورديات والتواجد الفعلي</p></div>
       </div>
       <div class="grid-4" style="margin-bottom:20px">
         <div class="kpi" style="--c:var(--teal)">
@@ -1261,29 +1261,45 @@ canvas{max-height:220px;}
           <div class="kpi-sub">موزعون على 20 مركز</div>
         </div>
         <div class="kpi" style="--c:var(--green)">
-          <div class="kpi-label">متاحون الآن</div>
-          <div class="kpi-val" id="para-available">53</div>
-          <div class="kpi-sub">جاهزون للانتشار</div>
+          <div class="kpi-label">مجدولون اليوم</div>
+          <div class="kpi-val" id="para-scheduled">—</div>
+          <div class="kpi-sub">المطلوب حضورهم</div>
         </div>
         <div class="kpi" style="--c:var(--amber)">
-          <div class="kpi-label">في مهمة</div>
-          <div class="kpi-val" id="para-onmission">29</div>
-          <div class="kpi-sub">منتشرون حالياً</div>
+          <div class="kpi-label">متاحون / في مهمة</div>
+          <div class="kpi-val" id="para-available">—</div>
+          <div class="kpi-sub">الحضور الفعلي الآن</div>
         </div>
         <div class="kpi" style="--c:var(--red)">
-          <div class="kpi-label">استراحة / غير متاح</div>
-          <div class="kpi-val">6</div>
-          <div class="kpi-sub">خارج الخدمة</div>
+          <div class="kpi-label">غائبون مجدولون</div>
+          <div class="kpi-val" id="para-absent">—</div>
+          <div class="kpi-sub">مجدولون ولم يحضروا</div>
         </div>
       </div>
-      <div class="card">
-        <table class="tbl">
-          <thead><tr>
-            <th>المسعف</th><th>المركز</th><th>المهام</th><th>متوسط الاستجابة</th>
-            <th>معدل الأداء</th><th>حالات الطوارئ</th><th>الحالة</th>
-          </tr></thead>
-          <tbody id="paramedics-body"></tbody>
-        </table>
+
+      <!-- تبويبات: قائمة المسعفين / جدول الورديات -->
+      <div style="display:flex;gap:10px;margin-bottom:16px;">
+        <button id="tab-btn-list" class="btn btn-primary btn-sm" onclick="switchParaTab('list')">قائمة المسعفين</button>
+        <button id="tab-btn-schedule" class="btn btn-secondary btn-sm" onclick="switchParaTab('schedule')">جدول الورديات</button>
+      </div>
+
+      <!-- قائمة المسعفين -->
+      <div id="para-tab-list">
+        <div class="card">
+          <table class="tbl">
+            <thead><tr>
+              <th>المسعف</th><th>المركز</th><th>الوردية</th><th>المهام</th>
+              <th>متوسط الاستجابة</th><th>معدل الأداء</th><th>حالات الطوارئ</th>
+              <th>مجدول اليوم</th><th>الحالة</th>
+            </tr></thead>
+            <tbody id="paramedics-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- جدول الورديات -->
+      <div id="para-tab-schedule" style="display:none;">
+        <div id="schedule-content"></div>
       </div>
     </div>
 
@@ -1860,27 +1876,29 @@ const CENTERS_DATA = [
 ];
 
 // مسعفون — بيانات حقيقية من ملف الإكسل (88 مسعف، متوسط 161 مهمة/مسعف)
+// الحقول: shift=الوردية المخصصة، scheduledToday=مجدول للحضور اليوم، status=الحالة الفعلية
+// الحالات: متاح | في مهمة | استراحة | غائب (مجدول لكنه غير موجود)
 const PARAMEDICS_DATA = [
-  {id:'E36', center:'C2',  missions:178, resp:64.3, good:4.5, emergency:32, status:'في مهمة'},
-  {id:'E81', center:'C5',  missions:165, resp:63.8, good:5.1, emergency:28, status:'متاح'},
-  {id:'E13', center:'C1',  missions:161, resp:64.6, good:4.8, emergency:31, status:'متاح'},
-  {id:'E21', center:'C1',  missions:158, resp:65.0, good:4.2, emergency:29, status:'في مهمة'},
-  {id:'E45', center:'C3',  missions:153, resp:63.4, good:5.3, emergency:25, status:'استراحة'},
-  {id:'E67', center:'C4',  missions:148, resp:63.6, good:4.9, emergency:27, status:'متاح'},
-  {id:'E92', center:'C6',  missions:142, resp:64.8, good:3.8, emergency:34, status:'في مهمة'},
-  {id:'E18', center:'C1',  missions:139, resp:64.1, good:4.7, emergency:30, status:'متاح'},
-  {id:'E55', center:'C3',  missions:135, resp:63.9, good:5.0, emergency:26, status:'متاح'},
-  {id:'E73', center:'C4',  missions:132, resp:64.2, good:4.4, emergency:28, status:'استراحة'},
-  {id:'E29', center:'C2',  missions:129, resp:63.7, good:5.2, emergency:24, status:'متاح'},
-  {id:'E108',center:'C7',  missions:125, resp:67.2, good:3.5, emergency:33, status:'في مهمة'},
-  {id:'E85', center:'C5',  missions:122, resp:63.5, good:5.4, emergency:25, status:'متاح'},
-  {id:'E190',center:'C15', missions:118, resp:65.8, good:3.2, emergency:35, status:'متاح'},
-  {id:'E41', center:'C3',  missions:115, resp:63.3, good:5.6, emergency:23, status:'في مهمة'},
-  {id:'E62', center:'C4',  missions:112, resp:63.9, good:4.6, emergency:27, status:'متاح'},
-  {id:'E97', center:'C6',  missions:108, resp:64.5, good:3.9, emergency:32, status:'استراحة'},
-  {id:'E33', center:'C2',  missions:105, resp:64.0, good:5.1, emergency:26, status:'متاح'},
-  {id:'E78', center:'C5',  missions:102, resp:63.6, good:5.3, emergency:24, status:'في مهمة'},
-  {id:'E150',center:'C9',  missions: 98, resp:65.4, good:3.7, emergency:31, status:'متاح'},
+  {id:'E36',  center:'C2',  missions:178, resp:64.3, good:4.5, emergency:32, shift:'صباحي',  scheduledToday:true,  status:'في مهمة'},
+  {id:'E81',  center:'C5',  missions:165, resp:63.8, good:5.1, emergency:28, shift:'مسائي',  scheduledToday:true,  status:'متاح'},
+  {id:'E13',  center:'C1',  missions:161, resp:64.6, good:4.8, emergency:31, shift:'صباحي',  scheduledToday:true,  status:'متاح'},
+  {id:'E21',  center:'C1',  missions:158, resp:65.0, good:4.2, emergency:29, shift:'صباحي',  scheduledToday:true,  status:'في مهمة'},
+  {id:'E45',  center:'C3',  missions:153, resp:63.4, good:5.3, emergency:25, shift:'ليلي',   scheduledToday:false, status:'استراحة'},
+  {id:'E67',  center:'C4',  missions:148, resp:63.6, good:4.9, emergency:27, shift:'مسائي',  scheduledToday:true,  status:'متاح'},
+  {id:'E92',  center:'C6',  missions:142, resp:64.8, good:3.8, emergency:34, shift:'صباحي',  scheduledToday:true,  status:'في مهمة'},
+  {id:'E18',  center:'C1',  missions:139, resp:64.1, good:4.7, emergency:30, shift:'مسائي',  scheduledToday:true,  status:'متاح'},
+  {id:'E55',  center:'C3',  missions:135, resp:63.9, good:5.0, emergency:26, shift:'صباحي',  scheduledToday:true,  status:'متاح'},
+  {id:'E73',  center:'C4',  missions:132, resp:64.2, good:4.4, emergency:28, shift:'ليلي',   scheduledToday:true,  status:'غائب'},
+  {id:'E29',  center:'C2',  missions:129, resp:63.7, good:5.2, emergency:24, shift:'مسائي',  scheduledToday:true,  status:'متاح'},
+  {id:'E108', center:'C7',  missions:125, resp:67.2, good:3.5, emergency:33, shift:'ليلي',   scheduledToday:true,  status:'في مهمة'},
+  {id:'E85',  center:'C5',  missions:122, resp:63.5, good:5.4, emergency:25, shift:'صباحي',  scheduledToday:true,  status:'متاح'},
+  {id:'E190', center:'C15', missions:118, resp:65.8, good:3.2, emergency:35, shift:'مسائي',  scheduledToday:true,  status:'متاح'},
+  {id:'E41',  center:'C3',  missions:115, resp:63.3, good:5.6, emergency:23, shift:'مسائي',  scheduledToday:false, status:'استراحة'},
+  {id:'E62',  center:'C4',  missions:112, resp:63.9, good:4.6, emergency:27, shift:'صباحي',  scheduledToday:true,  status:'متاح'},
+  {id:'E97',  center:'C6',  missions:108, resp:64.5, good:3.9, emergency:32, shift:'ليلي',   scheduledToday:true,  status:'غائب'},
+  {id:'E33',  center:'C2',  missions:105, resp:64.0, good:5.1, emergency:26, shift:'صباحي',  scheduledToday:true,  status:'متاح'},
+  {id:'E78',  center:'C5',  missions:102, resp:63.6, good:5.3, emergency:24, shift:'ليلي',   scheduledToday:true,  status:'في مهمة'},
+  {id:'E150', center:'C9',  missions: 98, resp:65.4, good:3.7, emergency:31, shift:'مسائي',  scheduledToday:true,  status:'متاح'},
 ];
 
 // مهام حقيقية من ملف الإكسل (ديسمبر 2025)
@@ -2002,20 +2020,164 @@ function renderCentersProgress() {
 }
 
 function renderParamedics() {
+  // حساب إحصائيات الحضور
+  const scheduled = PARAMEDICS_DATA.filter(p => p.scheduledToday);
+  const present   = PARAMEDICS_DATA.filter(p => p.scheduledToday && (p.status === 'متاح' || p.status === 'في مهمة'));
+  const absent    = PARAMEDICS_DATA.filter(p => p.scheduledToday && p.status === 'غائب');
+
+  const elSched = document.getElementById('para-scheduled');
+  const elAvail = document.getElementById('para-available');
+  const elAbsent= document.getElementById('para-absent');
+  if (elSched)  elSched.textContent  = scheduled.length;
+  if (elAvail)  elAvail.textContent  = present.length;
+  if (elAbsent) elAbsent.textContent = absent.length;
+
+  // رسم جدول المسعفين
   const tbody = document.getElementById('paramedics-body');
-  tbody.innerHTML = PARAMEDICS_DATA.map(p=>{
-    const sc = p.status==='متاح'?'chip-ok':p.status==='في مهمة'?'chip-warn':'chip-info';
+  tbody.innerHTML = PARAMEDICS_DATA.map(p => {
+    const sc = p.status === 'متاح'     ? 'chip-ok'
+             : p.status === 'في مهمة'  ? 'chip-warn'
+             : p.status === 'غائب'     ? 'chip-crit'
+             : 'chip-info';
     const respColor = p.resp > 65 ? 'var(--red)' : p.resp > 63 ? 'var(--amber)' : 'var(--green)';
-    return `<tr>
+    const shiftIcon = p.shift === 'صباحي' ? '🌅' : p.shift === 'مسائي' ? '🌆' : '🌙';
+    const scheduledChip = p.scheduledToday
+      ? '<span class="chip chip-ok" style="font-size:10px">مجدول</span>'
+      : '<span class="chip chip-info" style="font-size:10px">إجازة</span>';
+    return `<tr style="${p.status === 'غائب' ? 'background:rgba(255,82,82,0.06);' : ''}">
       <td><strong>${p.id}</strong></td>
       <td>${p.center}</td>
+      <td>${shiftIcon} ${p.shift}</td>
       <td>${p.missions}</td>
       <td style="font-family:'JetBrains Mono',monospace;color:${respColor}">${p.resp} د</td>
       <td style="color:var(--amber)">${p.good}%</td>
       <td>${p.emergency}</td>
+      <td>${scheduledChip}</td>
       <td><span class="chip ${sc}">${p.status}</span></td>
     </tr>`;
   }).join('');
+
+  // رسم جدول الورديات
+  renderSchedule();
+}
+
+// ══ جدول الورديات: عرض المسعفين المجدولين لكل مركز ووردية ══════════
+function renderSchedule() {
+  const container = document.getElementById('schedule-content');
+  if (!container) return;
+
+  const shifts = ['صباحي', 'مسائي', 'ليلي'];
+  const shiftIcons = { 'صباحي': '🌅', 'مسائي': '🌆', 'ليلي': '🌙' };
+  const shiftTimes = { 'صباحي': '07:00 – 15:00', 'مسائي': '15:00 – 23:00', 'ليلي': '23:00 – 07:00' };
+
+  // تجميع المسعفين حسب المركز
+  const byCenter = {};
+  PARAMEDICS_DATA.forEach(p => {
+    if (!byCenter[p.center]) byCenter[p.center] = [];
+    byCenter[p.center].push(p);
+  });
+
+  // إحصائيات إجمالية لكل وردية
+  const shiftStats = {};
+  shifts.forEach(s => {
+    const all     = PARAMEDICS_DATA.filter(p => p.shift === s);
+    const sched   = all.filter(p => p.scheduledToday);
+    const present = sched.filter(p => p.status === 'متاح' || p.status === 'في مهمة');
+    const absent  = sched.filter(p => p.status === 'غائب');
+    shiftStats[s] = { total: all.length, scheduled: sched.length, present: present.length, absent: absent.length };
+  });
+
+  // بطاقات إحصائية للورديات
+  const summaryHtml = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px">
+      ${shifts.map(s => {
+        const st = shiftStats[s];
+        const absentWarn = st.absent > 0 ? `<div style="margin-top:8px;padding:6px 10px;background:rgba(255,82,82,0.12);border-radius:8px;font-size:11px;color:var(--red)">⚠️ ${st.absent} غائب مجدول</div>` : '';
+        return `<div class="card" style="border-top:3px solid var(--teal);padding:16px 18px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <span style="font-size:22px">${shiftIcons[s]}</span>
+            <div>
+              <div style="font-weight:700;font-size:14px">الوردية ${s}</div>
+              <div style="font-size:11px;color:var(--muted)">${shiftTimes[s]}</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
+            <div style="background:var(--surface3);border-radius:8px;padding:8px 4px">
+              <div style="font-size:18px;font-weight:800;color:var(--teal)">${st.scheduled}</div>
+              <div style="font-size:10px;color:var(--muted)">مجدولون</div>
+            </div>
+            <div style="background:var(--surface3);border-radius:8px;padding:8px 4px">
+              <div style="font-size:18px;font-weight:800;color:var(--green)">${st.present}</div>
+              <div style="font-size:10px;color:var(--muted)">حاضرون</div>
+            </div>
+            <div style="background:var(--surface3);border-radius:8px;padding:8px 4px">
+              <div style="font-size:18px;font-weight:800;color:${st.absent > 0 ? 'var(--red)' : 'var(--muted)'}">${st.absent}</div>
+              <div style="font-size:10px;color:var(--muted)">غائبون</div>
+            </div>
+          </div>
+          ${absentWarn}
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  // جدول الورديات لكل مركز
+  const centerCards = Object.keys(byCenter).sort().map(centerId => {
+    const paramedics = byCenter[centerId];
+    const shiftRows = shifts.map(s => {
+      const inShift = paramedics.filter(p => p.shift === s);
+      if (inShift.length === 0) return '';
+      const cells = inShift.map(p => {
+        const isAbsent = p.scheduledToday && p.status === 'غائب';
+        const isOff    = !p.scheduledToday;
+        const statusColor = p.status === 'متاح'    ? 'var(--green)'
+                          : p.status === 'في مهمة' ? 'var(--amber)'
+                          : p.status === 'غائب'    ? 'var(--red)'
+                          : 'var(--muted)';
+        const bg = isAbsent ? 'rgba(255,82,82,0.12)' : isOff ? 'rgba(94,115,145,0.08)' : 'var(--surface3)';
+        const border = isAbsent ? '1px solid rgba(255,82,82,0.4)' : '1px solid var(--border)';
+        return `<div style="background:${bg};border:${border};border-radius:10px;padding:8px 10px;min-width:90px;text-align:center">
+          <div style="font-weight:700;font-size:12px;color:var(--text)">${p.id}</div>
+          <div style="font-size:10px;color:${statusColor};margin-top:3px">${isOff ? 'إجازة' : p.status}</div>
+          ${isAbsent ? '<div style="font-size:9px;color:var(--red);margin-top:2px">⚠️ غائب مجدول</div>' : ''}
+        </div>`;
+      }).join('');
+      return `<div style="margin-bottom:12px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:600">${shiftIcons[s]} وردية ${s} — ${shiftTimes[s]}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">${cells}</div>
+      </div>`;
+    }).filter(r => r).join('');
+
+    const centerAbsent = paramedics.filter(p => p.scheduledToday && p.status === 'غائب').length;
+    const headerColor  = centerAbsent > 0 ? 'var(--red)' : 'var(--teal)';
+    return `<div class="card" style="margin-bottom:14px;border-right:3px solid ${headerColor}">
+      <div class="card-header" style="margin-bottom:14px">
+        <span class="card-title">مركز ${centerId}</span>
+        ${centerAbsent > 0 ? `<span class="card-tag" style="background:rgba(255,82,82,0.15);color:var(--red)">⚠️ ${centerAbsent} غائب</span>` : '<span class="card-tag tag-live">جميع المجدولين حاضرون ✅</span>'}
+      </div>
+      ${shiftRows}
+    </div>`;
+  }).join('');
+
+  container.innerHTML = summaryHtml + centerCards;
+}
+
+// ══ تبديل بين تبويبات صفحة المسعفين ════════════════════════════════
+function switchParaTab(tab) {
+  const tabList     = document.getElementById('para-tab-list');
+  const tabSchedule = document.getElementById('para-tab-schedule');
+  const btnList     = document.getElementById('tab-btn-list');
+  const btnSchedule = document.getElementById('tab-btn-schedule');
+  if (tab === 'list') {
+    tabList.style.display     = '';
+    tabSchedule.style.display = 'none';
+    btnList.className     = 'btn btn-primary btn-sm';
+    btnSchedule.className = 'btn btn-secondary btn-sm';
+  } else {
+    tabList.style.display     = 'none';
+    tabSchedule.style.display = '';
+    btnList.className     = 'btn btn-secondary btn-sm';
+    btnSchedule.className = 'btn btn-primary btn-sm';
+  }
 }
 
 function renderMissions() {
