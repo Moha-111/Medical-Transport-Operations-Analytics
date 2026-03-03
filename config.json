@@ -1,0 +1,8 @@
+{
+  "openai_api_key": "YOUR_OPENAI_KEY_HERE",
+  "excel_path": "Medical-Transport-Analytics.xlsx",
+  "report_output": "wasl_report.html",
+  "data_json": "data.json",
+  "openai_model": "gpt-4o",
+  "email_to": ""
+}

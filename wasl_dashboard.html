@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>وصل — Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0C1120; color: #EDF0F7; font-family: 'Segoe UI', Arial, sans-serif; direction: rtl; min-height: 100vh; }
+
+  /* Nav */
+  nav { background: #060A14; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(0,201,167,.2); position: sticky; top: 0; z-index: 100; }
+  .brand { color: #00C9A7; font-size: 20px; font-weight: 800; letter-spacing: 1px; }
+  .nav-meta { color: #5E7391; font-size: 12px; text-align: left; }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #30D158; margin-left: 6px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* Layout */
+  .container { max-width: 1280px; margin: 0 auto; padding: 28px 24px; }
+
+  /* KPI Grid */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .kpi-card { background: #141B2D; border-radius: 14px; padding: 22px 24px; border: 1px solid rgba(255,255,255,.06); transition: transform .2s; }
+  .kpi-card:hover { transform: translateY(-2px); }
+  .kpi-val { font-size: 32px; font-weight: 800; margin-bottom: 6px; }
+  .kpi-lbl { font-size: 12px; color: #5E7391; text-transform: uppercase; letter-spacing: .5px; }
+
+  /* Charts Grid */
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .chart-card { background: #141B2D; border-radius: 14px; padding: 24px; border: 1px solid rgba(255,255,255,.06); }
+  .chart-card h3 { font-size: 15px; color: #A0AEC0; margin-bottom: 18px; font-weight: 700; }
+
+  /* Table */
+  .table-card { background: #141B2D; border-radius: 14px; padding: 24px; border: 1px solid rgba(255,255,255,.06); margin-bottom: 24px; }
+  .table-card h3 { font-size: 15px; color: #A0AEC0; margin-bottom: 18px; font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { padding: 10px 14px; color: #5E7391; font-weight: 600; text-align: right; border-bottom: 1px solid rgba(255,255,255,.06); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
+  td { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,.04); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,.02); }
+
+  /* AI Panel */
+  .ai-card { background: linear-gradient(135deg, #0f2027, #141B2D); border-radius: 14px; padding: 28px; border: 1px solid rgba(0,201,167,.2); margin-bottom: 24px; }
+  .ai-card h3 { font-size: 16px; color: #00C9A7; margin-bottom: 16px; font-weight: 800; }
+  .ai-text { color: #CBD5E0; font-size: 14px; line-height: 2; white-space: pre-wrap; }
+
+  /* Btn */
+  .btn { background: #00C9A7; color: #060A14; border: none; padding: 10px 24px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity .2s; }
+  .btn:hover { opacity: .85; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* Badge */
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .badge-green { background: rgba(48,209,88,.15); color: #30D158; }
+  .badge-yellow { background: rgba(246,166,35,.15); color: #F6A623; }
+  .badge-red { background: rgba(255,59,48,.15); color: #FF3B30; }
+
+  /* Loading */
+  .loading { text-align: center; padding: 60px; color: #5E7391; }
+  .spinner { width: 40px; height: 40px; border: 3px solid rgba(0,201,167,.2); border-top-color: #00C9A7; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 16px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* No data */
+  .no-data { text-align: center; padding: 60px 24px; color: #5E7391; }
+  .no-data h2 { color: #EDF0F7; margin-bottom: 12px; }
+  .no-data code { background: #0C1120; padding: 4px 10px; border-radius: 6px; color: #00C9A7; font-size: 13px; }
+
+  @media (max-width: 768px) {
+    .kpi-grid { grid-template-columns: repeat(2,1fr); }
+    .charts-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">وصل • WASL</div>
+  <div class="nav-meta">
+    <span class="status-dot"></span>
+    <span id="nav-updated">جارٍ التحميل...</span>
+    <span style="margin-right:12px;color:#3a4a60;">|</span>
+    <span>يتحدث كل 30 ثانية</span>
+  </div>
+</nav>
+
+<div class="container">
+
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <p>جارٍ تحميل البيانات...</p>
+  </div>
+
+  <div id="no-data" class="no-data" style="display:none;">
+    <h2>لا توجد بيانات بعد</h2>
+    <p style="margin-bottom:20px;">شغّل أولاً:</p>
+    <code>python wasl_ai_analyzer.py</code>
+    <p style="margin-top:12px;font-size:12px;">ثم أعد فتح هذه الصفحة</p>
+  </div>
+
+  <div id="dashboard" style="display:none;">
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-val" style="color:#00C9A7;" id="kpi-total">—</div>
+        <div class="kpi-lbl">إجمالي العمليات</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val" style="color:#F6A623;" id="kpi-response">—</div>
+        <div class="kpi-lbl">متوسط الاستجابة (دقيقة)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val" style="color:#30D158;" id="kpi-paramedics">—</div>
+        <div class="kpi-lbl">المسعفون</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val" style="color:#0098DB;" id="kpi-centers">—</div>
+        <div class="kpi-lbl">المراكز النشطة</div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>📊 توزيع العمليات الشهري</h3>
+        <canvas id="chart-monthly" height="200"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>🏥 أداء المراكز — متوسط الاستجابة</h3>
+        <canvas id="chart-centers" height="200"></canvas>
+      </div>
+    </div>
+
+    <!-- Centers Table -->
+    <div class="table-card">
+      <h3>📍 تفاصيل أداء المراكز</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>المركز</th>
+            <th>المهام</th>
+            <th>متوسط الاستجابة</th>
+            <th>المسعفون</th>
+            <th>التقييم</th>
+          </tr>
+        </thead>
+        <tbody id="centers-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- Top Paramedics -->
+    <div class="table-card">
+      <h3>🏅 أفضل المسعفين</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>المسعف</th>
+            <th>عدد المهام</th>
+            <th>متوسط الاستجابة</th>
+          </tr>
+        </thead>
+        <tbody id="para-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- AI Analysis -->
+    <div class="ai-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h3 style="margin:0;">🤖 التحليل الذكي</h3>
+        <button class="btn" id="btn-open-report">📄 فتح التقرير الكامل</button>
+      </div>
+      <div class="ai-text" id="ai-text">—</div>
+    </div>
+
+    <p style="text-align:center;color:#3a4a60;font-size:11px;padding-bottom:20px;">
+      آخر تحديث: <span id="last-updated">—</span>
+    </p>
+
+  </div>
+</div>
+
+<script>
+let chartMonthly = null;
+let chartCenters = null;
+
+const MONTHS_AR = {
+  "1":"يناير","2":"فبراير","3":"مارس","4":"أبريل",
+  "5":"مايو","6":"يونيو","7":"يوليو","8":"أغسطس",
+  "9":"سبتمبر","10":"أكتوبر","11":"نوفمبر","12":"ديسمبر"
+};
+
+function badge(rt) {
+  if (rt <= 30) return '<span class="badge badge-green">✅ ممتاز</span>';
+  if (rt <= 60) return '<span class="badge badge-green">✅ جيد</span>';
+  if (rt <= 90) return '<span class="badge badge-yellow">⚠ مراجعة</span>';
+  return '<span class="badge badge-red">🚨 حرج</span>';
+}
+
+function num(n) {
+  return Number(n).toLocaleString('ar-SA');
+}
+
+function renderCharts(data) {
+  // Monthly chart
+  const mLabels = Object.keys(data.monthly_distribution).map(k => MONTHS_AR[k] || k);
+  const mValues = Object.values(data.monthly_distribution);
+
+  if (chartMonthly) chartMonthly.destroy();
+  chartMonthly = new Chart(document.getElementById('chart-monthly'), {
+    type: 'bar',
+    data: {
+      labels: mLabels,
+      datasets: [{
+        label: 'عدد العمليات',
+        data: mValues,
+        backgroundColor: 'rgba(0,201,167,0.7)',
+        borderColor: '#00C9A7',
+        borderWidth: 1,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#5E7391', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,.04)' } },
+        y: { ticks: { color: '#5E7391' }, grid: { color: 'rgba(255,255,255,.04)' } }
+      }
+    }
+  });
+
+  // Centers chart
+  const cLabels = data.centers.map(c => c.name);
+  const cValues = data.centers.map(c => c.avg_response);
+  const cColors = cValues.map(v => v <= 60 ? 'rgba(48,209,88,0.7)' : v <= 90 ? 'rgba(246,166,35,0.7)' : 'rgba(255,59,48,0.7)');
+
+  if (chartCenters) chartCenters.destroy();
+  chartCenters = new Chart(document.getElementById('chart-centers'), {
+    type: 'bar',
+    data: {
+      labels: cLabels,
+      datasets: [{
+        label: 'متوسط الاستجابة (دقيقة)',
+        data: cValues,
+        backgroundColor: cColors,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#5E7391' }, grid: { color: 'rgba(255,255,255,.04)' } },
+        y: { ticks: { color: '#5E7391' }, grid: { color: 'rgba(255,255,255,.04)' } }
+      }
+    }
+  });
+}
+
+function render(data) {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('no-data').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+
+  // KPIs
+  document.getElementById('kpi-total').textContent = num(data.total_operations);
+  document.getElementById('kpi-response').textContent = data.avg_response_min;
+  document.getElementById('kpi-paramedics').textContent = data.total_paramedics;
+  document.getElementById('kpi-centers').textContent = data.total_centers;
+
+  // Centers table
+  const ctBody = document.getElementById('centers-tbody');
+  ctBody.innerHTML = data.centers.map(c => `
+    <tr>
+      <td style="font-weight:700;">${c.name}</td>
+      <td>${num(c.tasks)}</td>
+      <td>${c.avg_response} د</td>
+      <td>${c.paramedics_count}</td>
+      <td>${badge(c.avg_response)}</td>
+    </tr>`).join('');
+
+  // Paramedics table
+  const pBody = document.getElementById('para-tbody');
+  pBody.innerHTML = data.top_paramedics.slice(0,8).map((p, i) => `
+    <tr>
+      <td style="color:#5E7391;">${i+1}</td>
+      <td style="font-weight:700;">${p.id}</td>
+      <td>${num(p.tasks)}</td>
+      <td>${p.avg_response} د</td>
+    </tr>`).join('');
+
+  // AI
+  document.getElementById('ai-text').textContent = data.ai_analysis || 'لا يوجد تحليل بعد. شغّل wasl_ai_analyzer.py أولاً.';
+
+  // Meta
+  const ts = data.generated_at || '—';
+  document.getElementById('last-updated').textContent = ts;
+  document.getElementById('nav-updated').textContent = 'آخر تحديث: ' + ts;
+
+  renderCharts(data);
+}
+
+async function loadData() {
+  try {
+    const resp = await fetch('data.json?t=' + Date.now());
+    if (!resp.ok) throw new Error('not found');
+    const data = await resp.json();
+    render(data);
+  } catch(e) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('no-data').style.display = 'block';
+  }
+}
+
+// Open full report
+document.getElementById('btn-open-report').addEventListener('click', () => {
+  window.open('wasl_report.html', '_blank');
+});
+
+// Load on start then every 30s
+loadData();
+setInterval(loadData, 30000);
+</script>
+</body>
+</html>
