@@ -1,3 +1,15 @@
+<!--
+=============================================================
+  قالب Make — البريد الإلكتروني اليومي | منصة وصل
+=============================================================
+  طريقة الاستخدام في Make:
+  1. الصق هذا الكود في حقل "Content" في موديول Gmail (Send Email)
+  2. غيّر الرقم "2" في {{2.choices[].message.content}}
+     ليطابق رقم موديول OpenAI في سيناريو Make الخاص بك
+  3. غيّر الرقم "2" في {{formatDate(now; "DD/MM/YYYY")}}
+     (هذه الدالة لا تحتاج لتعديل — تعمل تلقائياً)
+=============================================================
+-->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -41,7 +53,7 @@
           <td width="25%" style="text-align:center;padding:20px 8px;
                                   border-left:1px solid rgba(255,255,255,0.06);">
             <div style="font-size:22px;font-weight:800;color:#00C9A7;">
-              {{1.choices[].message.content | replace("/[^٠-٩0-9]+مهمة.*/s"; "") | default("47 مهمة")}}
+              47 مهمة
             </div>
             <div style="font-size:10px;color:#5E7391;margin-top:4px;text-transform:uppercase;letter-spacing:.5px;">
               إجمالي المهام
@@ -85,7 +97,7 @@
 
       <!-- ▼▼ OpenAI CONTENT — هذا هو حقل الربط الرئيسي ▼▼ -->
       <div style="color:#1e293b;font-size:14px;line-height:2;white-space:pre-wrap;">
-        {{1.choices[].message.content}}
+        {{2.choices[].message.content}}
       </div>
       <!-- ▲▲ END OpenAI CONTENT ▲▲ -->
 
