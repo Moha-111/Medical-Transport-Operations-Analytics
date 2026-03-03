@@ -864,11 +864,11 @@ canvas{max-height:220px;}
     <div class="nav-section">التحليل والتقارير</div>
     <div class="nav-item" onclick="navigate('workflow')">
       <span class="icon">🔄</span> مسار البلاغات
-      <span class="nav-badge" style="background:rgba(0,201,167,.25);color:var(--teal)" id="wf-nav-badge">7</span>
+      <span class="nav-badge" style="background:rgba(0,201,167,.25);color:var(--teal)" id="wf-nav-badge">—</span>
     </div>
     <div class="nav-item" onclick="navigate('faults')">
       <span class="icon">🔧</span> بلاغات الأعطال
-      <span class="nav-badge" style="background:rgba(255,82,82,.3);color:#FF5252" id="faults-badge">10</span>
+      <span class="nav-badge" style="background:rgba(255,82,82,.3);color:#FF5252" id="faults-badge">—</span>
     </div>
     <div class="nav-item" onclick="navigate('supervision')">
       <span class="icon">📋</span> التقرير الإشرافي
@@ -2275,17 +2275,22 @@ let WORKFLOW_DATA = [
 
 // ── Computed KPIs from workflow
 function calcWorkflowKPIs() {
-  const done = WORKFLOW_DATA.filter(m => m.currentStep >= 7);
+  let done = [], active = 0, delayed = 0;
+  for (const m of WORKFLOW_DATA) {
+    if (m.currentStep >= 7) done.push(m);
+    if (m.status === 'جارٍ')   active++;
+    if (m.status === 'متأخر')  delayed++;
+  }
   const mins = (t1, t2) => {
     if (!t1 || !t2) return null;
     const [h1,m1] = t1.split(':').map(Number);
     const [h2,m2] = t2.split(':').map(Number);
     return (h2*60+m2) - (h1*60+m1);
   };
-  const avg = arr => arr.filter(v=>v!==null&&v>0).length
-    ? (arr.filter(v=>v!==null&&v>0).reduce((a,b)=>a+b,0) /
-       arr.filter(v=>v!==null&&v>0).length).toFixed(1)
-    : '—';
+  const avg = arr => {
+    const valid = arr.filter(v => v !== null && v > 0);
+    return valid.length ? (valid.reduce((a,b) => a+b, 0) / valid.length).toFixed(1) : '—';
+  };
 
   const ops   = done.map(m => mins(m.steps[0]?.t, m.steps[3]?.t));  // 1→4 (تشغيل)
   const trav1 = done.map(m => mins(m.steps[3]?.t, m.steps[4]?.t));  // 4→5 (سفر)
@@ -2294,9 +2299,7 @@ function calcWorkflowKPIs() {
   const total = done.map(m => mins(m.steps[0]?.t, m.steps[6]?.t));  // 1→7 (إجمالي)
   return {
     ops:avg(ops), trav1:avg(trav1), scene:avg(scene), trav2:avg(trav2), total:avg(total),
-    active:    WORKFLOW_DATA.filter(m=>m.status==='جارٍ').length,
-    completed: done.length,
-    delayed:   WORKFLOW_DATA.filter(m=>m.status==='متأخر').length,
+    active, completed: done.length, delayed,
   };
 }
 
@@ -2608,19 +2611,17 @@ function renderWorkflow(filter) {
   filter = filter || 'all';
 
   const kpis = calcWorkflowKPIs();
-  const setEl = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
   setEl('wf-kpi-active', kpis.active);
   setEl('wf-kpi-ops',    kpis.ops);
   setEl('wf-kpi-trav',   kpis.trav1);
   setEl('wf-kpi-total',  kpis.total);
 
   // Update nav badge
-  const navBadge = document.getElementById('wf-nav-badge');
-  if (navBadge) navBadge.textContent = WORKFLOW_DATA.filter(m => m.status === 'جارٍ').length;
+  setEl('wf-nav-badge', kpis.active);
 
-  // ── Banner: الخطوات السبع ─────────────────────────────────────────
+  // ── Banner: الخطوات السبع (built once — static content) ──────────
   const banner = document.getElementById('wf-steps-banner');
-  if (banner) {
+  if (banner && !banner.dataset.rendered) {
     const PHASE_BG = {تشغيل:'rgba(0,201,167,.12)', ميداني:'rgba(0,152,219,.12)', إنهاء:'rgba(48,209,88,.12)'};
     const PHASE_C  = {تشغيل:'var(--teal)',          ميداني:'var(--teal2)',        إنهاء:'var(--green)'};
     banner.innerHTML = WORKFLOW_STEPS_DEF.map((s, i) => `
@@ -2637,6 +2638,7 @@ function renderWorkflow(filter) {
         ${i < 6 ? `<div style="position:absolute;left:-10px;top:50%;transform:translateY(-50%);
                               font-size:16px;color:var(--border);z-index:1">→</div>` : ''}
       </div>`).join('');
+    banner.dataset.rendered = '1';
   }
 
   // ── Filter missions ───────────────────────────────────────────────
@@ -2744,8 +2746,8 @@ function addWorkflowEntry(ref, dept, type, center, hospital, reason) {
     steps: [{t:hhmm,done:true},{t:'',done:false},{t:'',done:false},
             {t:'',done:false},{t:'',done:false},{t:'',done:false},{t:'',done:false}],
   });
-  const b = document.getElementById('wf-nav-badge');
-  if (b) b.textContent = WORKFLOW_DATA.filter(m => m.status==='جارٍ').length;
+  setEl('wf-nav-badge', WORKFLOW_DATA.filter(m => m.status==='جارٍ').length);
+  if (document.getElementById('page-workflow')?.classList.contains('active')) renderWorkflow();
 }
 
 // ══ RENDER FAULT REPORTS ══════════════════════════════════════════════
@@ -2757,7 +2759,6 @@ function renderFaults(filter) {
   const medical  = FAULTS_DATA.filter(f => f.type === 'طبي');
   const mech     = FAULTS_DATA.filter(f => f.type === 'ميكانيكي');
 
-  const setEl = (id, v) => { const e = document.getElementById(id); if(e) e.textContent = v; };
   setEl('faults-open',     open.length);
   setEl('faults-critical', critical.length);
   setEl('faults-medical',  medical.length);
@@ -2812,7 +2813,6 @@ function renderSupervision() {
   const d = SUPERVISION_DATA;
 
   // KPI section (already static in HTML, but update from data)
-  const setEl = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
   setEl('supv-missions',  d.kpis[0]?.val || '47');
   setEl('supv-resp',      d.kpis[1]?.val || '64.3 د');
   setEl('supv-late',      d.kpis[2]?.val || '95.3%');
@@ -2842,11 +2842,14 @@ function renderSupervision() {
   // Fault summary
   const faultsEl = document.getElementById('supv-faults-content');
   if (faultsEl) {
-    const fOpen  = FAULTS_DATA.filter(f => f.status==='مفتوح').length;
-    const fInPr  = FAULTS_DATA.filter(f => f.status==='قيد التنفيذ').length;
-    const fCrit  = FAULTS_DATA.filter(f => f.sev==='حرج').length;
-    const fMed   = FAULTS_DATA.filter(f => f.type==='طبي').length;
-    const fMec   = FAULTS_DATA.filter(f => f.type==='ميكانيكي').length;
+    let fOpen=0, fInPr=0, fCrit=0, fMed=0, fMec=0;
+    for (const f of FAULTS_DATA) {
+      if (f.status==='مفتوح')       fOpen++;
+      if (f.status==='قيد التنفيذ') fInPr++;
+      if (f.sev==='حرج')            fCrit++;
+      if (f.type==='طبي')           fMed++;
+      if (f.type==='ميكانيكي')      fMec++;
+    }
     const tag    = document.getElementById('supv-faults-tag');
     if (tag) tag.textContent = `${fOpen + fInPr} مفتوح`;
     faultsEl.innerHTML = [
@@ -3045,6 +3048,9 @@ function updateReportCountdown() {
   if(el) el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
+// ══ GLOBAL DOM HELPERS ════════════════════════════════════════
+const setEl = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+
 // ══ NAVIGATION ═══════════════════════════════════════════════
 const PAGE_LABELS = {
   dashboard:'لوحة التحكم', live:'المراقبة اللحظية',
@@ -3057,10 +3063,10 @@ const PAGE_LABELS = {
 };
 
 function navigate(page) {
+  const pageEl = document.getElementById('page-'+page);
+  if (!pageEl) { if (page !== 'dashboard') navigate('dashboard'); return; }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  const pageEl = document.getElementById('page-'+page);
-  if (!pageEl) return;
   pageEl.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>{
     if(n.getAttribute('onclick')?.includes(`'${page}'`)) n.classList.add('active');
@@ -3335,9 +3341,12 @@ function importSupervisionSheet(sheet) {
       }
       count++;
     }
-    // Update staff attendance data
+    // Update staff attendance data; derive present from scheduled - absent
     if (metric === 'مسعفون_مجدولون') SUPERVISION_DATA.staff.scheduled = parseInt(val) || SUPERVISION_DATA.staff.scheduled;
     if (metric === 'مسعفون_غائبون')  SUPERVISION_DATA.staff.absent    = parseInt(val) || SUPERVISION_DATA.staff.absent;
+    if (metric === 'مسعفون_مجدولون' || metric === 'مسعفون_غائبون') {
+      SUPERVISION_DATA.staff.present = SUPERVISION_DATA.staff.scheduled - SUPERVISION_DATA.staff.absent;
+    }
   }
 
   if (count > 0) {
