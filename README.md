@@ -178,16 +178,38 @@ C02          1103          15.8       97.4
 ```
 🚑 Wasl Integrated Platform
 │
-├── 📊  Main Dashboard        → KPIs + Charts + Center Performance
-├── 📡  Live Monitoring       → Updates every 5s + Live Event Log
-├── 🗂️  Mission Registry      → 14,169 missions + Search & Filter
-├── ➕  Data Entry            → Manual form + Excel Import
-├── 🏢  Center Management     → 20 centers + Progress Bars
-├── 👨‍⚕️ Paramedic Management  → 219 paramedics + Individual Status
-├── 📄  Auto Reports          → PDF generation + Make.com scheduling
-├── 🔔  Alert System          → Instant alerts when KPI thresholds exceeded
-└── ⚙️  Settings              → KPI limits + Make.com Webhook config
+├── 📊  Main Dashboard            → KPIs + Charts + Center Performance
+├── 📡  Live Monitoring           → Updates every 5s + Live Event Log
+├── 🗂️  Mission Registry          → 14,169 missions + Search & Filter
+├── ➕  Data Entry                → Manual form + Excel Import
+├── 🏢  Center Management         → 20 centers + Progress Bars
+├── 👨‍⚕️ Paramedic Management      → 219 paramedics + Individual Status
+├── 🔄  مسار البلاغات            → 7-Step Referral Pipeline Tracker ★ NEW
+├── 🔧  Fault Reports             → Medical & Mechanical fault tracking ★ NEW
+├── 📋  Supervisory Report        → Daily supervisory report dashboard ★ NEW
+├── 📄  Auto Reports              → PDF generation + Make.com scheduling
+├── 🔔  Alert System              → Instant alerts when KPI thresholds exceeded
+├── 🚀  Impact Simulation         → Before/after Wasl ROI calculator
+├── 🔮  Predictive Analytics      → WMA + seasonal forecasting
+├── 📐  KPI Definitions           → Full KPI library with formulas
+└── ⚙️  Settings                  → KPI limits + Make.com Webhook config
 ```
+
+### 🔄 7-Step Referral Pipeline — آلية العمل الرسمية
+
+> **Wasl enforces the official medical transport policy workflow end-to-end:**
+
+| الخطوة | المرحلة | الوصف |
+|--------|---------|-------|
+| **① 📧** | تشغيل | **استلام إيميل الإحالة** — مركز العمليات يستقبل بلاغ الإحالة |
+| **② 📋** | تشغيل | **رفع البلاغ للمركز** — المركز المسؤول يستلم البلاغ |
+| **③ ✅** | تشغيل | **استجابة المركز** — تأكيد الاستجابة والتعامل مع الإحالة |
+| **④ 🚑** | ميداني | **تحرك المسعف** — المسعف المستلم يتحرك من المركز |
+| **⑤ 🏥** | ميداني | **وصول للوجهة** — وصول المسعف للمستشفى المُحيل |
+| **⑥ 🔄** | ميداني | **تحرك بالمريض** — مغادرة الوجهة مع المريض |
+| **⑦ 🎯** | إنهاء  | **وصول المركز / إنهاء البلاغ** — اكتمال المهمة |
+
+Each referral is tracked in real-time with per-step timestamps, delay flags, and phase KPIs (operational / field / completion).
 
 ### Role-Based Access
 
@@ -522,13 +544,51 @@ AI Reports Live     Collect Feedback     Prove Value          10+ Clients
 
 ## 📂 Data & Templates
 
-[![Raw Data](https://img.shields.io/badge/Raw%20Data-Google%20Sheets-34A853?style=for-the-badge&logo=googlesheets&logoColor=white)](https://docs.google.com/spreadsheets/d/1lFtHLgycKMlTFfpC4YbL_Dsvn2ZprOJARc1imcIBF0g/edit?usp=sharing)
-[![Templates](https://img.shields.io/badge/Field%20Templates-Google%20Sheets-34A853?style=for-the-badge&logo=googlesheets&logoColor=white)](https://docs.google.com/spreadsheets/d/1-ZUjvnIdeTTqLc3Z-nyYd8Csftds2e6l/edit?usp=sharing)
+[![Raw Data](https://img.shields.io/badge/📊%20البيانات%20الخام-Google%20Sheets-34A853?style=for-the-badge&logo=googlesheets&logoColor=white)](https://docs.google.com/spreadsheets/d/1lFtHLgycKMlTFfpC4YbL_Dsvn2ZprOJARc1imcIBF0g/edit?usp=sharing)
+[![Templates](https://img.shields.io/badge/📋%20نماذج%20الميدان-Google%20Sheets-34A853?style=for-the-badge&logo=googlesheets&logoColor=white)](https://docs.google.com/spreadsheets/d/1-ZUjvnIdeTTqLc3Z-nyYd8Csftds2e6l/edit?usp=sharing)
+[![Excel File](https://img.shields.io/badge/📥%20ملف%20Excel%20الكامل-Download-217346?style=for-the-badge&logo=microsoftexcel&logoColor=white)](./Medical-Transport-Analytics.xlsx)
+
+### 📊 ملف Excel الكامل — `Medical-Transport-Analytics.xlsx`
+
+الملف يحتوي على **12 شيت** تغطي جميع جوانب العمليات:
+
+| الشيت | المحتوى | الأعمدة / السجلات | الجديد |
+|-------|---------|-------------------|--------|
+| 📋 **Executive Summary** | ملخص تنفيذي + KPIs رئيسية | — | — |
+| 👨‍⚕️ **Employee Schedules** | جداول المسعفين (219 موظف) | الاسم، المركز، الوردية، الحالة | — |
+| 🔧 **Fault Reports** | **بلاغات الأعطال الطبية والميكانيكية** | 11 عمود × 20 بلاغ | ★ جديد |
+| 📋 **Supervisory Report** | **التقرير الإشرافي اليومي الشامل** | KPIs + مراكز + توصيات + توقيع | ★ جديد |
+| 🔄 **Referral Workflow** | **مسار البلاغات — 7 خطوات** | 15 عمود × 13 إحالة + KPIs | ★ جديد |
+| 📊 **Daily Operations Data** | 14,169 مهمة تشغيلية | 25 عمود × 14,169 سجل | — |
+| 📈 **KPI Dashboard** | مؤشرات الأداء الشاملة | — | — |
+| 🏢 **Center Performance** | أداء 20 مركز | الاستجابة، التأخير، المهام | — |
+| 🏥 **Hospital Analysis** | تحليل المستشفيات المستقبِلة | توزيع الحالات، H1–H4 | — |
+| 👨‍⚕️ **Paramedic Performance** | أداء المسعفين الفردي | 219 مسعف × مؤشرات | — |
+| 🚑 **Ambulance Utilization** | استخدام أسطول الإسعاف | نسبة الانتشار، الصيانة | — |
+| ⏱️ **Time Analysis** | تحليل الأوقات والذروة | توزيع ساعي، ذروة الطلب | — |
+
+### 🔗 الملفات الخام — Raw Data Links
 
 | الملف | الوصف | الرابط |
 |-------|-------|--------|
-| 📊 **البيانات الخام** | 14,169 مهمة نقل × 25 متغير | [فتح في Google Sheets](https://docs.google.com/spreadsheets/d/1lFtHLgycKMlTFfpC4YbL_Dsvn2ZprOJARc1imcIBF0g/edit?usp=sharing) |
-| 📋 **نماذج الميدان** | بلاغ المسعف + تشيك الإسعاف + تسليم الوردية | [فتح في Google Sheets](https://docs.google.com/spreadsheets/d/1-ZUjvnIdeTTqLc3Z-nyYd8Csftds2e6l/edit?usp=sharing) |
+| 📊 **البيانات الخام (14,169 مهمة)** | قاعدة البيانات الكاملة × 25 متغير | [فتح في Google Sheets](https://docs.google.com/spreadsheets/d/1lFtHLgycKMlTFfpC4YbL_Dsvn2ZprOJARc1imcIBF0g/edit?usp=sharing) |
+| 📋 **نماذج الميدان** | بلاغ المسعف + تشيك الإسعاف + تسليم الوردية + مسار البلاغات | [فتح في Google Sheets](https://docs.google.com/spreadsheets/d/1-ZUjvnIdeTTqLc3Z-nyYd8Csftds2e6l/edit?usp=sharing) |
+| 🔄 **مسار البلاغات (7 خطوات)** | قالب تتبع الإحالات من الإيميل حتى الإنهاء | شيت **Referral Workflow** في [ملف Excel](./Medical-Transport-Analytics.xlsx) |
+| 🔧 **بلاغات الأعطال** | نموذج بلاغات الأعطال الطبية والميكانيكية | شيت **Fault Reports** في [ملف Excel](./Medical-Transport-Analytics.xlsx) |
+| 📋 **التقرير الإشرافي** | نموذج التقرير اليومي الجاهز للطباعة | شيت **Supervisory Report** في [ملف Excel](./Medical-Transport-Analytics.xlsx) |
+
+### 🔄 كيفية استيراد البيانات إلى لوحة التحكم
+
+```
+1. افتح لوحة التحكم → أي صفحة تحتوي زر "📥 استيراد من Excel"
+2. ارفع ملف Medical-Transport-Analytics.xlsx
+3. النظام يحلل تلقائياً 4 شيتات:
+   ✅ Employee Schedules  → تحديث جداول المسعفين
+   ✅ Fault Reports       → تحديث صفحة بلاغات الأعطال
+   ✅ Supervisory Report  → تحديث التقرير الإشرافي
+   ✅ Daily Operations    → إعادة حساب جميع KPIs
+4. تُعاد رسم لوحة التحكم فور اكتمال الاستيراد
+```
 
 ---
 
