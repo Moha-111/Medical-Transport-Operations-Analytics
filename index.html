@@ -6,6 +6,7 @@
 <title>وصل | نظام إدارة نقل المرضى</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 <style>
 :root {
   --bg:        #060A14;
@@ -1277,10 +1278,23 @@ canvas{max-height:220px;}
         </div>
       </div>
 
-      <!-- تبويبات: قائمة المسعفين / جدول الورديات -->
-      <div style="display:flex;gap:10px;margin-bottom:16px;">
+      <!-- تبويبات: قائمة المسعفين / جدول الورديات + زر استيراد Excel -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
         <button id="tab-btn-list" class="btn btn-primary btn-sm" onclick="switchParaTab('list')">قائمة المسعفين</button>
         <button id="tab-btn-schedule" class="btn btn-secondary btn-sm" onclick="switchParaTab('schedule')">جدول الورديات</button>
+        <div style="margin-right:auto;display:flex;align-items:center;gap:8px;">
+          <label style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+                        background:var(--surface2);border:1px solid var(--border);
+                        border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;
+                        color:var(--teal);transition:background .2s;"
+                 title="استيراد جدول الموظفين من ملف Excel">
+            <input type="file" accept=".xlsx,.csv" style="display:none"
+                   onchange="handleFileUpload(this)"/>
+            📥 استيراد من Excel
+          </label>
+          <span id="schedule-source-tag" style="display:none"
+                class="card-tag tag-live" style="font-size:10px">من Excel</span>
+        </div>
       </div>
 
       <!-- قائمة المسعفين -->
@@ -2382,18 +2396,154 @@ function submitMission() {
   document.getElementById('missionForm').reset();
 }
 
+// ══ FILE IMPORT — reads xlsx/csv and wires schedule sheet to dashboard ══
 function handleFileUpload(input) {
   const f = input.files[0];
-  if(f) {
-    document.getElementById('upload-status').textContent = `✅ تم رفع: ${f.name}`;
-    showToast(`جارٍ استيراد ${f.name} ...`,'info');
-    setTimeout(()=>showToast('تم استيراد 47 مهمة بنجاح ✅','success'),1800);
-  }
+  if (f) processUploadedFile(f);
 }
 function handleDrop(e) {
   e.preventDefault();
   const f = e.dataTransfer.files[0];
-  if(f){document.getElementById('upload-status').textContent=`✅ ${f.name}`;showToast('جارٍ معالجة الملف...','info');}
+  if (f) processUploadedFile(f);
+}
+
+function processUploadedFile(file) {
+  const statusEl = document.getElementById('upload-status');
+  statusEl.textContent = `⏳ جارٍ قراءة: ${file.name}`;
+  showToast(`جارٍ استيراد ${file.name} ...`, 'info');
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data    = new Uint8Array(e.target.result);
+      const wb      = XLSX.read(data, { type: 'array' });
+      let   results = [];
+
+      // ── 1. Parse Employee Schedules sheet ─────────────────────────
+      const SCHED_SHEET = 'Employee Schedules';
+      if (wb.SheetNames.includes(SCHED_SHEET)) {
+        const rows = importScheduleSheet(wb.Sheets[SCHED_SHEET]);
+        if (rows > 0) results.push(`جدول الموظفين: ${rows} مسعف`);
+      }
+
+      // ── 2. Parse Daily Operations Data sheet ──────────────────────
+      const OPS_SHEET = 'Daily Operations Data';
+      if (wb.SheetNames.includes(OPS_SHEET)) {
+        const csv     = XLSX.utils.sheet_to_csv(wb.Sheets[OPS_SHEET]);
+        const parsed  = parseCSV(csv);
+        if (parsed.length > 0) {
+          const kpis = calcKPIs(parsed);
+          SYNC.currKPIs = kpis;
+          renderDashboard(kpis);
+          results.push(`بيانات التشغيل: ${parsed.length.toLocaleString('ar')} مهمة`);
+        }
+      }
+
+      if (results.length === 0) {
+        // Fallback: try plain CSV
+        const text   = new TextDecoder('utf-8').decode(data);
+        const parsed = parseCSV(text);
+        if (parsed.length > 0) {
+          const kpis = calcKPIs(parsed);
+          SYNC.currKPIs = kpis;
+          renderDashboard(kpis);
+          results.push(`بيانات CSV: ${parsed.length.toLocaleString('ar')} سجل`);
+        }
+      }
+
+      const summary = results.length
+        ? results.join(' | ')
+        : 'تحقق من تنسيق الملف';
+      statusEl.textContent = `✅ تم الاستيراد: ${file.name}`;
+      showToast(`✅ ${summary}`, 'success');
+    } catch(err) {
+      statusEl.textContent = `❌ خطأ: ${err.message}`;
+      showToast('❌ تعذّر قراءة الملف — تحقق من التنسيق', 'error');
+      console.error('File import error:', err);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ── Parse the "Employee Schedules" sheet → update PARAMEDICS_DATA ────
+function importScheduleSheet(sheet) {
+  const rows   = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+  let   count  = 0;
+  let   inData = false;
+  const DAYS   = ['mon','tue','wed','thu','fri','sat','sun'];
+
+  for (const row of rows) {
+    const marker = String(row[0] || '').trim();
+    // Detect machine-readable data block header
+    if (marker === '##SCHED##' && String(row[1]||'').toLowerCase() === 'id') {
+      inData = true;
+      continue;
+    }
+    if (!inData) continue;
+    if (marker !== '##SCHED##') continue;   // only data rows
+
+    const pid    = String(row[1] || '').trim();
+    const center = String(row[2] || '').trim();
+    const shift  = String(row[3] || '').trim();
+    const sched  = String(row[4] || '').trim() === 'true';
+    const status = String(row[5] || '').trim();
+    const weekly = DAYS.map((_, i) => String(row[6 + i] || '0') === '1');
+
+    // Find existing paramedic and update, or add new entry
+    const idx = PARAMEDICS_DATA.findIndex(p => p.id === pid);
+    const entry = {
+      id: pid, center, shift, scheduledToday: sched, status,
+      _weekly: weekly,
+      missions: idx >= 0 ? PARAMEDICS_DATA[idx].missions : 0,
+      resp:     idx >= 0 ? PARAMEDICS_DATA[idx].resp     : 0,
+      good:     idx >= 0 ? PARAMEDICS_DATA[idx].good     : 0,
+      emergency:idx >= 0 ? PARAMEDICS_DATA[idx].emergency: 0,
+    };
+    if (idx >= 0) {
+      PARAMEDICS_DATA[idx] = entry;
+    } else {
+      PARAMEDICS_DATA.push(entry);
+    }
+    count++;
+  }
+
+  if (count > 0) {
+    // Show "from Excel" source tag
+    const tag = document.getElementById('schedule-source-tag');
+    if (tag) tag.style.display = '';
+    // Re-render paramedics page with freshly imported schedule
+    renderParamedics();
+    // Show schedule import banner
+    showScheduleImportBanner(count);
+  }
+  return count;
+}
+
+// ── Banner shown after a successful schedule import ───────────────────
+function showScheduleImportBanner(count) {
+  const banner = document.createElement('div');
+  banner.id = 'schedule-import-banner';
+  banner.style.cssText = [
+    'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);',
+    'background:linear-gradient(135deg,rgba(0,201,167,.2),rgba(0,152,219,.15));',
+    'border:1px solid rgba(0,201,167,.4);border-radius:14px;',
+    'padding:14px 24px;display:flex;align-items:center;gap:14px;',
+    'z-index:9990;max-width:460px;box-shadow:0 8px 32px rgba(0,0,0,.4);',
+    'animation:fadeIn .3s ease;'
+  ].join('');
+  banner.innerHTML = `
+    <span style="font-size:26px">📋</span>
+    <div>
+      <div style="font-weight:800;font-size:13px;color:var(--teal)">تم استيراد جدول الموظفين</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">${count} مسعف — البيانات محدّثة من ملف Excel</div>
+    </div>
+    <button onclick="document.getElementById('schedule-import-banner').remove();showPage('paramedics')"
+      class="btn btn-primary btn-sm" style="flex-shrink:0">عرض الجدول</button>
+    <button onclick="document.getElementById('schedule-import-banner').remove()"
+      style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:0">✕</button>
+  `;
+  document.body.appendChild(banner);
+  setTimeout(() => banner?.remove(), 8000);
 }
 
 // ══ WEBHOOK TEST ══════════════════════════════════════════════
