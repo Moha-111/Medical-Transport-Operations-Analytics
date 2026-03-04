@@ -78,6 +78,14 @@ describe('trendSlope', () => {
     const arr = [0, 0, 1, 2, 3, 4, 5, 6, 7]; // last 7: [1,2,3,4,5,6,7]
     expect(trendSlope(arr)).toBeCloseTo(1, 10);
   });
+
+  test('returns 0 for a single-element array (no division by zero)', () => {
+    expect(trendSlope([42])).toBe(0);
+  });
+
+  test('returns 0 for an empty array', () => {
+    expect(trendSlope([])).toBe(0);
+  });
 });
 
 // ── predict ───────────────────────────────────────────────────────────────────
