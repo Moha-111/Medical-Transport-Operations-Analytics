@@ -59,17 +59,17 @@ This project demonstrates how **no-code/AI-first** development can produce enter
 
 ## 🎯 The Problem
 
-Patient transport networks face 3 critical blind spots:
+## 🚨 Operational Challenges
+
+Medical transport operations involve coordination between EMS centers, ambulances, and hospitals.
+
+However, several operational gaps exist:
 
 | Challenge | Impact |
 |-----------|--------|
-| No unified performance visibility across centers | Reactive, not proactive management |
-| Manual reports taking days to produce | Delayed decision-making |
-| No benchmark for paramedic and vehicle efficiency | Inability to identify improvement areas |
-
-**Wasl solves all three — and now sends automated AI reports every morning.**
-
----
+| Lack of unified operational visibility | Difficult decision making |
+| Manual reporting processes | Delayed insights |
+| Limited fleet readiness monitoring | Operational inefficiencies |
 
 ## 🖥️ Live Demo
 
