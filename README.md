@@ -2,11 +2,11 @@
 
 ![header](https://capsule-render.vercel.app/api?type=waving&color=00C9A7,0098DB&height=200&section=header&text=Wasl%20|%20وصل&fontsize=42&fontColor=ffffff&fontAlignY=38&desc=Smart%20Patient%20Transfer%20Operations%20Platform&descSize=16&descAlignY=58&animation=fadeIn)
 
-# 🚑 Wasl (وصل) — Patient Transfer Intelligence Platform
+## ⚡ TL;DR
 
-### *Connecting Patients. Empowering Centers. Saving Lives.*
-
-<br/>
+Wasl is an AI-powered EMS operations intelligence platform 
+that transforms medical transport data into real-time operational 
+insights and automated daily reports for healthcare leaders.
 
 [![Records](https://img.shields.io/badge/Records-14%2C169%20Missions-1B3A6B?style=for-the-badge&logo=database&logoColor=white)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
 [![Centers](https://img.shields.io/badge/Centers-20%20Active-00C9A7?style=for-the-badge&logo=building&logoColor=white)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
