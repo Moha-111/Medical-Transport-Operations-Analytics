@@ -7,7 +7,17 @@
 Wasl is an AI-powered EMS operations intelligence platform 
 that transforms medical transport data into real-time operational 
 insights and automated daily reports for healthcare leaders.
+## 🧠 Executive Dashboard Story
 
+In medical transport operations, hundreds of missions are executed daily between EMS centers and hospitals.
+
+However, operational data is often scattered across multiple reports and systems, making it difficult for decision-makers to quickly understand system performance.
+
+Wasl transforms this operational data into a real-time operational intelligence dashboard.
+
+Through the platform, operations leaders can monitor EMS center performance, response times, fleet readiness, and mission distribution.
+
+In addition, the platform automatically generates AI-powered operational reports to support faster and more informed decision-making.
 [![Records](https://img.shields.io/badge/Records-14%2C169%20Missions-1B3A6B?style=for-the-badge&logo=database&logoColor=white)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
 [![Centers](https://img.shields.io/badge/Centers-20%20Active-00C9A7?style=for-the-badge&logo=building&logoColor=white)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
 [![Staff](https://img.shields.io/badge/Paramedics-219%20Field%20Staff-E67E22?style=for-the-badge&logo=person&logoColor=white)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
