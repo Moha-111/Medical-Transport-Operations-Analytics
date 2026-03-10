@@ -232,6 +232,117 @@ function deserialiseCFG(raw, syncState) {
   }
 }
 
+// ── Crisis & Disaster Management ──────────────────────────────────────────────
+
+/**
+ * Classify a single mission row into a triage priority level.
+ * P1 = highest urgency (life-saving AND delayed), P4 = lowest.
+ * @param {Object} row - A parsed mission row from parseCSV()
+ * @returns {'P1'|'P2'|'P3'|'P4'}
+ */
+function classifyIncident(row) {
+  const sv = (row.Severity || row.severity || '').toLowerCase();
+  const st = (row.Status   || row.status   || '').toLowerCase();
+  const isLifeSaving = sv.includes('life') || sv.includes('saving');
+  const isLate       = st.includes('late');
+  if (isLifeSaving && isLate)  return 'P1'; // critical & delayed
+  if (isLifeSaving)            return 'P2'; // critical & on time
+  if (isLate)                  return 'P3'; // routine & delayed
+  return 'P4';                              // routine & on time
+}
+
+/**
+ * Measure how much current demand exceeds a historical baseline.
+ * @param {Object} currKPIs     - Current KPI result from calcKPIs()
+ * @param {Object} baselineKPIs - Baseline (e.g. 30-day average) KPI result
+ * @returns {{ demandRatio: number, responseDegradation: number, surgeLevel: string }|null}
+ */
+function calcSurge(currKPIs, baselineKPIs) {
+  if (!currKPIs || !baselineKPIs) return null;
+  const demandRatio          = baselineKPIs.n       > 0 ? +(currKPIs.n       / baselineKPIs.n).toFixed(2)       : 1;
+  const responseDegradation  = baselineKPIs.avgResp > 0 ? +(currKPIs.avgResp / baselineKPIs.avgResp).toFixed(2) : 1;
+  let surgeLevel;
+  if      (demandRatio >= 2.0 || responseDegradation >= 2.0) surgeLevel = 'disaster';
+  else if (demandRatio >= 1.5 || responseDegradation >= 1.5) surgeLevel = 'critical';
+  else if (demandRatio >= 1.2 || responseDegradation >= 1.2) surgeLevel = 'elevated';
+  else                                                        surgeLevel = 'normal';
+  return { demandRatio, responseDegradation, surgeLevel };
+}
+
+/**
+ * Distribute available response units across centers weighted by need.
+ * Weight = mission volume × (1 + late-rate as fraction).
+ * @param {Object[]} centers    - centers array from calcKPIs() result
+ * @param {number}   totalUnits - Total available units to distribute
+ * @returns {Object[]} Array of { id, allocated } sorted by allocation desc
+ */
+function allocateResources(centers, totalUnits) {
+  if (!centers || centers.length === 0 || totalUnits <= 0) return [];
+  const weighted    = centers.map(c => ({ id: c.id, weight: c.missions * (1 + c.late / 100) }));
+  const totalWeight = weighted.reduce((s, c) => s + c.weight, 0);
+  return weighted
+    .map(c => ({
+      id:        c.id,
+      allocated: totalWeight > 0 ? Math.round((c.weight / totalWeight) * totalUnits) : 0,
+    }))
+    .sort((a, b) => b.allocated - a.allocated);
+}
+
+/**
+ * Compute a composite 0–100 crisis severity score from current KPIs vs thresholds.
+ * Score 0 = all within threshold; 100 = all at 2× threshold or worse.
+ * @param {Object} kpis       - KPI result from calcKPIs()
+ * @param {Object} thresholds - { resp, late, missionsMax }
+ * @returns {{ score: number, level: 'normal'|'elevated'|'high'|'disaster' }}
+ */
+function crisisScore(kpis, thresholds) {
+  if (!kpis) return { score: 0, level: 'normal' };
+  const respOverage = Math.max(0, (kpis.avgResp        - thresholds.resp)        / thresholds.resp);
+  const lateOverage = Math.max(0, (kpis.lateRate       - thresholds.late)        / thresholds.late);
+  const msnOverage  = Math.max(0, (kpis.n / 365        - thresholds.missionsMax) / thresholds.missionsMax);
+  const raw   = respOverage * 40 + lateOverage * 40 + msnOverage * 20;
+  const score = Math.round(Math.max(0, Math.min(100, raw)));
+  let level;
+  if      (score >= 75) level = 'disaster';
+  else if (score >= 50) level = 'high';
+  else if (score >= 25) level = 'elevated';
+  else                  level = 'normal';
+  return { score, level };
+}
+
+/**
+ * Detect a Mass Casualty Incident (MCI) from aggregated KPIs.
+ * Returns a score 0–100 and the specific triggers that fired.
+ * @param {Object} kpis       - KPI result from calcKPIs()
+ * @param {Object} thresholds - { resp, late, missionsMax }
+ * @returns {{ isMCI: boolean, score: number, triggers: Object[] }}
+ */
+function detectMCI(kpis, thresholds) {
+  if (!kpis) return { isMCI: false, score: 0, triggers: [] };
+  const triggers = [];
+  let score = 0;
+
+  if (kpis.avgResp > thresholds.resp * 2) {
+    triggers.push({ code: 'RESP_CRITICAL', label: 'وقت استجابة بالغ الخطورة', val: kpis.avgResp });
+    score += 30;
+  }
+  if (kpis.lifeSavePct > 40) {
+    triggers.push({ code: 'HIGH_LIFESAVE', label: 'نسبة إنقاذ حياة مرتفعة', val: kpis.lifeSavePct });
+    score += 30;
+  }
+  const breachedCenters = (kpis.centers || []).filter(c => c.late > thresholds.late + 1.5);
+  if (breachedCenters.length >= 3) {
+    triggers.push({ code: 'MULTI_CENTER', label: 'تجاوز متعدد المراكز', val: breachedCenters.length });
+    score += 25;
+  }
+  if (kpis.n / 365 > thresholds.missionsMax * 1.5) {
+    triggers.push({ code: 'SURGE', label: 'ارتفاع حاد في المهام', val: +(kpis.n / 365).toFixed(1) });
+    score += 15;
+  }
+
+  return { isMCI: score >= 50, score: Math.min(100, score), triggers };
+}
+
 module.exports = {
   parseCSV,
   calcKPIs,
@@ -241,4 +352,9 @@ module.exports = {
   predict,
   serialiseCFG,
   deserialiseCFG,
+  classifyIncident,
+  calcSurge,
+  allocateResources,
+  crisisScore,
+  detectMCI,
 };
