@@ -13,22 +13,20 @@ from collections import defaultdict
 try:
     import openpyxl
 except ImportError:
-    print("جارٍ تثبيت openpyxl...")
-    os.system(f"{sys.executable} -m pip install openpyxl -q")
-    import openpyxl
+    sys.exit("❌ openpyxl غير مثبت. قم بتشغيل: pip install -r requirements.txt")
 
 try:
     from openai import OpenAI
 except ImportError:
-    print("جارٍ تثبيت openai...")
-    os.system(f"{sys.executable} -m pip install openai -q")
-    from openai import OpenAI
+    sys.exit("❌ openai غير مثبت. قم بتشغيل: pip install -r requirements.txt")
 
 
 # ── إعدادات ────────────────────────────────────────────────────────────────
 
 def load_config():
     config_path = os.path.join(os.path.dirname(__file__), "config.json")
+    if not os.path.exists(config_path):
+        sys.exit("❌ config.json غير موجود. انسخ config.example.json إلى config.json وعدّل القيم.")
     with open(config_path, "r", encoding="utf-8") as f:
         return json.load(f)
 

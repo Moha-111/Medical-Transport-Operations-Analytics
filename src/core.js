@@ -168,6 +168,7 @@ function wma(arr, window = 7) {
  */
 function trendSlope(arr, n = 7) {
   const s = arr.slice(-n);
+  if (s.length < 2) return 0;
   return (s[s.length - 1] - s[0]) / (s.length - 1);
 }
 
@@ -184,7 +185,7 @@ function predict(historicalData, dayFactors, targetDayOfWeek, daysAhead = 1) {
   const t = trendSlope(historicalData);
   const seasonal = dayFactors[targetDayOfWeek];
   const raw = (base + t * daysAhead) * seasonal;
-  const variance = historicalData.slice(-7).reduce((a, v) => a + Math.abs(v - wma(historicalData)), 0) / 7;
+  const variance = historicalData.slice(-7).reduce((a, v) => a + Math.abs(v - base), 0) / 7;
   const confidence = Math.round(Math.max(55, Math.min(93, 92 - variance * 2)));
   return { value: +raw.toFixed(1), confidence };
 }
