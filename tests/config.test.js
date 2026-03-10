@@ -54,6 +54,12 @@ describe('serialiseCFG', () => {
     expect(obj.alertLog).toHaveLength(100);
   });
 
+  test('does not truncate alertLog with exactly 100 entries', () => {
+    const alerts = Array.from({ length: 100 }, (_, i) => ({ id: i }));
+    const obj = JSON.parse(serialiseCFG(makeSYNC({ alertLog: alerts })));
+    expect(obj.alertLog).toHaveLength(100);
+  });
+
   test('handles empty alertLog', () => {
     const obj = JSON.parse(serialiseCFG(makeSYNC({ alertLog: [] })));
     expect(obj.alertLog).toEqual([]);
@@ -136,6 +142,22 @@ describe('deserialiseCFG', () => {
     const stored = JSON.stringify({ gsUrl: 'modified' });
     deserialiseCFG(stored, base);
     expect(base.gsUrl).toBe('original'); // original must not be mutated
+  });
+
+  test('stored alertsToday: 0 is a falsy value and is not restored (known limitation)', () => {
+    // The `if (c.alertsToday)` guard treats 0 as absent — this documents the behaviour.
+    const stored = JSON.stringify({ alertsToday: 0 });
+    const base = makeSYNC({ alertsToday: 99 });
+    const result = deserialiseCFG(stored, base);
+    // 0 is falsy, so the guard skips it and the base value is preserved
+    expect(result.alertsToday).toBe(99);
+  });
+
+  test('stored intervalMin: 0 is not restored due to falsy guard (known limitation)', () => {
+    const stored = JSON.stringify({ intervalMin: 0 });
+    const base = makeSYNC({ intervalMin: 5 });
+    const result = deserialiseCFG(stored, base);
+    expect(result.intervalMin).toBe(5);
   });
 
   test('round-trips through serialiseCFG → deserialiseCFG correctly', () => {
