@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>وصل — لوحة إدارة الأزمات (CIM)</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0C1120; color: #EDF0F7; font-family: 'Segoe UI', Arial, sans-serif; direction: rtl; min-height: 100vh; }
+
+  /* Nav */
+  nav { background: #060A14; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,59,48,.3); position: sticky; top: 0; z-index: 100; }
+  .brand { color: #FF3B30; font-size: 20px; font-weight: 800; letter-spacing: 1px; }
+  .brand span { color: #00C9A7; }
+  .nav-meta { color: #5E7391; font-size: 12px; text-align: left; display: flex; align-items: center; gap: 12px; }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #FF3B30; margin-left: 6px; animation: pulse 1.5s infinite; }
+  .status-dot.normal { background: #30D158; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  /* Layout */
+  .container { max-width: 1280px; margin: 0 auto; padding: 28px 24px; }
+
+  /* Upload Area */
+  .upload-area { background: #141B2D; border: 2px dashed rgba(255,59,48,.3); border-radius: 14px; padding: 40px; text-align: center; margin-bottom: 24px; cursor: pointer; transition: border-color .2s; }
+  .upload-area:hover, .upload-area.drag { border-color: #FF3B30; }
+  .upload-area h2 { color: #EDF0F7; margin-bottom: 8px; font-size: 18px; }
+  .upload-area p { color: #5E7391; font-size: 14px; margin-bottom: 16px; }
+  #file-input { display: none; }
+  .btn-upload { background: #FF3B30; color: #fff; border: none; padding: 10px 28px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity .2s; }
+  .btn-upload:hover { opacity: .85; }
+
+  /* Crisis Banner */
+  .crisis-banner { border-radius: 14px; padding: 20px 28px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; }
+  .crisis-banner.normal   { background: linear-gradient(135deg, #0a1e12, #0f2a18); border: 1px solid rgba(48,209,88,.3); }
+  .crisis-banner.elevated { background: linear-gradient(135deg, #1e1800, #2a2000); border: 1px solid rgba(246,166,35,.4); }
+  .crisis-banner.high     { background: linear-gradient(135deg, #1e0a00, #2a1000); border: 1px solid rgba(255,149,0,.4); }
+  .crisis-banner.disaster { background: linear-gradient(135deg, #1e0000, #2a0000); border: 1px solid rgba(255,59,48,.5); }
+  .banner-left h2 { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+  .banner-left p  { color: #A0AEC0; font-size: 14px; }
+  .score-ring { width: 90px; height: 90px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 900; border: 4px solid currentColor; }
+
+  /* KPI Grid */
+  .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 24px; }
+  .kpi-card { background: #141B2D; border-radius: 14px; padding: 20px 22px; border: 1px solid rgba(255,255,255,.06); transition: transform .2s; }
+  .kpi-card:hover { transform: translateY(-2px); }
+  .kpi-val { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+  .kpi-lbl { font-size: 11px; color: #5E7391; text-transform: uppercase; letter-spacing: .5px; }
+  .kpi-sub { font-size: 12px; color: #5E7391; margin-top: 4px; }
+
+  /* MCI Alert */
+  .mci-alert { border-radius: 14px; padding: 24px; margin-bottom: 24px; }
+  .mci-alert.active   { background: linear-gradient(135deg, #1e0000, #2a0000); border: 2px solid #FF3B30; }
+  .mci-alert.inactive { background: #141B2D; border: 1px solid rgba(255,255,255,.06); }
+  .mci-alert h3 { font-size: 16px; font-weight: 800; margin-bottom: 16px; }
+  .mci-alert.active h3 { color: #FF3B30; }
+  .mci-alert.inactive h3 { color: #A0AEC0; }
+  .trigger-list { display: flex; flex-wrap: wrap; gap: 10px; }
+  .trigger-chip { background: rgba(255,59,48,.15); color: #FF3B30; border: 1px solid rgba(255,59,48,.3); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+  .trigger-val { font-size: 11px; opacity: .8; margin-right: 4px; }
+  .no-triggers { color: #30D158; font-size: 14px; }
+
+  /* Charts Grid */
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .charts-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .chart-card { background: #141B2D; border-radius: 14px; padding: 24px; border: 1px solid rgba(255,255,255,.06); }
+  .chart-card h3 { font-size: 15px; color: #A0AEC0; margin-bottom: 18px; font-weight: 700; }
+
+  /* Surge Panel */
+  .surge-panel { background: #141B2D; border-radius: 14px; padding: 24px; border: 1px solid rgba(255,255,255,.06); margin-bottom: 24px; }
+  .surge-panel h3 { font-size: 15px; color: #A0AEC0; margin-bottom: 18px; font-weight: 700; }
+  .surge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .surge-item { text-align: center; padding: 16px; background: #0C1120; border-radius: 10px; }
+  .surge-item .val { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
+  .surge-item .lbl { font-size: 11px; color: #5E7391; text-transform: uppercase; letter-spacing: .4px; }
+
+  /* Resource Table */
+  .table-card { background: #141B2D; border-radius: 14px; padding: 24px; border: 1px solid rgba(255,255,255,.06); margin-bottom: 24px; }
+  .table-card h3 { font-size: 15px; color: #A0AEC0; margin-bottom: 18px; font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { padding: 10px 14px; color: #5E7391; font-weight: 600; text-align: right; border-bottom: 1px solid rgba(255,255,255,.06); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
+  td { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,.04); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,.02); }
+
+  /* Badge */
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .badge-green  { background: rgba(48,209,88,.15);  color: #30D158; }
+  .badge-yellow { background: rgba(246,166,35,.15); color: #F6A623; }
+  .badge-orange { background: rgba(255,149,0,.15);  color: #FF9500; }
+  .badge-red    { background: rgba(255,59,48,.15);  color: #FF3B30; }
+
+  /* Progress bar */
+  .prog-bar { height: 6px; background: rgba(255,255,255,.08); border-radius: 3px; overflow: hidden; margin-top: 6px; }
+  .prog-bar-fill { height: 100%; border-radius: 3px; transition: width .4s; }
+
+  /* Loading / no-data */
+  .loading { text-align: center; padding: 80px; color: #5E7391; display: none; }
+  .spinner { width: 40px; height: 40px; border: 3px solid rgba(255,59,48,.2); border-top-color: #FF3B30; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 16px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 900px) {
+    .kpi-grid { grid-template-columns: repeat(2,1fr); }
+    .charts-grid, .charts-grid-3 { grid-template-columns: 1fr; }
+    .surge-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 600px) {
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .surge-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">وصل • <span>إدارة الأزمات</span></div>
+  <div class="nav-meta">
+    <span class="status-dot" id="nav-dot"></span>
+    <span id="nav-status">في انتظار البيانات</span>
+    <span style="color:#3a4a60;">|</span>
+    <span id="nav-ts" style="color:#3a4a60;"></span>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- Upload -->
+  <div class="upload-area" id="upload-area">
+    <h2>🚨 لوحة إدارة الأزمات والكوارث</h2>
+    <p>ارفع ملف CSV لبيانات العمليات لتفعيل تحليل الأزمات الفوري</p>
+    <label class="btn-upload" for="file-input">📂 اختر ملف CSV</label>
+    <input type="file" id="file-input" accept=".csv">
+    <p style="margin-top:12px;font-size:12px;color:#3a4a60;">أو اسحب وأفلت الملف هنا</p>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>جارٍ تحليل البيانات...</p>
+  </div>
+
+  <div id="dashboard" style="display:none;">
+
+    <!-- Crisis Level Banner -->
+    <div class="crisis-banner" id="crisis-banner">
+      <div class="banner-left">
+        <h2 id="banner-title">—</h2>
+        <p id="banner-desc">—</p>
+      </div>
+      <div class="score-ring" id="score-ring">—</div>
+    </div>
+
+    <!-- KPI Strip -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-val" style="color:#00C9A7;" id="kpi-total">—</div>
+        <div class="kpi-lbl">إجمالي المهام</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val" style="color:#FF3B30;" id="kpi-p1">—</div>
+        <div class="kpi-lbl">أولوية P1 (حرج)</div>
+        <div class="kpi-sub">إنقاذ حياة + تأخر</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val" style="color:#FF9500;" id="kpi-p2">—</div>
+        <div class="kpi-lbl">أولوية P2</div>
+        <div class="kpi-sub">إنقاذ حياة / في الوقت</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val" style="color:#F6A623;" id="kpi-p3">—</div>
+        <div class="kpi-lbl">أولوية P3</div>
+        <div class="kpi-sub">روتيني + تأخر</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val" style="color:#30D158;" id="kpi-p4">—</div>
+        <div class="kpi-lbl">أولوية P4</div>
+        <div class="kpi-sub">روتيني / في الوقت</div>
+      </div>
+    </div>
+
+    <!-- MCI Detection -->
+    <div class="mci-alert inactive" id="mci-alert">
+      <h3 id="mci-title">🔍 كشف حوادث الإصابات الجماعية (MCI)</h3>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px;">
+        <div>
+          <span style="font-size:13px;color:#5E7391;">درجة الخطر: </span>
+          <span id="mci-score" style="font-size:20px;font-weight:800;">—</span>
+          <span style="font-size:13px;color:#5E7391;">/100</span>
+        </div>
+        <div style="flex:1;">
+          <div class="prog-bar">
+            <div class="prog-bar-fill" id="mci-prog" style="width:0%;background:#FF3B30;"></div>
+          </div>
+        </div>
+      </div>
+      <div id="mci-triggers" class="trigger-list"></div>
+    </div>
+
+    <!-- Surge Analysis -->
+    <div class="surge-panel">
+      <h3>📈 تحليل ارتفاع الطلب (Surge)</h3>
+      <div class="surge-grid">
+        <div class="surge-item">
+          <div class="val" id="surge-demand" style="color:#F6A623;">—</div>
+          <div class="lbl">نسبة الطلب</div>
+          <div style="font-size:11px;color:#5E7391;margin-top:6px;">مقارنةً بالخط الأساسي</div>
+        </div>
+        <div class="surge-item">
+          <div class="val" id="surge-resp" style="color:#FF9500;">—</div>
+          <div class="lbl">تدهور الاستجابة</div>
+          <div style="font-size:11px;color:#5E7391;margin-top:6px;">مقارنةً بالخط الأساسي</div>
+        </div>
+        <div class="surge-item">
+          <div class="val" id="surge-level" style="font-size:18px;">—</div>
+          <div class="lbl">مستوى الارتفاع</div>
+          <div style="font-size:11px;color:#5E7391;margin-top:6px;">التصنيف الحالي</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>🎯 توزيع أولويات الحوادث</h3>
+        <canvas id="chart-priority" height="220"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>📊 الحوادث الشهرية حسب الأولوية</h3>
+        <canvas id="chart-monthly" height="220"></canvas>
+      </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>🏢 توزيع الموارد على المراكز</h3>
+        <canvas id="chart-resources" height="220"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>⚡ معدل التأخر حسب المركز</h3>
+        <canvas id="chart-late" height="220"></canvas>
+      </div>
+    </div>
+
+    <!-- Resource Allocation Table -->
+    <div class="table-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+        <h3 style="margin:0;">🚑 تخصيص الوحدات على المراكز</h3>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <label style="font-size:13px;color:#5E7391;">إجمالي الوحدات المتاحة:</label>
+          <input type="number" id="total-units" value="50" min="1" max="500"
+            style="background:#0C1120;border:1px solid rgba(255,255,255,.15);color:#EDF0F7;padding:6px 12px;border-radius:8px;font-size:14px;width:80px;text-align:center;">
+          <button onclick="reAllocate()" class="btn-upload" style="padding:8px 18px;font-size:13px;">إعادة التوزيع</button>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>المركز</th>
+            <th>المهام</th>
+            <th>معدل التأخر %</th>
+            <th>الوحدات المخصصة</th>
+            <th>نسبة التخصيص</th>
+            <th>التقييم</th>
+          </tr>
+        </thead>
+        <tbody id="alloc-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- Incident Table -->
+    <div class="table-card">
+      <h3>📋 سجل الحوادث حسب الأولوية</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>الأولوية</th>
+            <th>المركز</th>
+            <th>الخطورة</th>
+            <th>الحالة</th>
+            <th>وقت الاستجابة</th>
+            <th>الشيفت</th>
+          </tr>
+        </thead>
+        <tbody id="incident-tbody"></tbody>
+      </table>
+    </div>
+
+    <p style="text-align:center;color:#3a4a60;font-size:11px;padding-bottom:20px;">
+      آخر تحديث: <span id="last-ts">—</span>
+    </p>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ── Crisis Functions (inlined from core.js) ──────────────────────────────────
+
+function parseCSV(txt) {
+  const lines = txt.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
+  const hdr = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
+  return lines.slice(1).map(line => {
+    const vals = line.split(',').map(v => v.replace(/^"|"$/g, '').trim());
+    const row = {};
+    hdr.forEach((h, i) => row[h] = vals[i] || '');
+    return row;
+  });
+}
+
+function calcKPIs(rows) {
+  if (!rows || rows.length === 0) return null;
+  const n = rows.length;
+  const sample = rows[0];
+  const keys = Object.keys(sample);
+  const col = (...cands) => {
+    for (const c of cands) {
+      const k = keys.find(k => k.toLowerCase().replace(/[_\s]/g, '').includes(c.toLowerCase().replace(/[_\s]/g, '')));
+      if (k) return k;
+    }
+    return null;
+  };
+  const C = {
+    resp:     col('ResponseMin','TotalResponse','response'),
+    disp:     col('DispatchMin','dispatch'),
+    travel:   col('TravelMin','travel'),
+    dur:      col('DurationMin','duration'),
+    status:   col('Status','status'),
+    center:   col('Center','center'),
+    severity: col('Severity','severity'),
+    shift:    col('Shift','shift'),
+    month:    col('Month','month'),
+    hospital: col('Hospital','hospital'),
+  };
+  const num = (row, k) => k ? +row[k] || 0 : 0;
+  const str = (row, k) => k ? (row[k] || '') : '';
+  let late=0,good=0,exc=0,lifeSave=0,sumResp=0,sumDisp=0,sumTravel=0,sumDur=0;
+  const centerMap={}, monthMap={}, shiftMap={}, hospMap={};
+  const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  rows.forEach(r => {
+    const resp=num(r,C.resp),disp=num(r,C.disp),tv=num(r,C.travel),dur=num(r,C.dur);
+    const st=str(r,C.status).toLowerCase(),sv=str(r,C.severity).toLowerCase();
+    const ct=str(r,C.center)||'Unknown',sh=str(r,C.shift)||'Unknown',mo=str(r,C.month)||'';
+    const hp=str(r,C.hospital)||'Unknown';
+    if(st.includes('late'))late++;
+    if(st.includes('good'))good++;
+    if(st.includes('exc')||st.includes('excellent'))exc++;
+    if(sv.includes('life')||sv.includes('saving'))lifeSave++;
+    sumResp+=resp;sumDisp+=disp;sumTravel+=tv;sumDur+=dur;
+    if(!centerMap[ct])centerMap[ct]={id:ct,missions:0,sumResp:0,late:0,paramedics:new Set()};
+    centerMap[ct].missions++;centerMap[ct].sumResp+=resp;
+    if(st.includes('late'))centerMap[ct].late++;
+    MONTHS.forEach((m,i)=>{if(mo.toLowerCase()===m.toLowerCase()){if(!monthMap[i])monthMap[i]=0;monthMap[i]++;}});
+    if(!shiftMap[sh])shiftMap[sh]=0;shiftMap[sh]++;
+    if(!hospMap[hp])hospMap[hp]=0;hospMap[hp]++;
+  });
+  const centers=Object.values(centerMap).map(c=>({
+    id:c.id,missions:c.missions,avgResp:c.missions?+(c.sumResp/c.missions).toFixed(1):0,
+    late:c.missions?+(c.late/c.missions*100).toFixed(1):0,
+  })).sort((a,b)=>b.missions-a.missions);
+  const monthlyArr=MONTHS.map((_,i)=>monthMap[i]||0);
+  const topHospitals=Object.entries(hospMap).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([id,n])=>({id,n}));
+  return {
+    n,late,good,exc,lifeSave,
+    avgResp:+(sumResp/n).toFixed(1),avgDisp:+(sumDisp/n).toFixed(1),
+    avgTravel:+(sumTravel/n).toFixed(1),avgDur:+(sumDur/n).toFixed(1),
+    lateRate:+(late/n*100).toFixed(1),goodRate:+(good/n*100).toFixed(1),
+    excRate:+(exc/n*100).toFixed(1),lifeSavePct:+(lifeSave/n*100).toFixed(1),
+    centers,monthlyArr,topHospitals,shiftMap,ts:new Date().toISOString(),
+  };
+}
+
+function classifyIncident(row) {
+  const sv=(row.Severity||row.severity||'').toLowerCase();
+  const st=(row.Status||row.status||'').toLowerCase();
+  const isLifeSaving=sv.includes('life')||sv.includes('saving');
+  const isLate=st.includes('late');
+  if(isLifeSaving&&isLate)return 'P1';
+  if(isLifeSaving)return 'P2';
+  if(isLate)return 'P3';
+  return 'P4';
+}
+
+function calcSurge(currKPIs,baselineKPIs) {
+  if(!currKPIs||!baselineKPIs)return null;
+  const demandRatio=baselineKPIs.n>0?+(currKPIs.n/baselineKPIs.n).toFixed(2):1;
+  const responseDegradation=baselineKPIs.avgResp>0?+(currKPIs.avgResp/baselineKPIs.avgResp).toFixed(2):1;
+  let surgeLevel;
+  if(demandRatio>=2.0||responseDegradation>=2.0)surgeLevel='disaster';
+  else if(demandRatio>=1.5||responseDegradation>=1.5)surgeLevel='critical';
+  else if(demandRatio>=1.2||responseDegradation>=1.2)surgeLevel='elevated';
+  else surgeLevel='normal';
+  return{demandRatio,responseDegradation,surgeLevel};
+}
+
+function allocateResources(centers,totalUnits) {
+  if(!centers||centers.length===0||totalUnits<=0)return[];
+  const weighted=centers.map(c=>({id:c.id,weight:c.missions*(1+c.late/100)}));
+  const totalWeight=weighted.reduce((s,c)=>s+c.weight,0);
+  return weighted.map(c=>({
+    id:c.id,
+    allocated:totalWeight>0?Math.round((c.weight/totalWeight)*totalUnits):0,
+  })).sort((a,b)=>b.allocated-a.allocated);
+}
+
+function crisisScore(kpis,thresholds) {
+  if(!kpis)return{score:0,level:'normal'};
+  const respOverage=Math.max(0,(kpis.avgResp-thresholds.resp)/thresholds.resp);
+  const lateOverage=Math.max(0,(kpis.lateRate-thresholds.late)/thresholds.late);
+  const msnOverage=Math.max(0,(kpis.n/365-thresholds.missionsMax)/thresholds.missionsMax);
+  const raw=respOverage*40+lateOverage*40+msnOverage*20;
+  const score=Math.round(Math.max(0,Math.min(100,raw)));
+  let level;
+  if(score>=75)level='disaster';
+  else if(score>=50)level='high';
+  else if(score>=25)level='elevated';
+  else level='normal';
+  return{score,level};
+}
+
+function detectMCI(kpis,thresholds) {
+  if(!kpis)return{isMCI:false,score:0,triggers:[]};
+  const triggers=[];let score=0;
+  if(kpis.avgResp>thresholds.resp*2){
+    triggers.push({code:'RESP_CRITICAL',label:'وقت استجابة بالغ الخطورة',val:kpis.avgResp});
+    score+=30;
+  }
+  if(kpis.lifeSavePct>40){
+    triggers.push({code:'HIGH_LIFESAVE',label:'نسبة إنقاذ حياة مرتفعة',val:kpis.lifeSavePct});
+    score+=30;
+  }
+  const breachedCenters=(kpis.centers||[]).filter(c=>c.late>thresholds.late+1.5);
+  if(breachedCenters.length>=3){
+    triggers.push({code:'MULTI_CENTER',label:'تجاوز متعدد المراكز',val:breachedCenters.length});
+    score+=25;
+  }
+  if(kpis.n/365>thresholds.missionsMax*1.5){
+    triggers.push({code:'SURGE',label:'ارتفاع حاد في المهام',val:+(kpis.n/365).toFixed(1)});
+    score+=15;
+  }
+  return{isMCI:score>=50,score:Math.min(100,score),triggers};
+}
+
+// ── Default Thresholds ────────────────────────────────────────────────────────
+const THRESHOLDS = { resp: 60, late: 20, missionsMax: 20 };
+
+// ── Baseline (synthetic 30-day average for surge calc) ───────────────────────
+let baselineKPIs = null;
+
+// ── Chart instances ───────────────────────────────────────────────────────────
+let chartPriority=null, chartMonthly=null, chartResources=null, chartLate=null;
+
+// ── Global state ──────────────────────────────────────────────────────────────
+let lastRows = [], lastKPIs = null;
+
+// ── Level helpers ─────────────────────────────────────────────────────────────
+const LEVEL_CONFIG = {
+  normal:   { color:'#30D158', label:'وضع طبيعي',         desc:'جميع المؤشرات ضمن الحدود المقبولة', bannerClass:'normal' },
+  elevated: { color:'#F6A623', label:'تصاعد الخطر',        desc:'بعض المؤشرات تتجاوز الحد الطبيعي',  bannerClass:'elevated' },
+  high:     { color:'#FF9500', label:'مستوى خطر مرتفع',   desc:'وضع حرج — ابدأ بروتوكولات الطوارئ', bannerClass:'high' },
+  disaster: { color:'#FF3B30', label:'حالة كارثة',         desc:'تفعيل خطة الاستجابة للكوارث فوراً', bannerClass:'disaster' },
+};
+
+function levelBadge(level) {
+  const map = { normal:'badge-green', elevated:'badge-yellow', high:'badge-orange', disaster:'badge-red' };
+  const lbl = { normal:'طبيعي', elevated:'مرتفع', high:'خطر', disaster:'كارثة' };
+  return `<span class="badge ${map[level]||'badge-green'}">${lbl[level]||level}</span>`;
+}
+
+function surgeLevelBadge(level) {
+  const map = { normal:'badge-green', elevated:'badge-yellow', critical:'badge-orange', disaster:'badge-red' };
+  const lbl = { normal:'طبيعي', elevated:'مرتفع', critical:'حرج', disaster:'كارثة' };
+  return `<span class="badge ${map[level]||'badge-green'}">${lbl[level]||level}</span>`;
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render(rows) {
+  lastRows = rows;
+  const kpis = calcKPIs(rows);
+  if (!kpis) return;
+  lastKPIs = kpis;
+
+  // Build synthetic baseline if not set (first half of data as baseline)
+  if (!baselineKPIs) {
+    const half = Math.max(1, Math.floor(rows.length / 2));
+    baselineKPIs = calcKPIs(rows.slice(0, half)) || kpis;
+  }
+
+  // Priority counts
+  const priorityCounts = { P1:0, P2:0, P3:0, P4:0 };
+  rows.forEach(r => priorityCounts[classifyIncident(r)]++);
+
+  // Priority by month
+  const MONTHS_LABELS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  const MONTHS_EN = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+  const monthPriority = { P1:new Array(12).fill(0), P2:new Array(12).fill(0), P3:new Array(12).fill(0), P4:new Array(12).fill(0) };
+  rows.forEach(r => {
+    const mo = (r.Month||r.month||'').toLowerCase().trim();
+    const idx = MONTHS_EN.indexOf(mo);
+    if (idx >= 0) monthPriority[classifyIncident(r)][idx]++;
+  });
+
+  // Crisis score & MCI
+  const cs = crisisScore(kpis, THRESHOLDS);
+  const mci = detectMCI(kpis, THRESHOLDS);
+  const surge = calcSurge(kpis, baselineKPIs);
+
+  // Nav
+  const lvlCfg = LEVEL_CONFIG[cs.level] || LEVEL_CONFIG.normal;
+  document.getElementById('nav-status').textContent = lvlCfg.label;
+  const dot = document.getElementById('nav-dot');
+  dot.style.background = lvlCfg.color;
+  dot.className = 'status-dot' + (cs.level === 'normal' ? ' normal' : '');
+  document.getElementById('nav-ts').textContent = new Date().toLocaleTimeString('ar-SA');
+
+  // Crisis banner
+  const banner = document.getElementById('crisis-banner');
+  banner.className = 'crisis-banner ' + cs.level;
+  document.getElementById('banner-title').textContent = lvlCfg.label;
+  document.getElementById('banner-title').style.color = lvlCfg.color;
+  document.getElementById('banner-desc').textContent = lvlCfg.desc;
+  const ring = document.getElementById('score-ring');
+  ring.textContent = cs.score;
+  ring.style.color = lvlCfg.color;
+
+  // KPIs
+  document.getElementById('kpi-total').textContent = kpis.n.toLocaleString('ar-SA');
+  document.getElementById('kpi-p1').textContent = priorityCounts.P1.toLocaleString('ar-SA');
+  document.getElementById('kpi-p2').textContent = priorityCounts.P2.toLocaleString('ar-SA');
+  document.getElementById('kpi-p3').textContent = priorityCounts.P3.toLocaleString('ar-SA');
+  document.getElementById('kpi-p4').textContent = priorityCounts.P4.toLocaleString('ar-SA');
+
+  // MCI alert
+  const mciEl = document.getElementById('mci-alert');
+  mciEl.className = 'mci-alert ' + (mci.isMCI ? 'active' : 'inactive');
+  document.getElementById('mci-title').textContent = mci.isMCI
+    ? '🚨 تحذير: تم اكتشاف حادثة إصابات جماعية (MCI)!'
+    : '✅ لم يتم اكتشاف حادثة إصابات جماعية';
+  document.getElementById('mci-score').textContent = mci.score;
+  document.getElementById('mci-prog').style.width = mci.score + '%';
+  const trigEl = document.getElementById('mci-triggers');
+  if (mci.triggers.length > 0) {
+    trigEl.innerHTML = mci.triggers.map(t =>
+      `<span class="trigger-chip">${t.label} <span class="trigger-val">(${t.val})</span></span>`
+    ).join('');
+  } else {
+    trigEl.innerHTML = '<span class="no-triggers">لا توجد مؤشرات خطر فعّالة</span>';
+  }
+
+  // Surge
+  if (surge) {
+    document.getElementById('surge-demand').textContent = surge.demandRatio + 'x';
+    document.getElementById('surge-resp').textContent   = surge.responseDegradation + 'x';
+    document.getElementById('surge-level').innerHTML    = surgeLevelBadge(surge.surgeLevel);
+  }
+
+  // Charts
+  renderChartPriority(priorityCounts);
+  renderChartMonthly(MONTHS_LABELS, monthPriority);
+  renderChartResources(kpis.centers, +document.getElementById('total-units').value || 50);
+  renderChartLate(kpis.centers);
+
+  // Allocation table
+  renderAllocTable(kpis.centers, +document.getElementById('total-units').value || 50);
+
+  // Incident table (top 50 by priority)
+  renderIncidentTable(rows);
+
+  document.getElementById('last-ts').textContent = new Date().toLocaleString('ar-SA');
+  document.getElementById('upload-area').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+}
+
+function reAllocate() {
+  if (!lastKPIs) return;
+  const total = +document.getElementById('total-units').value || 50;
+  renderAllocTable(lastKPIs.centers, total);
+  renderChartResources(lastKPIs.centers, total);
+}
+
+function renderChartPriority(pc) {
+  const ctx = document.getElementById('chart-priority').getContext('2d');
+  if (chartPriority) chartPriority.destroy();
+  chartPriority = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['P1 — حرج','P2 — إنقاذ','P3 — تأخر','P4 — طبيعي'],
+      datasets: [{ data: [pc.P1,pc.P2,pc.P3,pc.P4], backgroundColor: ['#FF3B30','#FF9500','#F6A623','#30D158'], borderWidth:0 }],
+    },
+    options: { plugins:{ legend:{ labels:{ color:'#A0AEC0', font:{size:12} } } }, cutout:'65%' },
+  });
+}
+
+function renderChartMonthly(labels, mp) {
+  const ctx = document.getElementById('chart-monthly').getContext('2d');
+  if (chartMonthly) chartMonthly.destroy();
+  chartMonthly = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label:'P1', data:mp.P1, backgroundColor:'rgba(255,59,48,.8)',  stack:'s' },
+        { label:'P2', data:mp.P2, backgroundColor:'rgba(255,149,0,.8)',  stack:'s' },
+        { label:'P3', data:mp.P3, backgroundColor:'rgba(246,166,35,.8)', stack:'s' },
+        { label:'P4', data:mp.P4, backgroundColor:'rgba(48,209,88,.6)',  stack:'s' },
+      ],
+    },
+    options: {
+      plugins:{ legend:{ labels:{ color:'#A0AEC0', font:{size:11} } } },
+      scales:{
+        x:{ stacked:true, ticks:{ color:'#5E7391', font:{size:10} }, grid:{ color:'rgba(255,255,255,.04)' } },
+        y:{ stacked:true, ticks:{ color:'#5E7391' }, grid:{ color:'rgba(255,255,255,.04)' } },
+      },
+    },
+  });
+}
+
+function renderChartResources(centers, totalUnits) {
+  const alloc = allocateResources(centers, totalUnits);
+  const ctx = document.getElementById('chart-resources').getContext('2d');
+  if (chartResources) chartResources.destroy();
+  chartResources = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: alloc.map(a => a.id),
+      datasets: [{ label:'وحدات مخصصة', data:alloc.map(a=>a.allocated), backgroundColor:'rgba(0,201,167,.7)', borderRadius:6, borderSkipped:false }],
+    },
+    options: {
+      indexAxis:'y',
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ ticks:{ color:'#5E7391' }, grid:{ color:'rgba(255,255,255,.04)' } },
+        y:{ ticks:{ color:'#A0AEC0', font:{size:12} }, grid:{ display:false } },
+      },
+    },
+  });
+}
+
+function renderChartLate(centers) {
+  const sorted = [...centers].sort((a,b)=>b.late-a.late).slice(0,10);
+  const ctx = document.getElementById('chart-late').getContext('2d');
+  if (chartLate) chartLate.destroy();
+  chartLate = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: sorted.map(c=>c.id),
+      datasets: [{ label:'معدل التأخر %', data:sorted.map(c=>c.late),
+        backgroundColor: sorted.map(c => c.late>40?'rgba(255,59,48,.7)':c.late>25?'rgba(255,149,0,.7)':'rgba(246,166,35,.7)'),
+        borderRadius:6, borderSkipped:false }],
+    },
+    options: {
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ ticks:{ color:'#A0AEC0', font:{size:11} }, grid:{ display:false } },
+        y:{ ticks:{ color:'#5E7391', callback:v=>v+'%' }, grid:{ color:'rgba(255,255,255,.04)' } },
+      },
+    },
+  });
+}
+
+function renderAllocTable(centers, totalUnits) {
+  const alloc = allocateResources(centers, totalUnits);
+  const allocMap = Object.fromEntries(alloc.map(a=>[a.id,a.allocated]));
+  const tbody = document.getElementById('alloc-tbody');
+  tbody.innerHTML = centers.map(c => {
+    const units = allocMap[c.id] || 0;
+    const pct = totalUnits > 0 ? Math.round(units/totalUnits*100) : 0;
+    const lv = c.late > 40 ? 'badge-red' : c.late > 25 ? 'badge-orange' : c.late > 10 ? 'badge-yellow' : 'badge-green';
+    const lbl = c.late > 40 ? 'حرج' : c.late > 25 ? 'مرتفع' : c.late > 10 ? 'متوسط' : 'جيد';
+    return `<tr>
+      <td>${c.id}</td>
+      <td>${c.missions}</td>
+      <td>${c.late}%</td>
+      <td style="font-weight:800;color:#00C9A7;">${units}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="prog-bar" style="flex:1;"><div class="prog-bar-fill" style="width:${pct}%;background:#00C9A7;"></div></div>
+          <span style="font-size:12px;color:#5E7391;width:32px;text-align:left;">${pct}%</span>
+        </div>
+      </td>
+      <td><span class="badge ${lv}">${lbl}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderIncidentTable(rows) {
+  const prioritized = rows.map(r => ({ ...r, _p: classifyIncident(r) }))
+    .sort((a,b) => a._p.localeCompare(b._p))
+    .slice(0, 50);
+  const colorMap = { P1:'#FF3B30', P2:'#FF9500', P3:'#F6A623', P4:'#30D158' };
+  const tbody = document.getElementById('incident-tbody');
+  tbody.innerHTML = prioritized.map(r => `<tr>
+    <td><span style="font-weight:800;color:${colorMap[r._p]}">${r._p}</span></td>
+    <td>${r.Center || r.center || '—'}</td>
+    <td>${r.Severity || r.severity || '—'}</td>
+    <td>${r.Status || r.status || '—'}</td>
+    <td>${r.ResponseMin || r.TotalResponse || '—'} د</td>
+    <td>${r.Shift || r.shift || '—'}</td>
+  </tr>`).join('');
+}
+
+// ── File Upload ───────────────────────────────────────────────────────────────
+document.getElementById('file-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    document.getElementById('loading').style.display = 'block';
+    setTimeout(() => {
+      const rows = parseCSV(ev.target.result);
+      document.getElementById('loading').style.display = 'none';
+      if (rows.length > 0) render(rows);
+    }, 100);
+  };
+  reader.readAsText(file, 'UTF-8');
+});
+
+// Drag & drop
+const ua = document.getElementById('upload-area');
+ua.addEventListener('dragover', e => { e.preventDefault(); ua.classList.add('drag'); });
+ua.addEventListener('dragleave', () => ua.classList.remove('drag'));
+ua.addEventListener('drop', e => {
+  e.preventDefault(); ua.classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    document.getElementById('loading').style.display = 'block';
+    setTimeout(() => {
+      const rows = parseCSV(ev.target.result);
+      document.getElementById('loading').style.display = 'none';
+      if (rows.length > 0) render(rows);
+    }, 100);
+  };
+  reader.readAsText(file, 'UTF-8');
+});
+
+// ── Demo data auto-load (if no file chosen) ───────────────────────────────────
+(function seedDemo() {
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const CENTERS = ['C1','C2','C3','C4','C5'];
+  const SHIFTS  = ['Morning','Evening','Night'];
+  const HOSPS   = ['King Faisal','King Abdulaziz','Al-Noor','King Khalid','Maternity'];
+  const SEVER   = ['standard','life-saving'];
+  const STATS   = ['good','late','excellent'];
+  function rand(a){ return a[Math.floor(Math.random()*a.length)]; }
+  function randInt(lo,hi){ return lo+Math.floor(Math.random()*(hi-lo+1)); }
+
+  const rows = Array.from({length:600},()=>({
+    ResponseMin: String(randInt(20,120)),
+    DispatchMin: String(randInt(5,25)),
+    TravelMin:   String(randInt(10,60)),
+    DurationMin: String(randInt(60,200)),
+    Status:      rand(STATS),
+    Center:      rand(CENTERS),
+    Severity:    rand(SEVER),
+    Shift:       rand(SHIFTS),
+    Month:       rand(MONTHS),
+    Hospital:    rand(HOSPS),
+  }));
+
+  // Render demo on page load
+  setTimeout(() => render(rows), 200);
+})();
+</script>
+</body>
+</html>
