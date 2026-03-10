@@ -247,6 +247,38 @@ describe('calcKPIs — top hospitals', () => {
   });
 });
 
+// ── Shift map ─────────────────────────────────────────────────────────────────
+describe('calcKPIs — shiftMap', () => {
+  test('counts missions per shift correctly', () => {
+    const rows = [
+      makeRow({ Shift: 'Morning' }), makeRow({ Shift: 'Morning' }),
+      makeRow({ Shift: 'Night' }),
+    ];
+    const r = calcKPIs(rows);
+    expect(r.shiftMap['Morning']).toBe(2);
+    expect(r.shiftMap['Night']).toBe(1);
+  });
+
+  test('rows without a Shift value are excluded from shiftMap', () => {
+    const rows = [makeRow({ Shift: '' }), makeRow({ Shift: 'Morning' })];
+    const r = calcKPIs(rows);
+    expect(r.shiftMap['']).toBeUndefined();
+    expect(Object.keys(r.shiftMap)).toHaveLength(1);
+  });
+
+  test('shiftMap handles all three shifts simultaneously', () => {
+    const rows = [
+      makeRow({ Shift: 'Morning' }),
+      makeRow({ Shift: 'Evening' }),
+      makeRow({ Shift: 'Night' }),
+    ];
+    const r = calcKPIs(rows);
+    expect(r.shiftMap['Morning']).toBe(1);
+    expect(r.shiftMap['Evening']).toBe(1);
+    expect(r.shiftMap['Night']).toBe(1);
+  });
+});
+
 // ── Flexible column detection ─────────────────────────────────────────────────
 describe('calcKPIs — flexible column name matching', () => {
   test('accepts "TotalResponse" as the response column', () => {

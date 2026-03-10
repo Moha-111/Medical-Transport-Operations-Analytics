@@ -99,4 +99,14 @@ describe('parseCSV', () => {
       expect(result[0]).toEqual({ Status: 'late' });
     });
   });
+
+  // ── Known limitations ────────────────────────────────────────────────────
+  describe('known limitations', () => {
+    test('commas inside quoted fields are not handled correctly', () => {
+      // The parser splits on every comma, so "Smith, John" becomes two cells.
+      // This documents current behaviour — field value will NOT equal 'Smith, John'.
+      const rows = parseCSV('Name,Value\n"Smith, John",42');
+      expect(rows[0]['Name']).not.toBe('Smith, John');
+    });
+  });
 });

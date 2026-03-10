@@ -178,6 +178,33 @@ describe('detectBreaches — custom thresholds', () => {
   });
 });
 
+// ── Delta calculation with prev KPI ──────────────────────────────────────────
+describe('detectBreaches — delta with prev KPI', () => {
+  test('delta reflects difference between current and previous avgResp', () => {
+    const curr = makeKPI({ avgResp: 80 });
+    const prev = makeKPI({ avgResp: 65 });
+    const breaches = detectBreaches(curr, prev, DEFAULT_THRESHOLDS);
+    const rb = breaches.find(b => b.label === 'وقت الاستجابة الكلي');
+    expect(rb).toBeDefined();
+    expect(rb.delta).toBeCloseTo(15, 1); // 80 - 65
+  });
+
+  test('delta is 0 when prev is null', () => {
+    const curr = makeKPI({ avgResp: 80 });
+    const rb = detectBreaches(curr, null, DEFAULT_THRESHOLDS)
+      .find(b => b.label === 'وقت الاستجابة الكلي');
+    expect(rb.delta).toBe(0);
+  });
+
+  test('delta is negative when avgResp improved vs prev', () => {
+    const curr = makeKPI({ avgResp: 75 });
+    const prev = makeKPI({ avgResp: 85 });
+    const rb = detectBreaches(curr, prev, DEFAULT_THRESHOLDS)
+      .find(b => b.label === 'وقت الاستجابة الكلي');
+    expect(rb.delta).toBeLessThan(0);
+  });
+});
+
 // ── Breach object shape ───────────────────────────────────────────────────────
 describe('detectBreaches — breach object shape', () => {
   test('every breach has required fields', () => {

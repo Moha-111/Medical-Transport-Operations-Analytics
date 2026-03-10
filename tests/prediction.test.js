@@ -36,6 +36,11 @@ describe('wma', () => {
     expect(result).toBeGreaterThan(5.5);
   });
 
+  test('returns NaN for an empty array (known limitation)', () => {
+    // No guard exists against empty input — documents the current behaviour
+    expect(wma([])).toBeNaN();
+  });
+
   test('default window is 7', () => {
     const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     // Last 7: [4,5,6,7,8,9,10] → (1*4+2*5+3*6+4*7+5*8+6*9+7*10)/(1+2+3+4+5+6+7)
@@ -72,6 +77,11 @@ describe('trendSlope', () => {
   test('handles a two-element array', () => {
     // slope = (20-10)/(2-1) = 10
     expect(trendSlope([10, 20], 2)).toBeCloseTo(10, 10);
+  });
+
+  test('returns NaN for a single-element array (known limitation)', () => {
+    // (s[last] - s[0]) / (s.length - 1) = 0 / 0 = NaN
+    expect(trendSlope([42], 1)).toBeNaN();
   });
 
   test('default n is 7', () => {
