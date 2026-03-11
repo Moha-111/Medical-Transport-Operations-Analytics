@@ -153,9 +153,10 @@ Useful during development — re-runs affected tests on every file save.
  PASS  tests/detectBreaches.test.js
  PASS  tests/prediction.test.js
  PASS  tests/config.test.js
+ PASS  tests/integration.test.js
 
-Test Suites: 5 passed, 5 total
-Tests:       110 passed, 110 total
+Test Suites: 6 passed, 6 total
+Tests:       130 passed, 130 total
 Snapshots:   0 total
 Time:        ~2s
 ```

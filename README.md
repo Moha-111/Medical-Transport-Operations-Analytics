@@ -22,7 +22,7 @@ In addition, the platform automatically generates AI-powered operational reports
 [![Centers](https://img.shields.io/badge/Centers-20%20Active-00C9A7?style=for-the-badge&logo=building&logoColor=white)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
 [![Staff](https://img.shields.io/badge/Paramedics-219%20Field%20Staff-E67E22?style=for-the-badge&logo=person&logoColor=white)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
 [![Automation](https://img.shields.io/badge/Automation-LIVE%20🟢-30D158?style=for-the-badge)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
-[![Tests](https://img.shields.io/badge/Tests-110%20Passing-brightgreen?style=for-the-badge&logo=jest&logoColor=white)](./tests/)
+[![Tests](https://img.shields.io/badge/Tests-130%20Passing-brightgreen?style=for-the-badge&logo=jest&logoColor=white)](./tests/)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](./LICENSE)
 
 <br/>
@@ -299,7 +299,7 @@ Default Thresholds:
 | **Data** | Microsoft Excel (.xlsx) | Operational data storage |
 | **Frontend** | HTML/CSS/JS + Chart.js 4.4 | Interactive dashboard |
 | **Business Logic** | Vanilla JavaScript (core.js) | KPI engine, prediction, alerts |
-| **Testing** | Jest 29 | 110 unit tests |
+| **Testing** | Jest 29 | 130 unit tests |
 | **Automation** ✅ LIVE | Make.com + OpenAI GPT-4o | Daily Arabic reports |
 | **Delivery** ✅ LIVE | Gmail API | Automated email to team |
 | **Hosting** | GitHub Pages | Free, instant deployment |
@@ -411,9 +411,26 @@ Center-level breach:
 
 ---
 
+## ⚡ أقل زمن + أعلى جودة (Fast Quality Mode)
+
+لتحقيق أفضل توازن بين السرعة والجودة في التطوير اليومي:
+
+```bash
+# فحص سريع قبل كل commit (يركّز على إيقاف الأخطاء مبكرًا)
+npm run quality:fast
+
+# فحص شامل قبل الإصدار/الدمج النهائي
+npm run quality:full
+```
+
+- `quality:fast`: يوقف الاختبارات عند أول فشل لتقليل زمن التغذية الراجعة.
+- `quality:full`: يشغّل الاختبارات كاملة مع التغطية لضمان جودة أعلى قبل التسليم.
+
+---
+
 ## 🧪 Running Tests
 
-The project includes **110 unit tests** covering all core business logic:
+The project includes **130 unit tests** covering all core business logic:
 
 ```bash
 # Install dependencies (first time only)
@@ -444,11 +461,12 @@ npm run test:watch
  PASS  tests/calcKPIs.test.js
  PASS  tests/config.test.js
  PASS  tests/detectBreaches.test.js
+ PASS  tests/integration.test.js
  PASS  tests/parseCSV.test.js
  PASS  tests/prediction.test.js
 
-Test Suites: 5 passed, 5 total
-Tests:       110 passed, 110 total
+Test Suites: 6 passed, 6 total
+Tests:       130 passed, 130 total
 ```
 
 ---
