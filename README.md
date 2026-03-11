@@ -411,6 +411,23 @@ Center-level breach:
 
 ---
 
+## ⚡ أقل زمن + أعلى جودة (Fast Quality Mode)
+
+لتحقيق أفضل توازن بين السرعة والجودة في التطوير اليومي:
+
+```bash
+# فحص سريع قبل كل commit (يركّز على إيقاف الأخطاء مبكرًا)
+npm run quality:fast
+
+# فحص شامل قبل الإصدار/الدمج النهائي
+npm run quality:full
+```
+
+- `quality:fast`: يوقف الاختبارات عند أول فشل لتقليل زمن التغذية الراجعة.
+- `quality:full`: يشغّل الاختبارات كاملة مع التغطية لضمان جودة أعلى قبل التسليم.
+
+---
+
 ## 🧪 Running Tests
 
 The project includes **110 unit tests** covering all core business logic:
