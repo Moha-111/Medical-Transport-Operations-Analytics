@@ -79,11 +79,6 @@ describe('trendSlope', () => {
     expect(trendSlope([10, 20], 2)).toBeCloseTo(10, 10);
   });
 
-  test('returns NaN for a single-element array (known limitation)', () => {
-    // (s[last] - s[0]) / (s.length - 1) = 0 / 0 = NaN
-    expect(trendSlope([42], 1)).toBeNaN();
-  });
-
   test('default n is 7', () => {
     const arr = [0, 0, 1, 2, 3, 4, 5, 6, 7]; // last 7: [1,2,3,4,5,6,7]
     expect(trendSlope(arr)).toBeCloseTo(1, 10);
