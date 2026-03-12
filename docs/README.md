@@ -13,6 +13,7 @@
 | [DATA-SCHEMA.md](./DATA-SCHEMA.md) | Full 25-column data dictionary, field enumerations, CSV import format |
 | [DEPLOYMENT.md](./DEPLOYMENT.md) | Local setup, GitHub Pages deployment, Make.com configuration, troubleshooting |
 | [API-REFERENCE.md](./API-REFERENCE.md) | core.js function signatures, parameters, return types, and usage examples |
+| [AR-STATEMENT.md](./AR-STATEMENT.md) | Arabic public statement announcing immediate readiness for SQLite/MySQL/CSV/JSON/API delivery |
 
 ---
 
