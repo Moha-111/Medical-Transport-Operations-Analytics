@@ -70,12 +70,13 @@ Medical-Transport-Operations-Analytics/
 │       ├── serialiseCFG()
 │       └── deserialiseCFG()
 │
-├── tests/                  ← Jest test suite (110 tests)
+├── tests/                  ← Jest test suite (130 tests)
 │   ├── calcKPIs.test.js
 │   ├── config.test.js
 │   ├── detectBreaches.test.js
 │   ├── parseCSV.test.js
-│   └── prediction.test.js
+│   ├── prediction.test.js
+│   └── integration.test.js
 │
 ├── Medical-Transport-Analytics.xlsx   ← Dataset (14,169 rows × 25 cols)
 ├── package.json            ← Jest config + npm scripts
@@ -261,7 +262,7 @@ Config is persisted to `localStorage` via `serialiseCFG()` / `deserialiseCFG()`.
 
 The business logic is isolated in `src/core.js` as pure functions with zero side effects. This separation enables:
 
-- **Testability**: 110 Jest unit tests run without a browser
+- **Testability**: 130 Jest unit tests run without a browser
 - **Portability**: Functions can be used in Node.js scripts or future API servers
 - **Maintainability**: UI code and business logic are decoupled
 
