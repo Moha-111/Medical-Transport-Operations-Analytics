@@ -32,6 +32,9 @@
   "scripts": {
     "start": "npx serve . --listen 8080",
     "dev": "npx serve . --listen 3000 --cors",
+    "stack": "docker compose up --build",
+    "stack:down": "docker compose down --remove-orphans",
+    "stack:test": "docker compose run --rm db-tests",
     "validate": "echo 'Validating project structure...' && test -f index.html && echo '✅ index.html OK' && test -f manifest.json && echo '✅ manifest.json OK' && test -f sw.js && echo '✅ sw.js OK' && echo '✅ All checks passed'",
     "lint:html": "npx html-validate index.html || true",
     "build:info": "echo '📊 Wasl Platform v1.3.0' && wc -l index.html && du -sh index.html",
