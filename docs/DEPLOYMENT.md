@@ -7,7 +7,7 @@
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
-- [Option 1 — Open Live System (No Setup)](#option-1--open-live-system-no-setup)
+- [Option 1 — Open Innovation Platform Preview (No Setup)](#option-1--open-innovation-platform-preview-no-setup)
 - [Option 2 — Run Locally](#option-2--run-locally)
 - [Option 3 — Deploy to GitHub Pages](#option-3--deploy-to-github-pages)
 - [Option 4 — Run Tests](#option-4--run-tests)
@@ -38,9 +38,9 @@
 
 ---
 
-## Option 1 — Open Live System (No Setup)
+## Option 1 — Open Innovation Platform Preview (No Setup)
 
-The system is deployed on GitHub Pages and requires no installation:
+The innovation platform preview is deployed on GitHub Pages and requires no installation:
 
 ```
 https://moha-111.github.io/Medical-Transport-Operations-Analytics/
@@ -50,7 +50,7 @@ https://moha-111.github.io/Medical-Transport-Operations-Analytics/
 2. Select your role on the login screen
 3. Click **Enter System**
 
-> The live system includes the full dataset (14,169 missions) pre-loaded for demonstration.
+> The platform preview includes the full synthetic dataset (14,169 missions) pre-loaded for demonstration.
 
 ---
 

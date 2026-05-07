@@ -19,7 +19,7 @@
 
 ## Quick Links
 
-- **Live System:** https://moha-111.github.io/Medical-Transport-Operations-Analytics/
+- **Innovation Platform Preview:** https://moha-111.github.io/Medical-Transport-Operations-Analytics/
 - **Main README:** [../README.md](../README.md)
 - **Source Code:** [../src/core.js](../src/core.js)
 - **Tests:** [../tests/](../tests/)

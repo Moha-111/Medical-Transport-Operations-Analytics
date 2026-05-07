@@ -29,7 +29,7 @@ In addition, the platform automatically generates AI-powered operational reports
 
 > **Innovation Project:** an AI-first healthcare operations intelligence platform designed to move from proof of value to pilot adoption and scalable deployment.
 
-### 🌐 [Live System](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
+### 🌐 [Innovation Platform Preview](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
 
 </div>
 
@@ -85,7 +85,7 @@ However, several operational gaps exist:
 
 <div align="center">
 
-[![Live System](https://img.shields.io/badge/▶%20Open%20Live%20System-00C9A7?style=for-the-badge&logo=githubpages&logoColor=white)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
+[![Innovation Platform Preview](https://img.shields.io/badge/▶%20Open%20Innovation%20Preview-00C9A7?style=for-the-badge&logo=githubpages&logoColor=white)](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
 
 ![Daily Report Email](./report-screenshot.png)
 
@@ -99,7 +99,7 @@ However, several operational gaps exist:
 
 ## 🚀 Quick Start
 
-### Option 1 — Open the Live System (No Setup)
+### Option 1 — Open the Innovation Platform Preview (No Setup)
 
 ```
 https://moha-111.github.io/Medical-Transport-Operations-Analytics/
@@ -121,7 +121,7 @@ xdg-open index.html      # Linux
 
 ### Option 3 — Import Your Own Data
 
-1. Open the live system or your local `index.html`
+1. Open the innovation platform preview or your local `index.html`
 2. Go to **Data Entry → Import Excel**
 3. Upload your `.xlsx` file with mission records
 4. The dashboard will auto-calculate all KPIs
