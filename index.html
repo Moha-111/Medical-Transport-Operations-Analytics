@@ -1673,6 +1673,8 @@ canvas{max-height:220px;}
             <span id="report-auto-webhook">Webhook غير مضاف</span>
             <span>→</span>
             <span id="report-auto-email">بريد غير محدد</span>
+            <span>→</span>
+            <span id="report-auto-schedule">إرسال يومي 07:00</span>
           </div>
         </div>
         <div class="card">
@@ -1691,10 +1693,16 @@ canvas{max-height:220px;}
             </div>
             <div class="form-group">
               <label>البريد المستلم للتقارير</label>
-              <input type="email" id="report-email" placeholder="operations@example.com"/>
+              <input type="email" id="report-email" value="alshehrimo7ammada@gmail.com" placeholder="operations@example.com" oninput="syncReportAutomationFields()"/>
+            </div>
+            <div class="form-group">
+              <label>وقت الإرسال اليومي بتوقيت الرياض</label>
+              <input type="time" id="report-send-time" value="07:00" oninput="saveReportAutomationSettings()"/>
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
               <button class="btn btn-primary btn-sm" onclick="sendAutomatedVisualReport()">📤 إرسال تقرير بصري إلى Make.com</button>
+              <button class="btn btn-secondary btn-sm" id="report-auto-toggle" onclick="toggleReportAutomation()">⏱ تفعيل الإرسال اليومي</button>
+              <button class="btn btn-secondary btn-sm" onclick="testReportAutomation()">🧪 اختبار فعلي</button>
               <button class="btn btn-secondary btn-sm" onclick="openVisualReport()">👁️ فتح التقرير البصري</button>
               <button class="btn btn-secondary btn-sm" onclick="syncReportAutomationFields();showToast('تم حفظ إعدادات الأتمتة ✅','success')">💾 حفظ الربط</button>
             </div>
@@ -2539,6 +2547,11 @@ const CENTERS_DATA = [
   {id:'C19',missions: 335,paramedics: 5,ambulances: 2,resp:64.8,dispatch:5.6,late:96.1,travelTime:49.8},
   {id:'C20',missions: 323,paramedics: 5,ambulances: 2,resp:66.8,dispatch:5.6,late:95.7,travelTime:51.8},
 ];
+
+const DEFAULT_REPORT_EMAIL = 'alshehrimo7ammada@gmail.com';
+const REPORT_AUTOMATION_KEY = 'wasl_report_automation_v1';
+let REPORT_AUTOMATION = { enabled:true, time:'07:00', lastSentDate:'' };
+let _reportAutomationTimer = null;
 
 // مسعفون — بيانات حقيقية من ملف الإكسل (88 مسعف، متوسط 161 مهمة/مسعف)
 // الحقول: shift=الوردية المخصصة، scheduledToday=مجدول للحضور اليوم، status=الحالة الفعلية
@@ -3916,6 +3929,9 @@ function getVisualReportData() {
   const topCenters = [...CENTERS_DATA].sort((a,b)=>b.missions-a.missions).slice(0,5);
   const riskCenters = [...CENTERS_DATA].sort((a,b)=>b.late-a.late).slice(0,4);
   const activeIncidents = typeof DIRECT_INCIDENTS !== 'undefined' ? DIRECT_INCIDENTS.length : 0;
+  const configuredEmail = document.getElementById('report-email')?.value
+    || document.getElementById('report-card-email')?.value
+    || DEFAULT_REPORT_EMAIL;
   return {
     dateStr,
     totalMissions,
@@ -3931,7 +3947,7 @@ function getVisualReportData() {
     automation: {
       source: (typeof SYNC !== 'undefined' && SYNC.gsUrl) ? 'Google Sheets / Excel' : 'Excel محلي',
       webhookReady: Boolean(typeof SYNC !== 'undefined' && SYNC.webhookUrl),
-      email: (typeof SYNC !== 'undefined' && SYNC.alertEmail) || document.getElementById('report-email')?.value || 'operations@example.com',
+      email: (typeof SYNC !== 'undefined' && SYNC.alertEmail) || configuredEmail,
     },
     recommendations: [
       'تفعيل تقرير يومي مؤتمت من Excel/Google Sheets عبر Make.com إلى البريد التنفيذي.',
@@ -4160,32 +4176,48 @@ function syncReportAutomationFields() {
   if(typeof SYNC !== 'undefined') {
     const gs = document.getElementById('report-gs-url')?.value?.trim();
     const wh = document.getElementById('report-webhook-url')?.value?.trim();
-    const em = document.getElementById('report-email')?.value?.trim() || document.getElementById('report-card-email')?.value?.trim();
+    const em = document.getElementById('report-email')?.value?.trim()
+      || document.getElementById('report-card-email')?.value?.trim()
+      || SYNC.alertEmail
+      || DEFAULT_REPORT_EMAIL;
     if(gs) SYNC.gsUrl = gs;
     if(wh) SYNC.webhookUrl = wh;
-    if(em) SYNC.alertEmail = em;
+    SYNC.alertEmail = em;
+    const settingEmail = document.getElementById('setting-email');
+    const whEmail = document.getElementById('wh-email');
+    if(settingEmail && !settingEmail.value) settingEmail.value = em;
+    if(whEmail && !whEmail.value) whEmail.value = em;
     if(typeof saveCFG === 'function') saveCFG();
   }
+  saveReportAutomationSettings(false);
   updateReportAutomationUI();
 }
 
 function updateReportAutomationUI() {
-  const setVal = (id, value) => { const el = document.getElementById(id); if(el && value && !el.value) el.value = value; };
+  const setVal = (id, value, force=false) => { const el = document.getElementById(id); if(el && value && (force || !el.value)) el.value = value; };
   const setText = (id, value) => { const el = document.getElementById(id); if(el) el.textContent = value; };
   const gs = typeof SYNC !== 'undefined' ? SYNC.gsUrl : '';
   const wh = typeof SYNC !== 'undefined' ? SYNC.webhookUrl : '';
-  const em = typeof SYNC !== 'undefined' ? SYNC.alertEmail : '';
+  const em = (typeof SYNC !== 'undefined' ? SYNC.alertEmail : '') || DEFAULT_REPORT_EMAIL;
   setVal('report-gs-url', gs);
   setVal('report-webhook-url', wh);
   setVal('report-email', em);
-  setVal('report-card-email', em);
+  setVal('report-card-email', em, true);
+  setVal('setting-email', em);
+  setVal('wh-email', em);
+  setVal('report-send-time', REPORT_AUTOMATION.time || '07:00', true);
   setText('report-auto-source', gs ? 'Google Sheets متصل' : 'Excel محلي');
   setText('report-auto-webhook', wh ? 'Make.com Webhook متصل' : 'Webhook غير مضاف');
-  setText('report-auto-email', em ? `إرسال إلى ${em}` : 'بريد غير محدد');
+  setText('report-auto-email', `إرسال إلى ${em}`);
+  setText('report-auto-schedule', REPORT_AUTOMATION.enabled ? `إرسال يومي ${REPORT_AUTOMATION.time} — مفعل` : `إرسال يومي ${REPORT_AUTOMATION.time} — متوقف`);
   const tag = document.getElementById('report-automation-tag');
   if(tag) {
-    tag.textContent = wh ? 'متصل بـ Make.com' : 'جاهز للربط';
+    tag.textContent = wh ? 'أتمتة فعلية متصلة' : 'ينتظر Webhook';
     tag.className = wh ? 'card-tag tag-live' : 'card-tag tag-info';
+  }
+  const toggle = document.getElementById('report-auto-toggle');
+  if(toggle) {
+    toggle.textContent = REPORT_AUTOMATION.enabled ? '⏸ إيقاف الإرسال اليومي' : '⏱ تفعيل الإرسال اليومي';
   }
 }
 
@@ -4195,7 +4227,90 @@ function renderVisualReportPreview() {
   updateReportAutomationUI();
 }
 
-function buildAutomationReportPayload() {
+function loadReportAutomationSettings() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(REPORT_AUTOMATION_KEY) || '{}');
+    REPORT_AUTOMATION = {
+      enabled: stored.enabled !== false,
+      time: stored.time || '07:00',
+      lastSentDate: stored.lastSentDate || '',
+    };
+  } catch(e) {
+    REPORT_AUTOMATION = { enabled:true, time:'07:00', lastSentDate:'' };
+  }
+}
+
+function saveReportAutomationSettings(updateFromForm = true) {
+  if(updateFromForm) {
+    REPORT_AUTOMATION.time = document.getElementById('report-send-time')?.value || REPORT_AUTOMATION.time || '07:00';
+  }
+  try { localStorage.setItem(REPORT_AUTOMATION_KEY, JSON.stringify(REPORT_AUTOMATION)); } catch(e) {}
+  updateReportAutomationUI();
+}
+
+function getRiyadhClockParts() {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone:'Asia/Riyadh',
+    year:'numeric',
+    month:'2-digit',
+    day:'2-digit',
+    hour:'2-digit',
+    minute:'2-digit',
+    hour12:false,
+  }).formatToParts(new Date()).reduce((acc, part) => {
+    if(part.type !== 'literal') acc[part.type] = part.value;
+    return acc;
+  }, {});
+  return {
+    date: `${parts.year}-${parts.month}-${parts.day}`,
+    time: `${parts.hour}:${parts.minute}`,
+  };
+}
+
+function shouldAutoSendReport() {
+  const wh = typeof SYNC !== 'undefined' ? SYNC.webhookUrl : '';
+  const em = typeof SYNC !== 'undefined' ? SYNC.alertEmail : '';
+  if(!REPORT_AUTOMATION.enabled || !wh || !em) return false;
+  const now = getRiyadhClockParts();
+  return now.time >= REPORT_AUTOMATION.time && REPORT_AUTOMATION.lastSentDate !== now.date;
+}
+
+async function runReportAutomationTick() {
+  syncReportAutomationFields();
+  if(!shouldAutoSendReport()) return;
+  const sent = await sendAutomatedVisualReport({open:false, automated:true});
+  if(sent) {
+    REPORT_AUTOMATION.lastSentDate = getRiyadhClockParts().date;
+    saveReportAutomationSettings(false);
+  }
+}
+
+function startReportAutomationScheduler() {
+  loadReportAutomationSettings();
+  syncReportAutomationFields();
+  if(_reportAutomationTimer) clearInterval(_reportAutomationTimer);
+  _reportAutomationTimer = setInterval(runReportAutomationTick, 60000);
+  setTimeout(runReportAutomationTick, 1200);
+  updateReportAutomationUI();
+}
+
+function toggleReportAutomation() {
+  REPORT_AUTOMATION.enabled = !REPORT_AUTOMATION.enabled;
+  saveReportAutomationSettings();
+  showToast(REPORT_AUTOMATION.enabled ? 'تم تفعيل الإرسال اليومي للتقارير ✅' : 'تم إيقاف الإرسال اليومي للتقارير','info');
+}
+
+async function testReportAutomation() {
+  syncReportAutomationFields();
+  const webhook = typeof SYNC !== 'undefined' ? SYNC.webhookUrl : '';
+  if(!webhook) {
+    showToast('الأتمتة الفعلية تحتاج Webhook من Make.com. البريد محفوظ الآن لكن الإرسال لن يتم بدون Webhook.','error');
+    return false;
+  }
+  return sendAutomatedVisualReport({open:false, automated:true});
+}
+
+function buildAutomationReportPayload(options = {}) {
   syncReportAutomationFields();
   const data = getVisualReportData();
   return {
@@ -4205,6 +4320,11 @@ function buildAutomationReportPayload() {
     generated_at: new Date().toISOString(),
     dashboard_url: window.location.href,
     source: data.automation.source,
+    schedule: {
+      enabled: REPORT_AUTOMATION.enabled,
+      time_riyadh: REPORT_AUTOMATION.time,
+      automated_run: Boolean(options.automated),
+    },
     summary: {
       total_missions: data.totalMissions,
       readiness: data.readiness,
@@ -4232,12 +4352,12 @@ function openVisualReport() {
 }
 
 async function sendAutomatedVisualReport(options = {}) {
-  const payload = buildAutomationReportPayload();
+  const payload = buildAutomationReportPayload(options);
   renderVisualReportPreview();
   const webhook = typeof SYNC !== 'undefined' ? SYNC.webhookUrl : '';
   if(options.open !== false) openVisualReport();
   if(!webhook) {
-    showToast('أضف Webhook الخاص بـ Make.com ليتم الإرسال تلقائياً. تم فتح التقرير البصري للمعاينة.','info');
+    if(!options.automated) showToast('أضف Webhook الخاص بـ Make.com ليتم الإرسال تلقائياً. تم فتح التقرير البصري للمعاينة.','info');
     return false;
   }
   try {
@@ -4247,7 +4367,7 @@ async function sendAutomatedVisualReport(options = {}) {
       body: JSON.stringify(payload),
       mode:'no-cors',
     });
-    showToast('تم إرسال التقرير البصري إلى Make.com — تحقق من السيناريو والبريد ✅','success');
+    showToast(options.automated ? 'تم إرسال التقرير اليومي تلقائياً إلى Make.com ✅' : 'تم إرسال التقرير البصري إلى Make.com — تحقق من السيناريو والبريد ✅','success');
     const history = document.getElementById('reports-history');
     if(history) {
       const item = document.createElement('div');
@@ -4322,7 +4442,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderAlerts();
   renderReportsHistory();
   renderDirectIncidents();
-  renderVisualReportPreview();
   renderFaults();
   renderSupervision();
   renderWorkflow();
@@ -4337,6 +4456,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
   // Init live sync
   initLiveSync();
+  startReportAutomationScheduler();
 });
 document.addEventListener('click',e=>{
   const panel=document.getElementById('notifPanel');
@@ -4357,7 +4477,7 @@ const SYNC = {
   source: null,           // 'sheets' | 'demo'
   gsUrl:       '',
   webhookUrl:  '',
-  alertEmail:  '',
+  alertEmail:  DEFAULT_REPORT_EMAIL,
   intervalMin: 5,
   lastSyncTs:  null,
   prevKPIs:    null,
@@ -4391,7 +4511,7 @@ function loadCFG() {
     const c = JSON.parse(localStorage.getItem(CFG_KEY)||'{}');
     if(c.gsUrl)       SYNC.gsUrl       = c.gsUrl;
     if(c.webhookUrl)  SYNC.webhookUrl  = c.webhookUrl;
-    if(c.alertEmail)  SYNC.alertEmail  = c.alertEmail;
+    SYNC.alertEmail = c.alertEmail || SYNC.alertEmail || DEFAULT_REPORT_EMAIL;
     if(c.intervalMin) SYNC.intervalMin = c.intervalMin;
     if(c.thresholds)  Object.assign(SYNC.thresholds, c.thresholds);
     if(c.alertLog)    SYNC.alertLog    = c.alertLog;

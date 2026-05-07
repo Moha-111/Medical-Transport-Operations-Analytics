@@ -408,6 +408,8 @@ Recommended Make.com scenario:
 3. **Gmail / Email** sends the visual report to the executive and operations recipients.
 4. Optional **Google Drive** archives each daily report for audit and master's project evidence.
 
+For real automation, configure the webhook URL inside the Reports page and keep the recipient email filled. Wasl stores the email, includes it in `destination_email`, and runs a daily in-dashboard scheduler at the configured Riyadh time. For unattended production automation, use Make.com's own Scheduler module with the same email/PDF scenario.
+
 ---
 
 ## 🧮 Analytics Engine
