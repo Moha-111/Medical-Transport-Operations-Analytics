@@ -487,6 +487,25 @@ body{
   border-radius:16px;
   padding:18px;
 }
+.pilot-principles{
+  display:grid;
+  grid-template-columns:1.1fr repeat(3,.9fr);
+  gap:14px;
+  margin:0 0 18px;
+}
+.pilot-principle{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px;
+}
+.pilot-principle strong{display:block;font-size:14px;margin-bottom:6px;color:var(--text)}
+.pilot-principle span{display:block;font-size:11.5px;line-height:1.6;color:var(--muted)}
+.pilot-principle.primary{
+  background:linear-gradient(135deg,rgba(0,201,167,.14),rgba(48,209,88,.08));
+  border-color:rgba(0,201,167,.28);
+}
+.pilot-principle.primary strong{color:var(--green)}
 
 /* ══ PROGRESS ══════════════════════════════════════════ */
 .progress-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
@@ -602,12 +621,14 @@ canvas{max-height:220px;}
 @media(max-width:1100px){
   .kpi-strip{grid-template-columns:repeat(3,1fr);}
   .grid-3{grid-template-columns:1fr 1fr;}
+  .pilot-principles{grid-template-columns:1fr 1fr;}
 }
 @media(max-width:768px){
   :root{--sidebar-w:0px;}
   .sidebar{transform:translateX(100%);width:260px;}
   .sidebar.open{transform:translateX(0);}
   .kpi-strip{grid-template-columns:1fr 1fr;}
+  .pilot-principles,.innovation-strip,.automation-grid,.incident-console{grid-template-columns:1fr;}
   .grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}
   .content{padding:16px;}
 }
@@ -1026,7 +1047,7 @@ canvas{max-height:220px;}
       <div class="section-header">
         <div>
           <h2>لوحة التحكم الرئيسية</h2>
-          <p>نظرة شاملة على عمليات نقل المرضى — يناير – ديسمبر 2025</p>
+          <p>نسخة أولية منخفضة التكلفة: Excel متصل، تقارير مؤتمتة، ولوحة ذكية تتعلم من المدخلات التشغيلية</p>
         </div>
         <div style="display:flex;gap:10px;align-items:center">
           <div style="background:rgba(48,209,88,0.15);border:1px solid var(--green);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--green);display:flex;align-items:center;gap:6px;">
@@ -1035,6 +1056,25 @@ canvas{max-height:220px;}
           </div>
           <button class="btn btn-secondary btn-sm" onclick="refreshData()">🔄 تحديث</button>
           <button class="btn btn-primary btn-sm" onclick="navigate('entry')">➕ مهمة جديدة</button>
+        </div>
+      </div>
+
+      <div class="pilot-principles">
+        <div class="pilot-principle primary">
+          <strong>مبدأ المرحلة الأولى: أقل تكلفة وأسرع قيمة</strong>
+          <span>لا نبدأ بنظام ضخم أو تكاملات مكلفة. نثبت الأثر أولاً من لوحة متصلة بملف Excel قابل للتحديث، ثم نوسع الربط تدريجياً عند نجاح التجربة.</span>
+        </div>
+        <div class="pilot-principle">
+          <strong>Excel كمصدر بيانات</strong>
+          <span>البيانات التشغيلية اليومية تُرفع من Excel أو Google Sheets لتغذية المؤشرات والتقارير بدون بنية تقنية معقدة.</span>
+        </div>
+        <div class="pilot-principle">
+          <strong>تقارير مؤتمتة</strong>
+          <span>تقرير يومي وملخص بلاغ فوري وموجز تنفيذي جاهز للمشاركة مع القيادة أو فريق البحث.</span>
+        </div>
+        <div class="pilot-principle">
+          <strong>تعلم تدريجي من المدخلات</strong>
+          <span>كل بلاغ أو إحالة جديدة تحسن التوصيات، التصنيف، وفهم أسباب التحويل والفرص الممكنة لتقليل التكلفة.</span>
         </div>
       </div>
 
@@ -1510,15 +1550,15 @@ canvas{max-height:220px;}
     <!-- ══ PAGE: REPORTS ═══════════════════════════════════════ -->
     <div class="page" id="page-reports">
       <div class="section-header">
-        <div><h2>التقارير التلقائية</h2><p>مدعومة بـ Make.com + OpenAI GPT-4o — إرسال يومي 7:00 صباحاً</p></div>
+        <div><h2>التقارير التلقائية</h2><p>مرحلة أولى منخفضة التكلفة: Excel / Google Sheets → لوحة وصل → تقرير يومي مؤتمت</p></div>
       </div>
 
       <!-- STATUS BANNER -->
       <div style="background:linear-gradient(135deg,rgba(0,201,167,.15),rgba(0,152,219,.1));border:1px solid rgba(0,201,167,.3);border-radius:14px;padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;gap:16px;">
         <div style="width:12px;height:12px;background:#00C9A7;border-radius:50%;box-shadow:0 0 8px #00C9A7;flex-shrink:0;animation:pulse-dot 1.5s infinite;"></div>
         <div style="flex:1;">
-          <div style="font-weight:800;color:#00C9A7;font-size:14px;">نظام الإرسال التلقائي — شغّال ✅</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:3px;">Make.com + OpenAI GPT-4o → البريد الإلكتروني — كل يوم الساعة 7:00 صباحاً بتوقيت الرياض</div>
+          <div style="font-weight:800;color:#00C9A7;font-size:14px;">نظام الإرسال التلقائي — جاهز للتشغيل منخفض التكلفة ✅</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px;">Excel / Google Sheets → تحليل ذكي → بريد إلكتروني يومي — قابل للتفعيل بدون تكاملات مؤسسية مكلفة في البداية</div>
         </div>
         <div style="text-align:center;">
           <div class="num" id="report-countdown" style="font-size:22px;font-weight:900;color:var(--teal);">00:00:00</div>
@@ -1530,7 +1570,7 @@ canvas{max-height:220px;}
         <div class="automation-card">
           <div class="auto-icon">📊</div>
           <h3>تقرير تنفيذي يومي</h3>
-          <p>ملخص تلقائي للمؤشرات، البلاغات، جاهزية الموارد، والتوصيات التشغيلية بصياغة قيادية.</p>
+          <p>ملخص تلقائي من ملف Excel للمؤشرات، البلاغات، جاهزية الموارد، والتوصيات التشغيلية بصياغة قيادية.</p>
           <span class="auto-status">جاهز للمشاركة</span>
         </div>
         <div class="automation-card">
@@ -1541,8 +1581,8 @@ canvas{max-height:220px;}
         </div>
         <div class="automation-card">
           <div class="auto-icon">🧠</div>
-          <h3>تحليل بحثي للماجستير</h3>
-          <p>تصنيف البلاغات ومخرجات قابلة للتصدير لدراسة أثر الأتمتة على الاستجابة وجودة القرار.</p>
+          <h3>لوحة تتعلم من المدخلات</h3>
+          <p>كل إدخال جديد يحسن التصنيف، توصيات الجاهزية، أسباب التحويل، وفرص تقليل التكلفة مع الوقت.</p>
           <span class="auto-status">قابل للتطوير</span>
         </div>
         <div class="automation-card">
@@ -1556,10 +1596,10 @@ canvas{max-height:220px;}
       <div class="research-pack" style="margin-bottom:20px">
         <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap">
           <div>
-            <div class="card-title" style="color:var(--purple);margin-bottom:8px">مسار الأتمتة المقترح للمشاركة الأكاديمية</div>
-            <h3 style="font-size:18px;margin-bottom:8px">منصة قابلة للعرض كمشروع ابتكاري أثناء الماجستير</h3>
+            <div class="card-title" style="color:var(--purple);margin-bottom:8px">مسار أولي منخفض التكلفة للمشاركة الأكاديمية</div>
+            <h3 style="font-size:18px;margin-bottom:8px">نثبت القيمة أولاً من Excel والتقارير الذكية ثم نوسّع التكامل</h3>
             <p style="font-size:12px;color:var(--muted);line-height:1.7;max-width:760px">
-              يجمع النظام بين إدخال البلاغات المباشرة، التقارير التلقائية، مؤشرات الأداء الإيجابية، وسجل قرارات قابل للتحليل البحثي لقياس أثر الأتمتة على النقل الطبي وإدارة الموارد.
+              يجمع النظام بين إدخال البلاغات المباشرة، ملف Excel كمصدر بيانات، التقارير التلقائية، ومؤشرات الأداء الإيجابية. الهدف في البداية هو خفض التكلفة، إثبات الأثر، وبناء سجل مدخلات يسمح للوحة أن تتعلم تدريجياً قبل أي ربط كامل مع الأنظمة المؤسسية.
             </p>
           </div>
           <button class="btn btn-primary btn-sm" onclick="generateInnovationBrief()">توليد موجز المشروع</button>
@@ -3815,7 +3855,7 @@ function generateInnovationBrief() {
     li{margin-bottom:7px}.box{background:#ecfeff;border-right:4px solid #00a889;border-radius:12px;padding:14px 16px;margin-top:16px}
   </style></head><body><div class="page">
     <h1>وصل | مشروع ابتكاري لإدارة النقل الطبي والبلاغات</h1>
-    <div class="meta">نسخة مشاركة أكاديمية وتنفيذية | ${today}</div>
+    <div class="meta">نسخة مشاركة أكاديمية وتنفيذية منخفضة التكلفة | ${today}</div>
     <div class="grid">
       <div class="k"><div class="v">94%</div><div class="l">جاهزية تشغيلية</div></div>
       <div class="k"><div class="v">96.7%</div><div class="l">التزام بزمن الخدمة</div></div>
@@ -3823,15 +3863,16 @@ function generateInnovationBrief() {
       <div class="k"><div class="v">98%</div><div class="l">جاهزية التقارير</div></div>
     </div>
     <h2>الفكرة</h2>
-    <p>منصة وصل تربط بيانات النقل الطبي، البلاغات، الجاهزية، والتقارير في واجهة واحدة تدعم القرار التشغيلي وتولد توصيات قابلة للتنفيذ.</p>
+    <p>منصة وصل تبدأ كلوحة ذكية منخفضة التكلفة متصلة بملف Excel أو Google Sheets، ثم تؤتمت التقارير وتتعلم تدريجياً من البلاغات والإحالات الجديدة قبل الانتقال إلى أي تكامل مؤسسي واسع.</p>
     <h2>ما يميز المشروع</h2>
     <ul>
+      <li>مرحلة أولى لا تحتاج بناء نظام مكلف: Excel متصل، لوحة تشغيلية، وتقارير تلقائية.</li>
       <li>إدخال بلاغ مباشر وتحويله إلى توصية تشغيلية فورية.</li>
       <li>مؤشرات إيجابية تقيس الجاهزية، الالتزام، وجودة الإغلاق.</li>
-      <li>نظام تقارير وأتمتة مناسب للعرض التنفيذي والمشاركة البحثية.</li>
+      <li>لوحة تتعلم من المدخلات المتراكمة لتحسين التصنيف والتوصيات وأسباب التحويل.</li>
       <li>ملف بيانات قابل للتوسع والتحليل لقياس أثر الأتمتة أثناء الماجستير.</li>
     </ul>
-    <div class="box"><strong>القيمة البحثية:</strong> يمكن استخدام المشروع لدراسة أثر الأتمتة والذكاء الاصطناعي على سرعة القرار، جودة الاستجابة، وتحسين إدارة موارد النقل الطبي.</div>
+    <div class="box"><strong>القيمة البحثية:</strong> يمكن استخدام المشروع لدراسة أثر الأتمتة منخفضة التكلفة والذكاء الاصطناعي على سرعة القرار، جودة الاستجابة، وتحسين إدارة موارد النقل الطبي.</div>
   </div></body></html>`);
   w.document.close();
   showToast('تم توليد موجز المشروع الابتكاري', 'success');

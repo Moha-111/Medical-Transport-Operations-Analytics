@@ -27,7 +27,7 @@ In addition, the platform automatically generates AI-powered operational reports
 
 <br/>
 
-> **Innovation Project:** an AI-first healthcare operations intelligence platform designed to move from proof of value to pilot adoption and scalable deployment.
+> **Innovation Project:** a low-cost, Excel-connected healthcare operations intelligence platform designed to prove value first, automate reports, and learn gradually from operational inputs before any expensive enterprise integration.
 
 ### 🌐 [Innovation Platform Preview](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
 
@@ -64,6 +64,20 @@ In addition, the platform automatically generates AI-powered operational reports
 **Wasl** in Arabic means *"to connect"* — connecting patients to hospitals, and decisions to data.
 
 This project demonstrates how **AI-first innovation** can produce enterprise-grade healthcare analytics that is suitable for executive review, controlled pilots, and future production hardening.
+
+### Low-Cost Pilot Principle
+
+The first version is intentionally designed to avoid high implementation cost:
+
+| Principle | Initial Approach |
+|-----------|------------------|
+| Data source | Use the existing Excel workbook or Google Sheets as the operational database |
+| Dashboard | Connect the dashboard directly to the updated file instead of building a new core system |
+| Reports | Automate daily executive reports from the same data source |
+| Intelligence | Learn from each new incident, referral, department, and transfer reason to improve recommendations over time |
+| Integration | Expand to APIs and enterprise platforms only after the pilot proves measurable value |
+
+This keeps the project practical for a master's-stage innovation project while still showing a scalable path.
 
 ---
 
@@ -520,15 +534,18 @@ Hajj season sees **2+ million pilgrims** with thousands of daily medical transfe
 
 ---
 
-## 💼 Business Model
+## 💼 Pilot Cost Strategy
 
-| Plan | Target | Price | Features |
-|------|--------|-------|---------|
-| 🔵 **Basic** | Small clinics | 500 SAR/month | Dashboard + Reports |
-| 🟡 **Pro** | Hospitals | 1,500 SAR/month | + WhatsApp Alerts + AI Reports |
-| 🔴 **Enterprise** | Hospital chains | Custom | + Multi-branch + API Access |
+The priority is not to sell an expensive platform at the beginning. The priority is to prove impact with the lowest practical setup cost.
 
-> **10 hospitals = 15,000 SAR/month recurring revenue**
+| Phase | Scope | Cost Control |
+|------|-------|--------------|
+| 🔵 **Prototype** | Local dashboard + Excel workbook + manual import | Uses existing files and avoids new infrastructure |
+| 🟢 **Pilot** | Google Sheets link + automated daily reports + direct incident entry | Adds automation without full enterprise integration |
+| 🟡 **Smart Pilot** | Recommendation learning from repeated inputs and transfer reasons | Improves intelligence from accumulated data |
+| 🔴 **Scale Later** | APIs, platform integrations, identity, permissions, and production hosting | Added only after measurable value is proven |
+
+> **Positioning:** start lean, prove value, then scale. The first version should be affordable enough to run during the master's project and credible enough to present to leadership.
 
 ### Commercial Roadmap
 
