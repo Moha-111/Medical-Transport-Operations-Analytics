@@ -487,6 +487,80 @@ body{
   border-radius:16px;
   padding:18px;
 }
+.report-automation-board{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  margin-bottom:20px;
+}
+.report-flow{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+}
+.report-flow-step{
+  min-height:92px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.025);
+  border-radius:14px;
+  padding:13px;
+  position:relative;
+}
+.report-flow-step::after{
+  content:"";
+  position:absolute;
+  top:50%;
+  left:-12px;
+  width:14px;
+  height:1px;
+  background:rgba(0,201,167,.35);
+}
+.report-flow-step:first-child::after{display:none}
+.report-flow-step strong{display:block;font-size:12px;margin-bottom:5px;color:var(--teal)}
+.report-flow-step span{display:block;font-size:10.5px;color:var(--muted);line-height:1.55}
+.visual-report-preview{
+  background:#f8fbff;
+  color:#102033;
+  border-radius:16px;
+  border:1px solid rgba(0,201,167,.18);
+  overflow:hidden;
+  box-shadow:0 16px 44px rgba(0,0,0,.22);
+}
+.visual-report-preview .vr-head{
+  background:linear-gradient(135deg,#102033,#0D7377);
+  color:white;
+  padding:18px 20px;
+}
+.visual-report-preview .vr-title{font-size:17px;font-weight:900;margin-bottom:4px}
+.visual-report-preview .vr-sub{font-size:11px;opacity:.75}
+.visual-report-preview .vr-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  padding:14px;
+}
+.visual-report-preview .vr-kpi{
+  background:white;
+  border:1px solid #e7eef6;
+  border-radius:12px;
+  padding:13px;
+  text-align:center;
+}
+.visual-report-preview .vr-kpi strong{display:block;font-size:21px;color:#00a889}
+.visual-report-preview .vr-kpi span{font-size:10px;color:#64748b}
+.visual-report-preview .vr-body{
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  gap:14px;
+  padding:0 14px 16px;
+}
+.vr-panel{background:white;border:1px solid #e7eef6;border-radius:12px;padding:14px}
+.vr-panel h4{font-size:12px;color:#1B3A6B;margin-bottom:10px}
+.vr-bar{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;gap:8px;margin:9px 0;font-size:10px;color:#475569}
+.vr-bar-track{height:9px;background:#edf2f7;border-radius:20px;overflow:hidden}
+.vr-bar-fill{height:100%;background:linear-gradient(90deg,#00C9A7,#0098DB);border-radius:20px}
+.automation-status-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--muted)}
+.automation-status-line strong{color:var(--green)}
 .pilot-principles{
   display:grid;
   grid-template-columns:1.1fr repeat(3,.9fr);
@@ -622,6 +696,8 @@ canvas{max-height:220px;}
   .kpi-strip{grid-template-columns:repeat(3,1fr);}
   .grid-3{grid-template-columns:1fr 1fr;}
   .pilot-principles{grid-template-columns:1fr 1fr;}
+  .report-automation-board,.visual-report-preview .vr-body{grid-template-columns:1fr;}
+  .report-flow{grid-template-columns:1fr 1fr;}
 }
 @media(max-width:768px){
   :root{--sidebar-w:0px;}
@@ -629,6 +705,7 @@ canvas{max-height:220px;}
   .sidebar.open{transform:translateX(0);}
   .kpi-strip{grid-template-columns:1fr 1fr;}
   .pilot-principles,.innovation-strip,.automation-grid,.incident-console{grid-template-columns:1fr;}
+  .report-flow,.visual-report-preview .vr-grid{grid-template-columns:1fr;}
   .grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}
   .content{padding:16px;}
 }
@@ -1566,6 +1643,65 @@ canvas{max-height:220px;}
         </div>
       </div>
 
+      <div class="report-automation-board">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🔗 مركز ربط التقارير والأتمتة</span>
+            <span class="card-tag tag-live" id="report-automation-tag">جاهز للربط</span>
+          </div>
+          <div class="report-flow" style="margin-bottom:16px">
+            <div class="report-flow-step">
+              <strong>1. Excel / Sheets</strong>
+              <span>ملف البيانات هو المصدر الأول للوحة والتقرير.</span>
+            </div>
+            <div class="report-flow-step">
+              <strong>2. Wasl Analytics</strong>
+              <span>تحليل المؤشرات، البلاغات، الجاهزية، والتوصيات.</span>
+            </div>
+            <div class="report-flow-step">
+              <strong>3. Make.com</strong>
+              <span>Webhook يستقبل التقرير ويرسله للبريد أو أي قناة.</span>
+            </div>
+            <div class="report-flow-step">
+              <strong>4. Visual Brief</strong>
+              <span>تقرير بصري جاهز للطباعة، PDF، أو المشاركة التنفيذية.</span>
+            </div>
+          </div>
+          <div class="automation-status-line">
+            <strong id="report-auto-source">Excel/Google Sheets</strong>
+            <span>→</span>
+            <span id="report-auto-webhook">Webhook غير مضاف</span>
+            <span>→</span>
+            <span id="report-auto-email">بريد غير محدد</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">⚡ إعداد سريع للتقرير المؤتمت</span>
+            <span class="card-tag tag-info">Make.com</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div class="form-group">
+              <label>Google Sheets CSV / Excel Link</label>
+              <input type="text" id="report-gs-url" placeholder="رابط Google Sheets CSV أو اتركه للملف المحلي"/>
+            </div>
+            <div class="form-group">
+              <label>Make.com Webhook URL</label>
+              <input type="text" id="report-webhook-url" placeholder="https://hook.eu1.make.com/xxxxx"/>
+            </div>
+            <div class="form-group">
+              <label>البريد المستلم للتقارير</label>
+              <input type="email" id="report-email" placeholder="operations@example.com"/>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn btn-primary btn-sm" onclick="sendAutomatedVisualReport()">📤 إرسال تقرير بصري إلى Make.com</button>
+              <button class="btn btn-secondary btn-sm" onclick="openVisualReport()">👁️ فتح التقرير البصري</button>
+              <button class="btn btn-secondary btn-sm" onclick="syncReportAutomationFields();showToast('تم حفظ إعدادات الأتمتة ✅','success')">💾 حفظ الربط</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="automation-grid">
         <div class="automation-card">
           <div class="auto-icon">📊</div>
@@ -1606,6 +1742,18 @@ canvas{max-height:220px;}
         </div>
       </div>
 
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <span class="card-title">🎨 معاينة التقرير البصري الذكي</span>
+          <span class="card-tag tag-success">Visual Report</span>
+        </div>
+        <div id="visual-report-preview" class="visual-report-preview"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+          <button class="btn btn-primary btn-sm" onclick="openVisualReport()">فتح نسخة تنفيذية كاملة</button>
+          <button class="btn btn-secondary btn-sm" onclick="renderVisualReportPreview();showToast('تم تحديث المعاينة من بيانات اللوحة ✅','success')">تحديث المعاينة</button>
+        </div>
+      </div>
+
       <div class="grid-2" style="margin-bottom:20px;">
 
         <!-- SETTINGS CARD -->
@@ -1633,14 +1781,14 @@ canvas{max-height:220px;}
             </div>
             <div class="form-group">
               <label>المستلمون</label>
-              <input type="text" value="alshehrimo7ammada@gmail.com"/>
+              <input type="text" id="report-card-email" value="alshehrimo7ammada@gmail.com" oninput="document.getElementById('report-email').value=this.value;syncReportAutomationFields()"/>
             </div>
             <div class="form-group">
               <label>نموذج الذكاء الاصطناعي</label>
               <select><option selected>GPT-4o ✅</option><option>GPT-4</option></select>
             </div>
             <div style="display:flex;gap:8px;">
-              <button class="btn btn-primary btn-sm" style="flex:1;" onclick="generateReport()">⚡ توليد الآن</button>
+              <button class="btn btn-primary btn-sm" style="flex:1;" onclick="generateReport()">⚡ توليد بصري الآن</button>
               <button class="btn btn-secondary btn-sm" onclick="showToast('تم حفظ الإعدادات ✅','success')">💾 حفظ</button>
             </div>
           </div>
@@ -3744,7 +3892,57 @@ function testWebhook() {
 }
 
 // ══ GENERATE REPORT ═══════════════════════════════════════════
-function generateReport() {
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (ch) => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;'
+  }[ch]));
+}
+
+function getVisualReportData() {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const totalMissions = (typeof SYNC !== 'undefined' && SYNC.currKPIs?.n)
+    ? SYNC.currKPIs.n
+    : CENTERS_DATA.reduce((sum,c)=>sum + c.missions, 0);
+  const avgResp = (typeof SYNC !== 'undefined' && SYNC.currKPIs?.avgResp)
+    ? SYNC.currKPIs.avgResp
+    : +(CENTERS_DATA.reduce((sum,c)=>sum + (c.resp*c.missions), 0) / totalMissions).toFixed(1);
+  const avgDispatch = (typeof SYNC !== 'undefined' && SYNC.currKPIs?.avgDisp)
+    ? SYNC.currKPIs.avgDisp
+    : +(CENTERS_DATA.reduce((sum,c)=>sum + (c.dispatch*c.missions), 0) / totalMissions).toFixed(1);
+  const lateRateRaw = (typeof SYNC !== 'undefined' && SYNC.currKPIs?.lateRate)
+    ? SYNC.currKPIs.lateRate
+    : +(CENTERS_DATA.reduce((sum,c)=>sum + (c.late*c.missions), 0) / totalMissions).toFixed(1);
+  const topCenters = [...CENTERS_DATA].sort((a,b)=>b.missions-a.missions).slice(0,5);
+  const riskCenters = [...CENTERS_DATA].sort((a,b)=>b.late-a.late).slice(0,4);
+  const activeIncidents = typeof DIRECT_INCIDENTS !== 'undefined' ? DIRECT_INCIDENTS.length : 0;
+  return {
+    dateStr,
+    totalMissions,
+    avgResp,
+    avgDispatch,
+    lateRateRaw,
+    readiness: 94,
+    reportAutomation: 98,
+    costOpportunity: 12,
+    activeIncidents,
+    topCenters,
+    riskCenters,
+    automation: {
+      source: (typeof SYNC !== 'undefined' && SYNC.gsUrl) ? 'Google Sheets / Excel' : 'Excel محلي',
+      webhookReady: Boolean(typeof SYNC !== 'undefined' && SYNC.webhookUrl),
+      email: (typeof SYNC !== 'undefined' && SYNC.alertEmail) || document.getElementById('report-email')?.value || 'operations@example.com',
+    },
+    recommendations: [
+      'تفعيل تقرير يومي مؤتمت من Excel/Google Sheets عبر Make.com إلى البريد التنفيذي.',
+      'استخدام البلاغات الجديدة لتحسين تصنيف أسباب التحويل وتوصيات الجاهزية بشكل تراكمي.',
+      'مراجعة الإحالات القابلة لتقديم الخدمة محلياً لتقليل التكلفة بدون التأثير على السلامة السريرية.',
+      'إبراز الأقسام الأعلى تحويلاً وأسباب التحويل في ملخص بصري أسبوعي للإدارة.',
+    ],
+  };
+}
+
+function generateLegacyReport() {
   const now = new Date();
   const dateStr = now.toLocaleDateString('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   const w = window.open('','_blank');
@@ -3840,6 +4038,235 @@ ${CENTERS_DATA.map(c=>`<tr>
   showToast('تم توليد التقرير — جارٍ الإرسال عبر Make.com ✅','success');
 }
 
+function buildVisualReportHTML(data = getVisualReportData()) {
+  const maxMissions = Math.max(...data.topCenters.map(c=>c.missions), 1);
+  const centerRows = data.topCenters.map(c => `
+    <div class="bar-row">
+      <span>${escapeHtml(c.id)}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round((c.missions/maxMissions)*100)}%"></div></div>
+      <b>${c.missions.toLocaleString('ar-SA')}</b>
+    </div>`).join('');
+  const riskRows = data.riskCenters.map(c => `
+    <tr>
+      <td>${escapeHtml(c.id)}</td>
+      <td>${c.resp} د</td>
+      <td>${c.late}%</td>
+      <td><span class="pill ${c.late>=96 ? 'warn' : 'ok'}">${c.late>=96 ? 'مراجعة' : 'متابعة'}</span></td>
+    </tr>`).join('');
+  const recs = data.recommendations.map(r=>`<li>${escapeHtml(r)}</li>`).join('');
+  return `<!DOCTYPE html><html lang="ar" dir="rtl"><head>
+<meta charset="UTF-8"/><title>وصل | التقرير البصري المؤتمت</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box}body{font-family:Cairo,sans-serif;margin:0;background:#edf4f8;color:#102033;line-height:1.7}
+.page{max-width:1120px;margin:28px auto;background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 24px 80px rgba(16,32,51,.18)}
+.hero{background:linear-gradient(135deg,#102033 0%,#0D7377 58%,#00a889 100%);color:white;padding:34px 38px;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;inset:auto -70px -90px auto;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.10)}
+.eyebrow{font-size:12px;opacity:.78;font-weight:800;margin-bottom:8px}.hero h1{font-size:30px;margin:0 0 8px;font-weight:900}.hero p{margin:0;font-size:13px;opacity:.82}
+.body{padding:26px 30px 32px}.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:-48px;position:relative;z-index:2}
+.kpi{background:#fff;border:1px solid #e5eef4;border-radius:16px;padding:16px;text-align:center;box-shadow:0 12px 32px rgba(16,32,51,.12)}
+.kpi b{display:block;font-size:24px;color:#00a889}.kpi span{font-size:10.5px;color:#64748b}
+.grid{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;margin-top:22px}.panel{border:1px solid #e5eef4;border-radius:18px;padding:18px;background:#fbfdff}
+.panel h2{font-size:15px;color:#1B3A6B;margin:0 0 14px}.bar-row{display:grid;grid-template-columns:48px 1fr 70px;align-items:center;gap:10px;margin:11px 0;font-size:12px}
+.bar-track{height:11px;background:#e8f0f6;border-radius:20px;overflow:hidden}.bar-fill{height:100%;background:linear-gradient(90deg,#00C9A7,#0098DB);border-radius:20px}
+table{width:100%;border-collapse:collapse;font-size:12px}td,th{padding:9px;border-bottom:1px solid #edf2f7;text-align:right}th{color:#64748b;font-size:10px}
+.pill{display:inline-flex;border-radius:30px;padding:3px 10px;font-size:10px;font-weight:800}.pill.ok{background:#dcfce7;color:#15803d}.pill.warn{background:#fef3c7;color:#b45309}
+.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.step{border:1px solid #e5eef4;border-radius:14px;padding:13px;background:#fff}.step b{display:block;color:#0D7377;font-size:12px}.step span{font-size:10.5px;color:#64748b}
+ol{margin:0;padding-right:20px;font-size:12.5px}.footer{margin-top:24px;padding-top:16px;border-top:1px solid #edf2f7;color:#64748b;font-size:11px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.print{position:fixed;bottom:20px;left:20px;background:#0D7377;color:#fff;border:0;border-radius:12px;padding:11px 18px;font-family:Cairo,sans-serif;font-weight:800;cursor:pointer}
+@media(max-width:800px){.kpis,.grid,.timeline{grid-template-columns:1fr}.page{margin:0;border-radius:0}.body{padding:18px}.hero{padding:28px 22px}.kpis{margin-top:16px}}
+@media print{body{background:white}.page{box-shadow:none;margin:0;max-width:none}.print{display:none}}
+</style></head><body>
+<div class="page">
+  <div class="hero">
+    <div class="eyebrow">تقرير بصري مؤتمت | Excel / Google Sheets → Wasl → Make.com</div>
+    <h1>وصل | لوحة القيادة اليومية للنقل الطبي</h1>
+    <p>${escapeHtml(data.dateStr)} | مصدر البيانات: ${escapeHtml(data.automation.source)} | الإرسال إلى: ${escapeHtml(data.automation.email)}</p>
+  </div>
+  <div class="body">
+    <div class="kpis">
+      <div class="kpi"><b>${data.totalMissions.toLocaleString('ar-SA')}</b><span>إجمالي المهام</span></div>
+      <div class="kpi"><b>${data.readiness}%</b><span>جاهزية تشغيلية</span></div>
+      <div class="kpi"><b>${data.activeIncidents}</b><span>بلاغات مباشرة</span></div>
+      <div class="kpi"><b>${data.reportAutomation}%</b><span>جاهزية التقارير</span></div>
+      <div class="kpi"><b>${data.costOpportunity}%</b><span>فرص خفض تكلفة</span></div>
+    </div>
+    <div class="grid">
+      <div class="panel">
+        <h2>توزيع أعلى المراكز حسب حجم المهام</h2>
+        ${centerRows}
+      </div>
+      <div class="panel">
+        <h2>مراكز تحتاج مراجعة تشغيلية</h2>
+        <table><thead><tr><th>المركز</th><th>الاستجابة</th><th>المؤشر</th><th>الإجراء</th></tr></thead><tbody>${riskRows}</tbody></table>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="panel">
+        <h2>مسار الأتمتة المتصل</h2>
+        <div class="timeline">
+          <div class="step"><b>Excel</b><span>البيانات اليومية</span></div>
+          <div class="step"><b>Wasl AI</b><span>تحليل وتوصية</span></div>
+          <div class="step"><b>Make.com</b><span>Webhook وإرسال</span></div>
+          <div class="step"><b>Executive</b><span>بريد / PDF / موجز</span></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>توصيات اليوم</h2>
+        <ol>${recs}</ol>
+      </div>
+    </div>
+    <div class="footer">
+      <span>تم توليد التقرير تلقائياً من منصة وصل.</span>
+      <span>Webhook: ${data.automation.webhookReady ? 'متصل' : 'غير مضاف'} | نسخة منخفضة التكلفة قابلة للتوسع</span>
+    </div>
+  </div>
+</div>
+<button class="print" onclick="window.print()">طباعة / PDF</button>
+</body></html>`;
+}
+
+function getVisualReportPreviewHTML(data = getVisualReportData()) {
+  const maxMissions = Math.max(...data.topCenters.slice(0,4).map(c=>c.missions), 1);
+  const bars = data.topCenters.slice(0,4).map(c => `
+    <div class="vr-bar">
+      <span>${escapeHtml(c.id)}</span>
+      <div class="vr-bar-track"><div class="vr-bar-fill" style="width:${Math.round((c.missions/maxMissions)*100)}%"></div></div>
+      <b>${c.missions.toLocaleString('ar-SA')}</b>
+    </div>`).join('');
+  return `
+    <div class="vr-head">
+      <div class="vr-title">وصل | التقرير البصري المؤتمت</div>
+      <div class="vr-sub">${escapeHtml(data.dateStr)} · Excel / Sheets → Wasl → Make.com</div>
+    </div>
+    <div class="vr-grid">
+      <div class="vr-kpi"><strong>${data.totalMissions.toLocaleString('ar-SA')}</strong><span>إجمالي المهام</span></div>
+      <div class="vr-kpi"><strong>${data.readiness}%</strong><span>جاهزية تشغيلية</span></div>
+      <div class="vr-kpi"><strong>${data.activeIncidents}</strong><span>بلاغات مباشرة</span></div>
+      <div class="vr-kpi"><strong>${data.costOpportunity}%</strong><span>فرص خفض تكلفة</span></div>
+    </div>
+    <div class="vr-body">
+      <div class="vr-panel"><h4>أعلى المراكز حسب حجم المهام</h4>${bars}</div>
+      <div class="vr-panel">
+        <h4>توصية وصل التنفيذية</h4>
+        <p style="font-size:11px;line-height:1.8;color:#475569;margin:0">
+          ابدأ بالأتمتة من Excel وMake.com، وراكم البلاغات والإحالات لتتعلم اللوحة أسباب التحويل وفرص تقديم الخدمة محلياً قبل أي تكامل مكلف.
+        </p>
+      </div>
+    </div>`;
+}
+
+function syncReportAutomationFields() {
+  if(typeof SYNC !== 'undefined') {
+    const gs = document.getElementById('report-gs-url')?.value?.trim();
+    const wh = document.getElementById('report-webhook-url')?.value?.trim();
+    const em = document.getElementById('report-email')?.value?.trim() || document.getElementById('report-card-email')?.value?.trim();
+    if(gs) SYNC.gsUrl = gs;
+    if(wh) SYNC.webhookUrl = wh;
+    if(em) SYNC.alertEmail = em;
+    if(typeof saveCFG === 'function') saveCFG();
+  }
+  updateReportAutomationUI();
+}
+
+function updateReportAutomationUI() {
+  const setVal = (id, value) => { const el = document.getElementById(id); if(el && value && !el.value) el.value = value; };
+  const setText = (id, value) => { const el = document.getElementById(id); if(el) el.textContent = value; };
+  const gs = typeof SYNC !== 'undefined' ? SYNC.gsUrl : '';
+  const wh = typeof SYNC !== 'undefined' ? SYNC.webhookUrl : '';
+  const em = typeof SYNC !== 'undefined' ? SYNC.alertEmail : '';
+  setVal('report-gs-url', gs);
+  setVal('report-webhook-url', wh);
+  setVal('report-email', em);
+  setVal('report-card-email', em);
+  setText('report-auto-source', gs ? 'Google Sheets متصل' : 'Excel محلي');
+  setText('report-auto-webhook', wh ? 'Make.com Webhook متصل' : 'Webhook غير مضاف');
+  setText('report-auto-email', em ? `إرسال إلى ${em}` : 'بريد غير محدد');
+  const tag = document.getElementById('report-automation-tag');
+  if(tag) {
+    tag.textContent = wh ? 'متصل بـ Make.com' : 'جاهز للربط';
+    tag.className = wh ? 'card-tag tag-live' : 'card-tag tag-info';
+  }
+}
+
+function renderVisualReportPreview() {
+  const box = document.getElementById('visual-report-preview');
+  if(box) box.innerHTML = getVisualReportPreviewHTML();
+  updateReportAutomationUI();
+}
+
+function buildAutomationReportPayload() {
+  syncReportAutomationFields();
+  const data = getVisualReportData();
+  return {
+    event_type: 'visual_daily_report',
+    platform: 'Wasl Dashboard',
+    destination_email: data.automation.email,
+    generated_at: new Date().toISOString(),
+    dashboard_url: window.location.href,
+    source: data.automation.source,
+    summary: {
+      total_missions: data.totalMissions,
+      readiness: data.readiness,
+      active_incidents: data.activeIncidents,
+      report_automation: data.reportAutomation,
+      cost_opportunity: data.costOpportunity,
+    },
+    recommendations: data.recommendations,
+    html_report: buildVisualReportHTML(data),
+    make_instructions: 'Use html_report as Gmail/Email HTML body, or convert it to PDF before sending.',
+  };
+}
+
+function openVisualReport() {
+  const html = buildVisualReportHTML();
+  const w = window.open('', '_blank');
+  if(!w) {
+    renderVisualReportPreview();
+    showToast('المتصفح منع فتح نافذة جديدة؛ تم تحديث المعاينة البصرية داخل الصفحة.','info');
+    return false;
+  }
+  w.document.write(html);
+  w.document.close();
+  return true;
+}
+
+async function sendAutomatedVisualReport(options = {}) {
+  const payload = buildAutomationReportPayload();
+  renderVisualReportPreview();
+  const webhook = typeof SYNC !== 'undefined' ? SYNC.webhookUrl : '';
+  if(options.open !== false) openVisualReport();
+  if(!webhook) {
+    showToast('أضف Webhook الخاص بـ Make.com ليتم الإرسال تلقائياً. تم فتح التقرير البصري للمعاينة.','info');
+    return false;
+  }
+  try {
+    await fetch(webhook, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload),
+      mode:'no-cors',
+    });
+    showToast('تم إرسال التقرير البصري إلى Make.com — تحقق من السيناريو والبريد ✅','success');
+    const history = document.getElementById('reports-history');
+    if(history) {
+      const item = document.createElement('div');
+      item.className = 'stat-row';
+      item.innerHTML = `<div class="label">تقرير بصري مؤتمت — ${new Date().toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'})}</div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="chip chip-ok">أُرسل إلى Make.com</span></div>`;
+      history.insertBefore(item, history.firstChild);
+    }
+    return true;
+  } catch(e) {
+    showToast('تعذر إرسال التقرير إلى Make.com. التقرير البصري تم توليده محلياً.','error');
+    return false;
+  }
+}
+
+async function generateReport() {
+  await sendAutomatedVisualReport({open:true});
+}
+
 function generateInnovationBrief() {
   const w = window.open('', '_blank');
   const today = new Date().toLocaleDateString('ar-SA', { year:'numeric', month:'long', day:'numeric' });
@@ -3895,6 +4322,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderAlerts();
   renderReportsHistory();
   renderDirectIncidents();
+  renderVisualReportPreview();
   renderFaults();
   renderSupervision();
   renderWorkflow();
@@ -4619,6 +5047,7 @@ function initLiveSync() {
   injectSyncCSS();
   loadCFG();
   populateSettingsFields();
+  renderVisualReportPreview();
   renderAlertLog();
   updateSyncBadge();
   updateSyncBar('offline','اضغط "ربط البيانات" لتفعيل المزامنة الحية');

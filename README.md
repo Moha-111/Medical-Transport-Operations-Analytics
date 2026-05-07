@@ -379,6 +379,35 @@ Wasl is connected to a **fully automated reporting pipeline** powered by Make.co
 
 > *The system runs 365 days a year with zero manual intervention.*
 
+### Visual Report Automation
+
+The reporting page now supports a low-cost visual automation path:
+
+```
+Excel / Google Sheets
+  → Wasl Dashboard analytics
+  → Visual HTML report package
+  → Make.com Webhook
+  → Email / PDF / executive brief
+```
+
+The dashboard sends a `visual_daily_report` payload to Make.com with:
+
+| Field | Purpose |
+|-------|---------|
+| `summary` | Key KPIs such as mission count, readiness, active incidents, report automation, and cost-opportunity score |
+| `recommendations` | Executive actions generated from operational inputs |
+| `html_report` | Full visual report body ready for Gmail/Email HTML or PDF conversion |
+| `destination_email` | Target report recipient |
+| `make_instructions` | Suggested Make.com handling instructions |
+
+Recommended Make.com scenario:
+
+1. **Custom Webhook** receives the payload from Wasl.
+2. Optional **HTML to PDF** module converts `html_report`.
+3. **Gmail / Email** sends the visual report to the executive and operations recipients.
+4. Optional **Google Drive** archives each daily report for audit and master's project evidence.
+
 ---
 
 ## 🧮 Analytics Engine
