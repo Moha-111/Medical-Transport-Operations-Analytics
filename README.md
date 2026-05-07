@@ -27,7 +27,7 @@ In addition, the platform automatically generates AI-powered operational reports
 
 <br/>
 
-> **Built at Tuwaiq Hackathon using Vibe Coding — zero traditional programming, 100% AI-powered.**
+> **Innovation Project:** an AI-first healthcare operations intelligence platform designed to move from proof of value to pilot adoption and scalable deployment.
 
 ### 🌐 [Live System](https://moha-111.github.io/Medical-Transport-Operations-Analytics/)
 
@@ -63,7 +63,7 @@ In addition, the platform automatically generates AI-powered operational reports
 
 **Wasl** in Arabic means *"to connect"* — connecting patients to hospitals, and decisions to data.
 
-This project demonstrates how **no-code/AI-first** development can produce enterprise-grade healthcare analytics without writing a single line of traditional code.
+This project demonstrates how **AI-first innovation** can produce enterprise-grade healthcare analytics that is suitable for executive review, controlled pilots, and future production hardening.
 
 ---
 
@@ -535,9 +535,9 @@ Hajj season sees **2+ million pilgrims** with thousands of daily medical transfe
 ```
 NOW ✅              Q3 2026 🔵           Q1 2027 🟡           Q4 2027 🔴
 ────────────        ──────────────       ──────────────       ──────────────
-Hackathon MVP       Pilot Program        First Paying         Full SaaS
-Working System      1 Hospital Free      Customer             Platform
-AI Reports Live     Collect Feedback     Prove Value          10+ Clients
+Innovation MVP      Pilot Program        First Paying         Full SaaS
+Working System      1 Hospital           Customer             Platform
+AI Reports Live     Validate Impact      Prove Value          10+ Clients
 ```
 
 ### Why Wasl Will Win
@@ -620,7 +620,7 @@ AI Reports Live     Collect Feedback     Prove Value          10+ Clients
 
 ---
 
-> **Current Status:** All data in this repository is **synthetic/demo data** generated for hackathon purposes only. No real patient information is included.
+> **Current Status:** This repository uses **synthetic/demo data** for innovation validation and pilot-readiness review. No real patient information is included.
 
 ### Data Protection Roadmap
 
@@ -664,12 +664,12 @@ This approach reduced development time from weeks to hours while maintaining pro
 
 ---
 
-## 🏆 Hackathon Context
+## Innovation Project Context
 
-**Event:** Tuwaiq Hackathon — Healthcare Track
-**Challenge:** Build a data-driven operational solution for private healthcare facilities
-**Approach:** No-code, AI-driven development (Vibe Coding)
-**Output:** Complete analytics platform with automated reports + live monitoring
+**Objective:** Build a data-driven operational solution for healthcare transport and referral operations.
+**Approach:** AI-first innovation with rapid prototyping, measurable KPIs, and executive decision support.
+**Output:** Complete analytics platform with automated reports, live monitoring, and operational recommendations.
+**Next Step:** Validate the model through a controlled pilot with clear governance, data protection, and adoption metrics.
 
 ---
 
@@ -686,7 +686,7 @@ This approach reduced development time from weeks to hours while maintaining pro
 
 <div align="center">
 
-**Built with ❤️ at Tuwaiq Hackathon · Powered by Vibe Coding + Claude AI**
+**Built as an AI-first healthcare innovation project · Powered by Vibe Coding + Claude AI**
 
 *Wasl — Connecting Patients to Hospitals, and Decisions to Data*
 
