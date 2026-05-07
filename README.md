@@ -59,7 +59,7 @@ In addition, the platform automatically generates AI-powered operational reports
 
 ## 📌 Overview
 
-**Wasl (وصل)** is an operational intelligence platform designed for private clinics and hospitals to monitor and analyze patient transfer operations. It consolidates **14,169 transfer missions** into a single intelligence layer — covering KPI performance, center benchmarks, paramedic efficiency, and strategic recommendations.
+**Wasl (وصل)** is an operational intelligence platform designed for private clinics and hospitals to monitor and analyze patient transfer operations. It consolidates **19,428 transfer missions** into a single intelligence layer — covering KPI performance, center benchmarks, paramedic efficiency, and strategic recommendations.
 
 **Wasl** in Arabic means *"to connect"* — connecting patients to hospitals, and decisions to data.
 
@@ -177,21 +177,21 @@ print(center_stats.head().to_string())
 
 **Expected Output:**
 ```
-Total missions:      14,169
+Total missions:      19,428
 Active centers:      20
 Paramedics tracked:  219
 
 --- Key Performance Indicators ---
-Avg response time:   14.5 min  (target ≤15)
-Avg dispatch time:    5.5 min  (target ≤8)
-Late mission rate:   95.3%      (target ≤95%)
-Emergency rate:      35.1%
+Avg response time:   50.0 min  (target ≤30)
+Avg dispatch time:   12.0 min  (target ≤8)
+Late mission rate:   69.5%      (target ≤30%)
+Emergency rate:      34.8%
 
 --- Top 5 Centers by Volume ---
          missions  avg_response  late_rate
 Center
-C01          1247          13.2       93.1
-C02          1103          15.8       97.4
+C01          1715          55.6       79.3
+C02          1732          55.3       78.4
 ...
 ```
 
@@ -204,7 +204,7 @@ C02          1103          15.8       97.4
 │
 ├── 📊  Main Dashboard            → KPIs + Charts + Center Performance
 ├── 📡  Live Monitoring           → Updates every 5s + Live Event Log
-├── 🗂️  Mission Registry          → 14,169 missions + Search & Filter
+├── 🗂️  Mission Registry          → 19,428 missions + Search & Filter
 ├── ➕  Data Entry                → Manual form + Excel Import
 ├── 🏢  Center Management         → 20 centers + Progress Bars
 ├── 👨‍⚕️ Paramedic Management      → 219 paramedics + Individual Status
@@ -252,11 +252,11 @@ Each referral is tracked in real-time with per-step timestamps, delay flags, and
 
 | KPI | Value | Target | Status | Description |
 |-----|-------|--------|--------|-------------|
-| Avg Response Time | 14.5 min | ≤15 min | ✅ Met | Time from call to paramedic arrival |
-| Avg Dispatch Time | 5.5 min | ≤8 min | ✅ Met | Time from assignment to vehicle departure |
+| Avg Response Time | 50.0 min | ≤30 min | ⚠️ Improve | Time from call to paramedic arrival |
+| Avg Dispatch Time | 12.0 min | ≤8 min | ⚠️ Improve | Time from assignment to vehicle departure |
 | Mission Duration | 132.9 min | — | 📊 | Total time from call to mission close |
-| Emergency Rate | 35.1% | — | 🚨 | % of life-saving/critical missions |
-| Late Rate | 95.3% | ≤95% | ⚠️ Near | % missions exceeding response target |
+| Emergency Rate | 34.8% | — | 🚨 | % of life-saving/critical missions |
+| Late Rate | 69.5% | ≤30% | ⚠️ Improve | % missions exceeding response target |
 | H1 Hospital Share | 72.1% | Balanced | ⚠️ High | Concentration at one receiving hospital |
 
 ### KPI Threshold Configuration
@@ -278,7 +278,7 @@ Default Thresholds:
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │                        DATA LAYER                            │
-│   Excel (.xlsx) / CSV  →  14,169 records × 25 columns        │
+│   Excel (.xlsx) / CSV  →  19,428 records × 25 columns        │
 │   Manual Entry Form    →  Real-time mission logging          │
 └──────────────────────────────┬───────────────────────────────┘
                                │  parseCSV() / Excel import
@@ -322,7 +322,7 @@ Default Thresholds:
 
 ## 📐 Data Schema
 
-The operational dataset contains **14,169 mission records** with **25 columns**:
+The operational dataset contains **19,428 mission records** with **25 columns**:
 
 | Column | Type | Example | Description |
 |--------|------|---------|-------------|
@@ -544,7 +544,7 @@ Every hospital with 5+ ambulances faces fragmented data, manual reporting, and n
 **Value Delivered:** Daily AI reports at 7 AM + instant alerts when response time exceeds target
 
 ### 🚑 2. EMS Networks & Regional Operations Centers
-Built on **14,169 real EMS-like missions** from a 20-center network. Understands shift handovers, vehicle utilization, late dispatch patterns, and peak-hour distribution.
+Built on **19,428 real EMS-like missions** from a 20-center network. Understands shift handovers, vehicle utilization, late dispatch patterns, and peak-hour distribution.
 
 **Value Delivered:** Center benchmarking + paramedic productivity + peak-hour surge alerts
 
@@ -635,7 +635,7 @@ AI Reports Live     Validate Impact      Prove Value          10+ Clients
 | 🔧 **Fault Reports** | **بلاغات الأعطال الطبية والميكانيكية** | 11 عمود × 20 بلاغ | ★ جديد |
 | 📋 **Supervisory Report** | **التقرير الإشرافي اليومي الشامل** | KPIs + مراكز + توصيات + توقيع | ★ جديد |
 | 🔄 **Referral Workflow** | **مسار البلاغات — 7 خطوات** | 15 عمود × 13 إحالة + KPIs | ★ جديد |
-| 📊 **Daily Operations Data** | 14,169 مهمة تشغيلية | 25 عمود × 14,169 سجل | — |
+| 📊 **Daily Operations Data** | 19,428 مهمة تشغيلية | 25 عمود × 19,428 سجل | — |
 | 📈 **KPI Dashboard** | مؤشرات الأداء الشاملة | — | — |
 | 🏢 **Center Performance** | أداء 20 مركز | الاستجابة، التأخير، المهام | — |
 | 🏥 **Hospital Analysis** | تحليل المستشفيات المستقبِلة | توزيع الحالات، H1–H4 | — |
@@ -647,7 +647,7 @@ AI Reports Live     Validate Impact      Prove Value          10+ Clients
 
 | الملف | الوصف | الرابط |
 |-------|-------|--------|
-| 📊 **البيانات الخام (14,169 مهمة)** | قاعدة البيانات الكاملة × 25 متغير | [فتح في Google Sheets](https://docs.google.com/spreadsheets/d/1lFtHLgycKMlTFfpC4YbL_Dsvn2ZprOJARc1imcIBF0g/edit?usp=sharing) |
+| 📊 **البيانات الخام (19,428 مهمة)** | قاعدة البيانات الكاملة × 25 متغير | [فتح في Google Sheets](https://docs.google.com/spreadsheets/d/1lFtHLgycKMlTFfpC4YbL_Dsvn2ZprOJARc1imcIBF0g/edit?usp=sharing) |
 | 📋 **نماذج الميدان** | بلاغ المسعف + تشيك الإسعاف + تسليم الوردية + مسار البلاغات | [فتح في Google Sheets](https://docs.google.com/spreadsheets/d/1-ZUjvnIdeTTqLc3Z-nyYd8Csftds2e6l/edit?usp=sharing) |
 | 🔄 **مسار البلاغات (7 خطوات)** | قالب تتبع الإحالات من الإيميل حتى الإنهاء | شيت **Referral Workflow** في [ملف Excel](./Medical-Transport-Analytics.xlsx) |
 | 🔧 **بلاغات الأعطال** | نموذج بلاغات الأعطال الطبية والميكانيكية | شيت **Fault Reports** في [ملف Excel](./Medical-Transport-Analytics.xlsx) |

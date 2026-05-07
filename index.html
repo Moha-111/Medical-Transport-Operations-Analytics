@@ -1198,38 +1198,38 @@ canvas{max-height:220px;}
       <!-- KPI STRIP -->
       <div class="kpi-strip">
         <div class="kpi" style="--c:var(--teal)">
-          <div class="kpi-badge badge-up">📋 2025</div>
+          <div class="kpi-badge badge-up">📋 2025-2026</div>
           <div class="kpi-label">إجمالي المهام</div>
-          <div class="kpi-val" id="kpi-total">14,169</div>
-          <div class="kpi-sub">متوسط 39 مهمة/يوم</div>
+          <div class="kpi-val" id="kpi-total">19,428</div>
+          <div class="kpi-sub">متوسط 53 مهمة/يوم — مرتبط بملف Excel</div>
           <div class="kpi-bar"><div class="kpi-bar-fill" style="width:85%"></div></div>
         </div>
         <div class="kpi" style="--c:var(--green)">
-          <div class="kpi-badge badge-up">✅ ممتاز</div>
+          <div class="kpi-badge badge-eq">📊 من Excel</div>
           <div class="kpi-label">وقت الاستجابة الكلي</div>
-          <div class="kpi-val" id="kpi-resp">24.8<small style="font-size:14px"> د</small></div>
-          <div class="kpi-sub">ضمن الهدف ≤30 دقيقة بفضل التوجيه المبكر</div>
-          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:83%;background:var(--green)"></div></div>
+          <div class="kpi-val" id="kpi-resp">50.0<small style="font-size:14px"> د</small></div>
+          <div class="kpi-sub">قراءة مباشرة من ملف Excel المحدث حتى 2026</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:70%;background:var(--amber)"></div></div>
         </div>
         <div class="kpi" style="--c:var(--green)">
           <div class="kpi-badge badge-up">✅ ممتاز</div>
           <div class="kpi-label">وقت الإرسال</div>
-          <div class="kpi-val">5.5<small style="font-size:14px"> د</small></div>
-          <div class="kpi-sub">الهدف ≤8 دقائق</div>
-          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:69%;background:var(--green)"></div></div>
+          <div class="kpi-val">12.0<small style="font-size:14px"> د</small></div>
+          <div class="kpi-sub">متوسط الإرسال من ملف Excel</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:66%;background:var(--amber)"></div></div>
         </div>
         <div class="kpi" style="--c:var(--green)">
           <div class="kpi-badge badge-up">✅ متقدم</div>
           <div class="kpi-label">الالتزام بزمن الخدمة</div>
-          <div class="kpi-val">96.7%</div>
-          <div class="kpi-sub">تحسن واضح في الإغلاق ضمن المسار</div>
-          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:97%;background:var(--green)"></div></div>
+          <div class="kpi-val">30.5%</div>
+          <div class="kpi-sub">ضمن هدف ≤30 دقيقة — فرصة تحسين واضحة</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:31%;background:var(--amber)"></div></div>
         </div>
         <div class="kpi" style="--c:var(--amber)">
-          <div class="kpi-badge badge-eq">⚡ 35.1%</div>
+          <div class="kpi-badge badge-eq">⚡ 34.8%</div>
           <div class="kpi-label">حالات إنقاذ حياة</div>
-          <div class="kpi-val">4,978</div>
-          <div class="kpi-sub">من أصل 14,169 مهمة</div>
+          <div class="kpi-val">6,761</div>
+          <div class="kpi-sub">من أصل 19,428 مهمة</div>
           <div class="kpi-bar"><div class="kpi-bar-fill" style="width:35%;background:var(--amber)"></div></div>
         </div>
       </div>
@@ -1239,7 +1239,7 @@ canvas{max-height:220px;}
         <div class="card">
           <div class="card-header">
             <span class="card-title">المهام الشهرية</span>
-            <span class="card-tag tag-live">2025</span>
+            <span class="card-tag tag-live">2025-2026</span>
           </div>
           <canvas id="chart-monthly"></canvas>
         </div>
@@ -1339,7 +1339,7 @@ canvas{max-height:220px;}
     <!-- ══ PAGE: MISSIONS ══════════════════════════════════════ -->
     <div class="page" id="page-missions">
       <div class="section-header">
-        <div><h2>سجل المهام</h2><p>14,169 مهمة مسجلة</p></div>
+        <div><h2>سجل المهام</h2><p>19,428 مهمة مسجلة من ملف Excel حتى 7 مايو 2026</p></div>
         <div style="display:flex;gap:8px">
           <input style="padding:8px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'Cairo',sans-serif;font-size:13px;outline:none;width:220px" placeholder="🔍 بحث..."/>
           <button class="btn btn-primary btn-sm" onclick="navigate('entry')">➕ إضافة</button>
@@ -1534,7 +1534,7 @@ canvas{max-height:220px;}
         <div class="card">
           <div class="card-header">
             <span class="card-title">المراكز الأعلى أداءً</span>
-            <span class="card-tag tag-live">2025</span>
+            <span class="card-tag tag-live">2025-2026</span>
           </div>
           <canvas id="chart-centers-bar"></canvas>
         </div>
@@ -1909,12 +1909,12 @@ canvas{max-height:220px;}
             <div class="form-group">
               <label>⏱ وقت الاستجابة الحرج (دقيقة)</label>
               <input type="number" id="setting-th-resp" value="70" oninput="saveSettings()"/>
-              <small style="color:var(--muted);font-size:11px">الحالي: 64.3 د — التنبيه عند: ></small>
+              <small style="color:var(--muted);font-size:11px">الحالي: 50.0 د — التنبيه عند: ></small>
             </div>
             <div class="form-group">
               <label>📊 معدل التأخير الحرج (%)</label>
               <input type="number" id="setting-th-late" value="96" oninput="saveSettings()"/>
-              <small style="color:var(--muted);font-size:11px">الحالي: 95.3% — التنبيه عند: ></small>
+              <small style="color:var(--muted);font-size:11px">الحالي: 69.5% — التنبيه عند: ></small>
             </div>
             <div class="form-group">
               <label>👨‍⚕️ الحد الأدنى للمسعفين المتاحين</label>
@@ -1924,7 +1924,7 @@ canvas{max-height:220px;}
             <div class="form-group">
               <label>📋 الحد الأقصى للمهام اليومية</label>
               <input type="number" id="setting-th-missions" value="50" oninput="saveSettings()"/>
-              <small style="color:var(--muted);font-size:11px">متوسط 39 مهمة/يوم</small>
+              <small style="color:var(--muted);font-size:11px">متوسط 53 مهمة/يوم</small>
             </div>
             <div class="form-group">
               <label>🔄 فترة التحديث التلقائي (دقائق)</label>
@@ -1990,7 +1990,7 @@ canvas{max-height:220px;}
   <div class="page" id="page-predictions">
     <div class="page-header">
       <h2>🔮 التنبؤ الذكي — Predictive Analytics</h2>
-      <p style="color:var(--text-secondary);margin-top:4px;font-size:14px">توقعات مبنية على أنماط البيانات التاريخية لـ 14,169 مهمة</p>
+      <p style="color:var(--text-secondary);margin-top:4px;font-size:14px">توقعات مبنية على أنماط البيانات التاريخية لـ 19,428 مهمة من ملف Excel</p>
     </div>
 
     <!-- MODEL INFO BANNER -->
@@ -2100,7 +2100,7 @@ canvas{max-height:220px;}
         </div>
       </div>
       <div style="margin-top:14px;font-size:12px;color:var(--text-muted);border-top:1px solid var(--border);padding-top:12px">
-        📌 النموذج مبني على بيانات 2025 الكاملة (14,169 مهمة). دقة التوقع ستتحسن مع إضافة بيانات حية من Google Sheets في المرحلة القادمة.
+        📌 النموذج مبني على بيانات Excel المحدثة (19,428 مهمة حتى 7 مايو 2026). دقة التوقع تتحسن مع كل تحديث جديد من Google Sheets.
       </div>
     </div>
 
@@ -2137,7 +2137,7 @@ canvas{max-height:220px;}
     <!-- DISCLAIMER BANNER -->
     <div style="background:rgba(246,166,35,.12);border:1px solid rgba(246,166,35,.3);border-radius:12px;padding:14px 18px;margin-bottom:24px;display:flex;align-items:center;gap:10px">
       <span style="font-size:20px">⚠️</span>
-      <span style="font-size:13px;color:#c8902a">هذه محاكاة تقديرية مبنية على بيانات 14,169 مهمة و20 مركزاً — الأرقام تعكس توقعات واقعية للقطاع الصحي السعودي</span>
+      <span style="font-size:13px;color:#c8902a">هذه محاكاة تقديرية مبنية على بيانات 19,428 مهمة و20 مركزاً — الأرقام تعكس توقعات واقعية للقطاع الصحي السعودي</span>
     </div>
 
     <!-- HEADLINE METRICS -->
@@ -2234,7 +2234,7 @@ canvas{max-height:220px;}
     <!-- BOTTOM NOTE -->
     <div style="background:rgba(0,152,219,.06);border:1px solid rgba(0,152,219,.2);border-radius:12px;padding:16px 20px;text-align:center">
       <p style="font-size:13px;color:var(--text-secondary);margin:0">
-        📌 المحاكاة مبنية على: معدلات صناعة الإسعاف السعودية + تحليل 14,169 مهمة حقيقية + دراسات تأثير أنظمة BI الصحية عالمياً
+        📌 المحاكاة مبنية على: معدلات صناعة الإسعاف السعودية + تحليل 19,428 مهمة من ملف Excel + دراسات تأثير أنظمة BI الصحية عالمياً
         <br/>النظام جاهز للتطبيق الفعلي — الأرقام ستُحدَّث بمجرد ربط البيانات الحية
       </p>
     </div>
@@ -2404,18 +2404,18 @@ canvas{max-height:220px;}
       </div>
       <div class="kpi" style="--c:var(--amber)">
         <div class="kpi-label">متوسط وقت الاستجابة</div>
-        <div class="kpi-val" id="supv-resp">64.3 د</div>
-        <div class="kpi-sub" style="color:var(--amber)">⚠ فوق الهدف 60 د</div>
+        <div class="kpi-val" id="supv-resp">50.0 د</div>
+        <div class="kpi-sub" style="color:var(--amber)">⚠ فوق هدف 30 د</div>
       </div>
       <div class="kpi" style="--c:var(--red)">
         <div class="kpi-label">معدل التأخير</div>
-        <div class="kpi-val" id="supv-late">95.3%</div>
-        <div class="kpi-sub" style="color:var(--amber)">⚠ فوق الحد 95%</div>
+        <div class="kpi-val" id="supv-late">69.5%</div>
+        <div class="kpi-sub" style="color:var(--amber)">⚠ فوق هدف 30%</div>
       </div>
       <div class="kpi" style="--c:var(--green)">
         <div class="kpi-label">حالات إنقاذ الحياة</div>
-        <div class="kpi-val" id="supv-lifesave">17</div>
-        <div class="kpi-sub" style="color:var(--green)">36.2% من الإجمالي</div>
+        <div class="kpi-val" id="supv-lifesave">6,761</div>
+        <div class="kpi-sub" style="color:var(--green)">34.8% من الإجمالي</div>
       </div>
     </div>
 
@@ -2524,28 +2524,28 @@ canvas{max-height:220px;}
 
 <script>
 // ══ DATA ════════════════════════════════════════════════════════
-// ══ البيانات الحقيقية من ملف الإكسل (14,169 مهمة — 2025) ══
+// ══ البيانات الحقيقية من ملف الإكسل (19,428 مهمة — 2025 + 2026 حتى 7 مايو) ══
 const CENTERS_DATA = [
-  {id:'C1', missions:1438,paramedics:20,ambulances:10,resp:64.1,dispatch:5.5,late:94.5,travelTime:49.2},
-  {id:'C2', missions:1434,paramedics:18,ambulances: 9,resp:64.4,dispatch:5.6,late:94.7,travelTime:49.6},
-  {id:'C3', missions:1273,paramedics:17,ambulances: 8,resp:63.2,dispatch:5.5,late:95.1,travelTime:48.4},
-  {id:'C4', missions:1109,paramedics:16,ambulances: 8,resp:63.4,dispatch:5.4,late:95.2,travelTime:48.7},
-  {id:'C5', missions:1095,paramedics:15,ambulances: 7,resp:63.4,dispatch:5.5,late:94.6,travelTime:48.5},
-  {id:'C6', missions: 742,paramedics:14,ambulances: 6,resp:64.1,dispatch:5.4,late:96.4,travelTime:49.4},
-  {id:'C7', missions: 695,paramedics:13,ambulances: 6,resp:66.5,dispatch:5.5,late:95.3,travelTime:51.7},
-  {id:'C8', missions: 742,paramedics:12,ambulances: 5,resp:64.6,dispatch:5.6,late:95.3,travelTime:49.6},
-  {id:'C9', missions: 715,paramedics:11,ambulances: 5,resp:65.3,dispatch:5.4,late:96.1,travelTime:50.5},
-  {id:'C10',missions: 555,paramedics:10,ambulances: 5,resp:64.1,dispatch:5.7,late:96.2,travelTime:49.1},
-  {id:'C11',missions: 557,paramedics:10,ambulances: 4,resp:63.5,dispatch:5.3,late:94.1,travelTime:48.8},
-  {id:'C12',missions: 557,paramedics: 9,ambulances: 4,resp:63.7,dispatch:5.4,late:95.9,travelTime:48.9},
-  {id:'C13',missions: 526,paramedics: 9,ambulances: 3,resp:62.8,dispatch:5.5,late:95.1,travelTime:47.8},
-  {id:'C14',missions: 538,paramedics: 8,ambulances: 3,resp:63.8,dispatch:5.4,late:96.3,travelTime:49.0},
-  {id:'C15',missions: 546,paramedics: 7,ambulances: 3,resp:65.1,dispatch:5.6,late:96.3,travelTime:50.2},
-  {id:'C16',missions: 327,paramedics: 7,ambulances: 3,resp:64.8,dispatch:5.4,late:95.4,travelTime:49.9},
-  {id:'C17',missions: 331,paramedics: 6,ambulances: 2,resp:67.8,dispatch:5.5,late:94.6,travelTime:52.9},
-  {id:'C18',missions: 331,paramedics: 6,ambulances: 2,resp:65.6,dispatch:5.4,late:97.0,travelTime:50.7},
-  {id:'C19',missions: 335,paramedics: 5,ambulances: 2,resp:64.8,dispatch:5.6,late:96.1,travelTime:49.8},
-  {id:'C20',missions: 323,paramedics: 5,ambulances: 2,resp:66.8,dispatch:5.6,late:95.7,travelTime:51.8},
+  {id:'C1', missions:1715,paramedics:20,ambulances:10,resp:55.6,dispatch:13.2,late:79.3,travelTime:42.5},
+  {id:'C2', missions:1732,paramedics:18,ambulances: 9,resp:55.3,dispatch:13.0,late:78.4,travelTime:42.4},
+  {id:'C3', missions:1518,paramedics:17,ambulances: 8,resp:54.9,dispatch:13.0,late:79.7,travelTime:41.9},
+  {id:'C4', missions:1381,paramedics:16,ambulances: 8,resp:53.2,dispatch:12.5,late:76.5,travelTime:40.7},
+  {id:'C5', missions:1361,paramedics:15,ambulances: 7,resp:53.3,dispatch:12.6,late:76.2,travelTime:40.7},
+  {id:'C6', missions: 980,paramedics:14,ambulances: 6,resp:51.3,dispatch:12.1,late:73.0,travelTime:39.1},
+  {id:'C7', missions: 962,paramedics:13,ambulances: 6,resp:51.4,dispatch:11.8,late:68.8,travelTime:39.6},
+  {id:'C8', missions:1002,paramedics:12,ambulances: 5,resp:50.8,dispatch:12.2,late:70.6,travelTime:38.6},
+  {id:'C9', missions: 971,paramedics:11,ambulances: 5,resp:51.1,dispatch:12.0,late:70.8,travelTime:39.1},
+  {id:'C10',missions: 806,paramedics:10,ambulances: 5,resp:47.7,dispatch:11.8,late:66.3,travelTime:36.0},
+  {id:'C11',missions: 827,paramedics:10,ambulances: 4,resp:46.5,dispatch:11.2,late:63.5,travelTime:35.3},
+  {id:'C12',missions: 845,paramedics: 9,ambulances: 4,resp:46.0,dispatch:11.3,late:63.3,travelTime:34.7},
+  {id:'C13',missions: 759,paramedics: 9,ambulances: 3,resp:47.1,dispatch:11.4,late:65.9,travelTime:35.7},
+  {id:'C14',missions: 781,paramedics: 8,ambulances: 3,resp:47.5,dispatch:11.5,late:66.3,travelTime:36.0},
+  {id:'C15',missions: 829,paramedics: 7,ambulances: 3,resp:46.8,dispatch:11.5,late:63.4,travelTime:35.3},
+  {id:'C16',missions: 592,paramedics: 7,ambulances: 3,resp:40.8,dispatch:10.3,late:52.7,travelTime:30.5},
+  {id:'C17',missions: 618,paramedics: 6,ambulances: 2,resp:41.7,dispatch:10.3,late:50.8,travelTime:31.4},
+  {id:'C18',missions: 582,paramedics: 6,ambulances: 2,resp:42.4,dispatch:10.6,late:55.2,travelTime:31.8},
+  {id:'C19',missions: 580,paramedics: 5,ambulances: 2,resp:42.3,dispatch:10.8,late:55.7,travelTime:31.5},
+  {id:'C20',missions: 587,paramedics: 5,ambulances: 2,resp:42.0,dispatch:10.3,late:52.6,travelTime:31.7},
 ];
 
 const DEFAULT_REPORT_EMAIL = 'alshehrimo7ammada@gmail.com';
@@ -2598,7 +2598,7 @@ const MISSIONS_SAMPLE = [
   {ref:'#100015',date:'2025-12-26',dept:'رئة',    type:'مستقرة',    center:'C3', para:'E55', resp:52.1, perf:'متأخر'},
 ];
 
-const MONTHLY = [1227,1087,1207,1157,1202,1167,1191,1189,1157,1209,1185,1191];
+const MONTHLY = [2457,2208,2548,2432,1494,1167,1191,1189,1157,1209,1185,1191];
 const MONTHS  = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 const FEED_POOL = [
   {c:'var(--red)',    t:'إيميل إحالة وارد',      d:'مركز العمليات — رفع بلاغ جديد #100170'},
@@ -2760,19 +2760,19 @@ const SUPERVISION_DATA = {
   date: '03/03/2026', dayAr: 'الثلاثاء', supervisor: 'أحمد العمري',
   kpis: [
     {metric:'مهام اليوم',      val:'47 مهمة', target:'≥ 40',   delta:'+7',    status:'جيد',    trend:'↗'},
-    {metric:'وقت الاستجابة',   val:'64.3 د',  target:'≤ 60 د', delta:'+4.3 د',status:'تحذير',  trend:'↗'},
-    {metric:'معدل التأخير',    val:'95.3%',   target:'≤ 95%',  delta:'+0.3%', status:'تحذير',  trend:'↗'},
-    {metric:'إنقاذ الحياة',    val:'17 حالة', target:'≥ 30%',  delta:'36.2%', status:'جيد',    trend:'→'},
-    {metric:'وقت الإرسال',     val:'5.5 د',   target:'≤ 8 د',  delta:'-2.5 د',status:'ممتاز',  trend:'↘'},
-    {metric:'أداء جيد/ممتاز',  val:'4.7%',    target:'≥ 5%',   delta:'-0.3%', status:'تحذير',  trend:'→'},
+    {metric:'وقت الاستجابة',   val:'50.0 د',  target:'≤ 30 د', delta:'+20.0 د',status:'تحذير',  trend:'↘'},
+    {metric:'معدل التأخير',    val:'69.5%',   target:'≤ 30%',  delta:'+39.5%', status:'تحذير',  trend:'↘'},
+    {metric:'إنقاذ الحياة',    val:'6,761 حالة', target:'≥ 30%',  delta:'34.8%', status:'جيد',    trend:'→'},
+    {metric:'وقت الإرسال',     val:'12.0 د',  target:'≤ 8 د',  delta:'+4.0 د',status:'تحذير',  trend:'↗'},
+    {metric:'أداء جيد/ممتاز',  val:'30.5%',   target:'≥ 70%',  delta:'-39.5%', status:'تحذير',  trend:'↗'},
   ],
   centers: [
-    {id:'C5', missions:74, resp:'63.5 د', late:'94.1%', present:'4/4', rating:'✅ الأفضل', note:'أقل معدل تأخير'},
-    {id:'C3', missions:71, resp:'63.6 د', late:'94.6%', present:'2/3', rating:'✅ جيد',    note:'مسعف غائب'},
-    {id:'C2', missions:68, resp:'64.0 د', late:'95.1%', present:'4/4', rating:'→ مقبول',  note:'قريب من الحد'},
-    {id:'C1', missions:89, resp:'64.3 د', late:'95.4%', present:'3/3', rating:'⚠ مراجعة', note:'ضغط عالٍ'},
-    {id:'C4', missions:61, resp:'63.8 د', late:'95.8%', present:'2/3', rating:'⚠ مراجعة', note:'عطل + غائب'},
-    {id:'C6', missions:58, resp:'64.8 د', late:'96.4%', present:'1/2', rating:'🚨 حرج',   note:'2 عطل حرج'},
+    {id:'C12', missions:845, resp:'46.0 د', late:'63.3%', present:'4/4', rating:'✅ الأفضل', note:'أقل متوسط استجابة'},
+    {id:'C11', missions:827, resp:'46.5 د', late:'63.5%', present:'4/4', rating:'✅ جيد',    note:'أداء مستقر'},
+    {id:'C10', missions:806, resp:'47.7 د', late:'66.3%', present:'4/4', rating:'→ مقبول',  note:'قابل للتحسين'},
+    {id:'C1', missions:1715, resp:'55.6 د', late:'79.3%', present:'3/3', rating:'⚠ مراجعة', note:'ضغط عالٍ'},
+    {id:'C2', missions:1732, resp:'55.3 د', late:'78.4%', present:'3/3', rating:'⚠ مراجعة', note:'حجم مهام مرتفع'},
+    {id:'C3', missions:1518, resp:'54.9 د', late:'79.7%', present:'2/3', rating:'🚨 حرج',   note:'أعلى معدل تأخير'},
   ],
   staff: {scheduled:18, present:16, absent:2, absentIds:'E73 (C4) ، E97 (C6)', off:2},
   recs: [
@@ -3240,8 +3240,8 @@ function renderSupervision() {
 
   // KPI section (already static in HTML, but update from data)
   setEl('supv-missions',  d.kpis[0]?.val || '47');
-  setEl('supv-resp',      d.kpis[1]?.val || '64.3 د');
-  setEl('supv-late',      d.kpis[2]?.val || '95.3%');
+  setEl('supv-resp',      d.kpis[1]?.val || '50.0 د');
+  setEl('supv-late',      d.kpis[2]?.val || '69.5%');
   setEl('supv-lifesave',  d.kpis[3]?.val || '17');
 
   // Centers table
@@ -3999,7 +3999,7 @@ tr:nth-child(even) td{background:#f9fafb;}
   <p>${dateStr} | سري — للاستخدام الداخلي فقط</p>
 </div>
 <div class="meta">
-  <div class="meta-item"><div class="meta-label">إجمالي المهام</div><div class="meta-val">14,169</div></div>
+  <div class="meta-item"><div class="meta-label">إجمالي المهام</div><div class="meta-val">19,428</div></div>
   <div class="meta-item"><div class="meta-label">المراكز النشطة</div><div class="meta-val">20</div></div>
   <div class="meta-item"><div class="meta-label">المسعفون</div><div class="meta-val">219</div></div>
   <div class="meta-item"><div class="meta-label">سيارات الإسعاف</div><div class="meta-val">96</div></div>
@@ -4007,15 +4007,15 @@ tr:nth-child(even) td{background:#f9fafb;}
 </div>
 <div class="section">مؤشرات الأداء الرئيسية</div>
 <div class="kpi-row">
-  <div class="kpi-box" style="border-color:#0D7377"><div class="v" style="color:#0D7377">14.5 د</div><div class="l">متوسط وقت الاستجابة</div></div>
-  <div class="kpi-box" style="border-color:#0D7377"><div class="v" style="color:#0D7377">5.5 د</div><div class="l">متوسط وقت الإرسال</div></div>
-  <div class="kpi-box" style="border-color:#dc2626"><div class="v" style="color:#dc2626">95.3%</div><div class="l">⚠️ معدل التأخير</div></div>
-  <div class="kpi-box" style="border-color:#d97706"><div class="v" style="color:#d97706">35.1%</div><div class="l">نسبة الطوارئ</div></div>
+  <div class="kpi-box" style="border-color:#0D7377"><div class="v" style="color:#0D7377">50.0 د</div><div class="l">متوسط وقت الاستجابة</div></div>
+  <div class="kpi-box" style="border-color:#0D7377"><div class="v" style="color:#0D7377">12.0 د</div><div class="l">متوسط وقت الإرسال</div></div>
+  <div class="kpi-box" style="border-color:#dc2626"><div class="v" style="color:#dc2626">69.5%</div><div class="l">⚠️ معدل التأخير</div></div>
+  <div class="kpi-box" style="border-color:#d97706"><div class="v" style="color:#d97706">34.8%</div><div class="l">نسبة الطوارئ</div></div>
 </div>
 <div class="section">التنبيهات النشطة</div>
 <div class="alert-block" style="background:#fef2f2;border-color:#ef4444">
-  <strong>🚨 مركز C6 — معدل تأخير حرج (96.4%)</strong>
-  <p>يتجاوز الحد المسموح 95% — يُوصى بمراجعة توزيع المهام فوراً</p>
+  <strong>🚨 مركز C3 — أعلى معدل تأخير (79.7%)</strong>
+  <p>الأولوية لمراجعة توزيع المهام وزمن الإرسال للمراكز C1 وC2 وC3</p>
 </div>
 <div class="alert-block" style="background:#fffbeb;border-color:#f59e0b">
   <strong>⚡ تركّز الوردية الصباحية (60.1%)</strong>
@@ -4039,7 +4039,7 @@ ${CENTERS_DATA.map(c=>`<tr>
 </tbody></table>
 <div class="section">التوصيات الاستراتيجية</div>
 <ol style="font-size:13px;color:#374151;line-height:2.2;padding-right:22px">
-  <li>مراجعة معايير تصنيف الأداء — 95.3% تأخير يشير لمشكلة في الأهداف لا في العمليات</li>
+  <li>مراجعة مسارات الاستجابة — 69.5% من المهام تجاوزت هدف 30 دقيقة وتحتاج تدخلاً تشغيلياً</li>
   <li>إعادة توزيع التحويلات بين المستشفيات لتقليل الضغط على H1</li>
   <li>زيادة طاقم الوردية المسائية في المراكز الكبرى (C1, C2, C3)</li>
   <li>مراجعة قدرة المراكز الصغيرة (C16-C20) على تحمّل أعباء إضافية</li>
@@ -4945,22 +4945,22 @@ function simulateDemoKPIs() {
   _demoTick++;
   const jitter = (base, range) => +(base + (Math.random()-0.5)*range).toFixed(1);
   const kpis = {
-    n:           14169 + Math.floor(Math.random()*20),
-    avgResp:     jitter(64.3, 8),
-    avgDisp:     jitter(5.5, 1),
-    avgTravel:   jitter(49.8, 6),
+    n:           19428 + Math.floor(Math.random()*20),
+    avgResp:     jitter(50.0, 5),
+    avgDisp:     jitter(12.0, 1.5),
+    avgTravel:   jitter(38.0, 4),
     avgDur:      jitter(132.9, 15),
-    lateRate:    jitter(95.3, 4),
-    goodRate:    jitter(4.7, 2),
+    lateRate:    jitter(69.5, 4),
+    goodRate:    jitter(30.5, 2),
     excRate:     0,
-    lifeSavePct: jitter(35.1, 2),
-    monthlyArr:  [1227,1087,1207,1157,1202,1167,1191,1189,1157,1209,1185,1191],
+    lifeSavePct: jitter(34.8, 2),
+    monthlyArr:  [2457,2208,2548,2432,1494,1167,1191,1189,1157,1209,1185,1191],
     centers: CENTERS_DATA.map(c=>({
       id: c.id,
       missions: c.missions + Math.floor(Math.random()*5),
       resp: jitter(c.resp, 3),
       late: jitter(c.late, 2),
-      disp: c.dispatch || 5.5,
+      disp: c.dispatch || 12.0,
     })),
     ts: Date.now(),
   };
@@ -5054,7 +5054,7 @@ function loadDemoData() {
   const urlEl = document.getElementById('gs-url');
   if(urlEl) urlEl.value = 'demo';
   const res = document.getElementById('gs-test-result');
-  if(res) res.innerHTML=wrapResult('ok','✅ وضع العرض التجريبي — 14,169 سجل محلي بمحاكاة مباشرة');
+  if(res) res.innerHTML=wrapResult('ok','✅ وضع العرض التجريبي — 19,428 سجل من ملف Excel بمحاكاة مباشرة');
   SYNC.gsUrl = 'demo';
   setTimeout(()=>dsGoStep(2), 1200);
 }
@@ -5427,8 +5427,8 @@ const KPI_DEFS = [
     formula:'Arrival Time at Patient − Request Received Time',
     formulaAr:'وقت الوصول للمريض − وقت استلام البلاغ',
     unit:'دقيقة', target:'≤ 30 دقيقة', critical:'> 45 دقيقة',
-    currentAvg:'64.3 د', status:'critical',
-    why:'وقت الاستجابة الكلي يبلغ 64.3 دقيقة — يتجاوز الهدف بأكثر من الضعف. 77% من هذا الوقت هو وقت السفر (49.8 دقيقة) مما يشير لمشكلة في المسافات الجغرافية لا في الكفاءة التشغيلية.',
+    currentAvg:'50.0 د', status:'critical',
+    why:'وقت الاستجابة الكلي يبلغ 50.0 دقيقة — يتجاوز هدف 30 دقيقة. متوسط وقت السفر 38.0 دقيقة، مما يشير إلى حاجة لتحسين التوجيه الجغرافي وتوزيع الموارد.',
     fields:['AlertTime','DispatchTime','ArrivalTime']
   },
   {
@@ -5437,8 +5437,8 @@ const KPI_DEFS = [
     formula:'Ambulance Departure Time − Alert Received Time',
     formulaAr:'وقت تحرك السيارة − وقت استلام البلاغ',
     unit:'دقيقة', target:'≤ 8 دقائق', critical:'> 12 دقيقة',
-    currentAvg:'5.5 د', status:'good',
-    why:'الوقت من استلام البلاغ حتى تحرك السيارة. كل دقيقة تأخير تزيد خطر الوفاة 10% في حالات السكتة القلبية.',
+    currentAvg:'12.0 د', status:'warning',
+    why:'الوقت من استلام البلاغ حتى تحرك السيارة. متوسط 12.0 دقيقة يتجاوز هدف 8 دقائق ويحتاج أتمتة أسرع لقبول البلاغ وتحريك المركبة.',
     fields:['AlertTime','DispatchTime']
   },
   {
@@ -5448,7 +5448,7 @@ const KPI_DEFS = [
     formulaAr:'وقت إتمام المهمة − وقت استلام البلاغ',
     unit:'دقيقة', target:'≤ 90 دقيقة', critical:'> 120 دقيقة',
     currentAvg:'132.9 د', status:'critical',
-    why:'متوسط مدة المهمة الكاملة 132.9 دقيقة — يتجاوز الهدف بـ 47 دقيقة. هذا يعني كل سيارة إسعاف تُنجز ~5.4 مهمة يومياً فقط (متوسط 39 مهمة ÷ 96 سيارة ÷ 1440 دقيقة × 132.9).',
+    why:'متوسط مدة المهمة الكاملة 132.9 دقيقة — يتجاوز الهدف بـ 47 دقيقة. هذا يعني كل سيارة إسعاف تُنجز عدداً محدوداً من المهام يومياً مقارنة بمتوسط 53 مهمة تشغيلية للشبكة.',
     fields:['AlertTime','CompletionTime']
   },
   {
@@ -5469,8 +5469,8 @@ const KPI_DEFS = [
     formula:'(Missions where Dispatch Time > 8 min) ÷ Total Missions × 100',
     formulaAr:'(المهام التي تجاوز وقت إرسالها 8 دقائق) ÷ إجمالي المهام × 100',
     unit:'%', target:'< 20%', critical:'> 35%',
-    currentAvg:'94.7%', status:'critical',
-    why:'المؤشر الأكثر أهمية في نظام وصل. الرقم الحالي مرتفع لأن الهدف المحلي يُحتسب بمعيار 15 دقيقة لا 8.',
+    currentAvg:'69.5%', status:'critical',
+    why:'المؤشر الأكثر أهمية في نظام وصل. الرقم الحالي يوضح أن نسبة كبيرة من المهام تتجاوز هدف الاستجابة، ما يجعل التوصيات الآلية لتوزيع الموارد ذات أولوية.',
     fields:['DispatchTime','AlertTime','TotalMissions'],
     note:'⚠️ الحسبة تستخدم معيار 8 دق الدولي — المعيار المحلي المُطبّق حالياً 15 دق'
   },
@@ -5490,7 +5490,7 @@ const KPI_DEFS = [
     formula:'Emergency Missions ÷ Total Missions × 100',
     formulaAr:'المهام الطارئة ÷ إجمالي المهام × 100',
     unit:'%', target:'30–45%', critical:'> 60%',
-    currentAvg:'35.1%', status:'good',
+    currentAvg:'34.8%', status:'good',
     why:'نسبة عالية جداً تعني ضغطاً غير طبيعي. النسبة المتوازنة تسمح بجودة تدخل أعلى لكل حالة.',
     fields:['ReferralType','TotalMissions']
   },
