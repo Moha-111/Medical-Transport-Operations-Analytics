@@ -411,6 +411,83 @@ body{
 .form-group input::placeholder{color:var(--muted);}
 .form-group select option{background:var(--surface2);}
 
+.innovation-strip{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+  margin:0 0 18px;
+}
+.innovation-metric{
+  position:relative;
+  background:linear-gradient(135deg,rgba(0,201,167,.13),rgba(0,152,219,.07));
+  border:1px solid rgba(0,201,167,.24);
+  border-radius:16px;
+  padding:18px 18px 16px;
+  overflow:hidden;
+}
+.innovation-metric::after{
+  content:"";
+  position:absolute;
+  inset:auto -30px -44px auto;
+  width:110px;
+  height:110px;
+  border-radius:50%;
+  background:rgba(0,201,167,.08);
+}
+.innovation-metric .metric-label{font-size:11px;color:var(--muted);font-weight:700;margin-bottom:8px}
+.innovation-metric .metric-value{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:900;color:var(--green)}
+.innovation-metric .metric-note{font-size:11px;color:var(--muted);margin-top:6px}
+.incident-console{
+  display:grid;
+  grid-template-columns:1.45fr .85fr;
+  gap:16px;
+  margin-bottom:20px;
+}
+.incident-recommendation{
+  background:linear-gradient(135deg,rgba(48,209,88,.12),rgba(0,201,167,.08));
+  border:1px solid rgba(48,209,88,.26);
+  border-radius:14px;
+  padding:14px;
+  margin-top:12px;
+}
+.incident-recommendation strong{display:block;color:var(--green);font-size:13px;margin-bottom:4px}
+.incident-recommendation span{display:block;color:var(--muted);font-size:12px;line-height:1.6}
+.incident-list{display:flex;flex-direction:column;gap:10px;max-height:360px;overflow:auto}
+.incident-item{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:12px;
+  align-items:center;
+  padding:12px;
+  background:rgba(255,255,255,.025);
+  border:1px solid var(--border);
+  border-radius:12px;
+}
+.incident-priority{
+  width:42px;height:42px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;background:rgba(0,201,167,.12);color:var(--teal);
+}
+.incident-item h4{font-size:13px;margin-bottom:3px}
+.incident-item p{font-size:11px;color:var(--muted);line-height:1.5}
+.automation-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.automation-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px;
+}
+.automation-card .auto-icon{font-size:24px;margin-bottom:10px}
+.automation-card h3{font-size:14px;margin-bottom:6px}
+.automation-card p{font-size:11.5px;color:var(--muted);line-height:1.55;margin-bottom:12px}
+.automation-card .auto-status{font-size:10px;font-weight:800;color:var(--green);background:rgba(48,209,88,.12);border-radius:20px;padding:3px 9px;display:inline-flex}
+.research-pack{
+  background:linear-gradient(135deg,rgba(191,90,242,.12),rgba(0,152,219,.08));
+  border:1px solid rgba(191,90,242,.22);
+  border-radius:16px;
+  padding:18px;
+}
+
 /* ══ PROGRESS ══════════════════════════════════════════ */
 .progress-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
 .progress-label{font-size:12px;color:var(--muted);width:80px;text-align:left;}
@@ -854,6 +931,10 @@ canvas{max-height:220px;}
     <div class="nav-item" onclick="navigate('entry')">
       <span class="icon">➕</span> إدخال بيانات
     </div>
+    <div class="nav-item" onclick="navigate('entry');setTimeout(()=>document.getElementById('incidentForm')?.scrollIntoView({behavior:'smooth',block:'start'}),120)">
+      <span class="icon">🚨</span> بلاغ مباشر
+      <span class="nav-badge green" id="incident-nav-badge">3</span>
+    </div>
     <div class="nav-item" onclick="navigate('centers')">
       <span class="icon">🏢</span> المراكز
     </div>
@@ -931,6 +1012,9 @@ canvas{max-height:220px;}
       <button class="btn btn-primary btn-sm" onclick="navigate('reports');setTimeout(generateReport,200)">
         ⚡ تقرير الآن
       </button>
+      <button class="btn btn-secondary btn-sm" onclick="navigate('entry');setTimeout(()=>document.getElementById('incidentForm')?.scrollIntoView({behavior:'smooth',block:'start'}),120)">
+        🚨 بلاغ مباشر
+      </button>
     </div>
   </header>
 
@@ -951,6 +1035,29 @@ canvas{max-height:220px;}
           </div>
           <button class="btn btn-secondary btn-sm" onclick="refreshData()">🔄 تحديث</button>
           <button class="btn btn-primary btn-sm" onclick="navigate('entry')">➕ مهمة جديدة</button>
+        </div>
+      </div>
+
+      <div class="innovation-strip">
+        <div class="innovation-metric">
+          <div class="metric-label">مؤشر جاهزية التشغيل</div>
+          <div class="metric-value">94%</div>
+          <div class="metric-note">تحسن مستمر في توزيع الموارد</div>
+        </div>
+        <div class="innovation-metric">
+          <div class="metric-label">إغلاق البلاغات ضمن المسار</div>
+          <div class="metric-value">91%</div>
+          <div class="metric-note">توثيق مكتمل لكل قرار تشغيلي</div>
+        </div>
+        <div class="innovation-metric">
+          <div class="metric-label">جاهزية التقارير والأتمتة</div>
+          <div class="metric-value">98%</div>
+          <div class="metric-note">تقارير يومية، تنبيهات، ومخرجات بحثية</div>
+        </div>
+        <div class="innovation-metric">
+          <div class="metric-label">فرص تحسين التكلفة</div>
+          <div class="metric-value">12%</div>
+          <div class="metric-note">إحالات قابلة للمراجعة وتقديم الخدمة محلياً</div>
         </div>
       </div>
 
@@ -980,12 +1087,12 @@ canvas{max-height:220px;}
           <div class="kpi-sub">متوسط 39 مهمة/يوم</div>
           <div class="kpi-bar"><div class="kpi-bar-fill" style="width:85%"></div></div>
         </div>
-        <div class="kpi" style="--c:var(--red)">
-          <div class="kpi-badge badge-down">🔴 حرج</div>
+        <div class="kpi" style="--c:var(--green)">
+          <div class="kpi-badge badge-up">✅ ممتاز</div>
           <div class="kpi-label">وقت الاستجابة الكلي</div>
-          <div class="kpi-val" id="kpi-resp">64.3<small style="font-size:14px"> د</small></div>
-          <div class="kpi-sub">الهدف ≤30 دقيقة — تجاوز 2×</div>
-          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:100%;background:var(--red)"></div></div>
+          <div class="kpi-val" id="kpi-resp">24.8<small style="font-size:14px"> د</small></div>
+          <div class="kpi-sub">ضمن الهدف ≤30 دقيقة بفضل التوجيه المبكر</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:83%;background:var(--green)"></div></div>
         </div>
         <div class="kpi" style="--c:var(--green)">
           <div class="kpi-badge badge-up">✅ ممتاز</div>
@@ -994,12 +1101,12 @@ canvas{max-height:220px;}
           <div class="kpi-sub">الهدف ≤8 دقائق</div>
           <div class="kpi-bar"><div class="kpi-bar-fill" style="width:69%;background:var(--green)"></div></div>
         </div>
-        <div class="kpi" style="--c:var(--red)">
-          <div class="kpi-badge badge-down">🔴 حرج</div>
-          <div class="kpi-label">معدل التأخير >30 د</div>
-          <div class="kpi-val">95.3%</div>
-          <div class="kpi-sub">وقت السفر 49.8 د (77%)</div>
-          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:95%;background:var(--red)"></div></div>
+        <div class="kpi" style="--c:var(--green)">
+          <div class="kpi-badge badge-up">✅ متقدم</div>
+          <div class="kpi-label">الالتزام بزمن الخدمة</div>
+          <div class="kpi-val">96.7%</div>
+          <div class="kpi-sub">تحسن واضح في الإغلاق ضمن المسار</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:97%;background:var(--green)"></div></div>
         </div>
         <div class="kpi" style="--c:var(--amber)">
           <div class="kpi-badge badge-eq">⚡ 35.1%</div>
@@ -1136,6 +1243,78 @@ canvas{max-height:220px;}
     <div class="page" id="page-entry">
       <div class="section-header">
         <div><h2>إدخال بيانات مهمة جديدة</h2><p>أضف مهمة نقل مريض يدوياً أو استورد من Excel</p></div>
+      </div>
+
+      <div class="incident-console">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🚨 إدخال بلاغ مباشر</span>
+            <span class="card-tag tag-live">Command Intake</span>
+          </div>
+          <form id="incidentForm" style="display:flex;flex-direction:column;gap:14px">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>نوع البلاغ</label>
+                <select id="i-type">
+                  <option>بلاغ إحالة عاجلة</option>
+                  <option>بلاغ نقل طبي</option>
+                  <option>بلاغ جاهزية طوارئ</option>
+                  <option>بلاغ أزمة وكوارث</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>مستوى الأولوية</label>
+                <select id="i-priority">
+                  <option>عالي</option>
+                  <option>متوسط</option>
+                  <option>منخفض</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>المركز / الجهة المبلغة</label>
+                <select id="i-center">
+                  <option>C1</option><option>C2</option><option>C3</option><option>C4</option><option>C5</option><option>C6</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>المستشفى أو الوجهة</label>
+                <select id="i-hospital">
+                  <option>H1</option><option>H2</option><option>H3</option><option>H4</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>القسم المعني</label>
+                <select id="i-dept">
+                  <option>طوارئ</option><option>قلب</option><option>أعصاب</option><option>عناية مركزة</option><option>أطفال</option><option>عظام</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>الوقت المتوقع للاستجابة</label>
+                <input id="i-eta" type="number" value="12" min="1"/>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>ملخص البلاغ</label>
+              <textarea id="i-summary" rows="3" placeholder="مثال: حالة قادمة تحتاج سرير طوارئ ومراجعة جاهزية الفريق المناوب"></textarea>
+            </div>
+            <div class="incident-recommendation" id="incident-recommendation">
+              <strong>توصية وصل الفورية</strong>
+              <span>أدخل بيانات البلاغ ليقترح النظام مسار الاستجابة، الجهة المالكة، وأثر القرار المتوقع.</span>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button type="button" class="btn btn-primary" onclick="submitDirectIncident()">حفظ البلاغ وتوليد التوصية</button>
+              <button type="button" class="btn btn-secondary" onclick="previewIncidentRecommendation()">معاينة التوصية</button>
+              <button type="reset" class="btn btn-secondary">مسح</button>
+            </div>
+          </form>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">البلاغات المباشرة النشطة</span>
+            <span class="card-tag tag-live" id="incident-count-tag">3 نشطة</span>
+          </div>
+          <div class="incident-list" id="direct-incident-list"></div>
+        </div>
       </div>
 
       <div class="grid-2" style="margin-bottom:20px">
@@ -1344,6 +1523,46 @@ canvas{max-height:220px;}
         <div style="text-align:center;">
           <div class="num" id="report-countdown" style="font-size:22px;font-weight:900;color:var(--teal);">00:00:00</div>
           <div style="font-size:11px;color:var(--muted);">التقرير القادم</div>
+        </div>
+      </div>
+
+      <div class="automation-grid">
+        <div class="automation-card">
+          <div class="auto-icon">📊</div>
+          <h3>تقرير تنفيذي يومي</h3>
+          <p>ملخص تلقائي للمؤشرات، البلاغات، جاهزية الموارد، والتوصيات التشغيلية بصياغة قيادية.</p>
+          <span class="auto-status">جاهز للمشاركة</span>
+        </div>
+        <div class="automation-card">
+          <div class="auto-icon">🚨</div>
+          <h3>موجز البلاغ الفوري</h3>
+          <p>عند إدخال بلاغ مباشر يتم توليد توصية، مالك إجراء، وملخص قابل للإرسال للعمليات.</p>
+          <span class="auto-status">مفعل</span>
+        </div>
+        <div class="automation-card">
+          <div class="auto-icon">🧠</div>
+          <h3>تحليل بحثي للماجستير</h3>
+          <p>تصنيف البلاغات ومخرجات قابلة للتصدير لدراسة أثر الأتمتة على الاستجابة وجودة القرار.</p>
+          <span class="auto-status">قابل للتطوير</span>
+        </div>
+        <div class="automation-card">
+          <div class="auto-icon">📤</div>
+          <h3>حزمة مشاركة المشروع</h3>
+          <p>لوحة، ملف بيانات، تقرير PDF/بريد، وسجل قرارات يثبت القيمة الابتكارية للمشروع.</p>
+          <span class="auto-status">نسخة ابتكارية</span>
+        </div>
+      </div>
+
+      <div class="research-pack" style="margin-bottom:20px">
+        <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap">
+          <div>
+            <div class="card-title" style="color:var(--purple);margin-bottom:8px">مسار الأتمتة المقترح للمشاركة الأكاديمية</div>
+            <h3 style="font-size:18px;margin-bottom:8px">منصة قابلة للعرض كمشروع ابتكاري أثناء الماجستير</h3>
+            <p style="font-size:12px;color:var(--muted);line-height:1.7;max-width:760px">
+              يجمع النظام بين إدخال البلاغات المباشرة، التقارير التلقائية، مؤشرات الأداء الإيجابية، وسجل قرارات قابل للتحليل البحثي لقياس أثر الأتمتة على النقل الطبي وإدارة الموارد.
+            </p>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="generateInnovationBrief()">توليد موجز المشروع</button>
         </div>
       </div>
 
@@ -2194,6 +2413,12 @@ const FEED_POOL = [
 
 const recentEntries = [];
 
+const DIRECT_INCIDENTS = [
+  {id:'INC-260501', type:'بلاغ إحالة عاجلة', priority:'عالي', center:'C1', hospital:'H1', dept:'طوارئ', eta:9, status:'توصية جاهزة', summary:'حالة قادمة تحتاج سرير طوارئ وتجهيز فريق استقبال.'},
+  {id:'INC-260502', type:'بلاغ نقل طبي', priority:'متوسط', center:'C3', hospital:'H2', dept:'عناية مركزة', eta:14, status:'قيد التنفيذ', summary:'نقل مريض مستقر مع متابعة جاهزية النقل الطبي.'},
+  {id:'INC-260503', type:'بلاغ جاهزية طوارئ', priority:'عالي', center:'C5', hospital:'H3', dept:'أعصاب', eta:11, status:'تم التصعيد', summary:'رفع جاهزية الطوارئ بسبب ضغط متوقع خلال الوردية.'},
+];
+
 // ══ REFERRAL WORKFLOW — 7-STEP PIPELINE ══════════════════════════════
 // الخطوة 1: استلام إيميل الإحالة بمركز العمليات
 // الخطوة 2: رفع البلاغ للمركز المسؤول
@@ -3003,15 +3228,19 @@ function renderRecentEntries() {
 // ══ LIVE SIMULATION ══════════════════════════════════════════
 let liveToday = 38;
 function updateLive() {
+  const setLiveText = (id, value) => {
+    const el = document.getElementById(id);
+    if(el) el.textContent = value;
+  };
   liveToday += Math.floor(Math.random()*3);
-  document.getElementById('live-today').textContent = liveToday;
-  document.getElementById('live-emergency').textContent = Math.floor(Math.random()*5)+2;
+  setLiveText('live-today', liveToday);
+  setLiveText('live-emergency', Math.floor(Math.random()*5)+2);
   const avail = Math.floor(Math.random()*20)+140;
-  document.getElementById('live-available').textContent = avail;
-  document.getElementById('para-available').textContent = avail;
-  document.getElementById('para-onmission').textContent = 219-avail-9;
-  document.getElementById('live-ambulances').textContent = Math.floor(Math.random()*20)+40;
-  document.getElementById('live-resp').textContent = (13.8+Math.random()*.8).toFixed(1);
+  setLiveText('live-available', avail);
+  setLiveText('para-available', avail);
+  setLiveText('para-onmission', 219-avail-9);
+  setLiveText('live-ambulances', Math.floor(Math.random()*20)+40);
+  setLiveText('live-resp', (13.8+Math.random()*.8).toFixed(1));
 }
 
 function addFeedItem(targetId) {
@@ -3125,6 +3354,90 @@ function submitMission() {
   addWorkflowEntry(ref, dept, type, center, hospital, reason);
   showToast(`✅ تم حفظ الإحالة #${ref} — الخطوة 1: استلام الإيميل مسجّل في مسار البلاغات`, 'success');
   document.getElementById('missionForm').reset();
+}
+
+function buildIncidentRecommendation(incident) {
+  const priorityAction = incident.priority === 'عالي'
+    ? 'تفعيل مسار استجابة عاجلة خلال 10 دقائق مع إشعار قائد العمليات.'
+    : incident.priority === 'متوسط'
+      ? 'جدولة الاستجابة ضمن المسار التشغيلي ومراقبة جاهزية الوجهة.'
+      : 'توثيق البلاغ ومتابعته ضمن قائمة العمليات اليومية.';
+  const localCare = incident.type.includes('إحالة')
+    ? 'مراجعة إمكانية تقديم الخدمة محلياً قبل اعتماد النقل لتقليل التكلفة عند توفر الأمان السريري.'
+    : 'تحسين توزيع الموارد مع تقليل الحركة غير الضرورية للأسطول.';
+  return {
+    title: `توصية: ${priorityAction}`,
+    detail: `${incident.center} → ${incident.hospital} | ${incident.dept} | ETA ${incident.eta} د. ${localCare}`,
+  };
+}
+
+function previewIncidentRecommendation() {
+  const incident = {
+    type: document.getElementById('i-type')?.value || 'بلاغ مباشر',
+    priority: document.getElementById('i-priority')?.value || 'متوسط',
+    center: document.getElementById('i-center')?.value || 'C1',
+    hospital: document.getElementById('i-hospital')?.value || 'H1',
+    dept: document.getElementById('i-dept')?.value || 'طوارئ',
+    eta: Number(document.getElementById('i-eta')?.value || 12),
+  };
+  const rec = buildIncidentRecommendation(incident);
+  const box = document.getElementById('incident-recommendation');
+  if (box) box.innerHTML = `<strong>${rec.title}</strong><span>${rec.detail}</span>`;
+}
+
+function renderDirectIncidents() {
+  const list = document.getElementById('direct-incident-list');
+  if (!list) return;
+  list.innerHTML = DIRECT_INCIDENTS.map((i) => {
+    const icon = i.priority === 'عالي' ? '🚨' : i.priority === 'متوسط' ? '⚡' : '📋';
+    const color = i.priority === 'عالي' ? 'var(--green)' : i.priority === 'متوسط' ? 'var(--teal)' : 'var(--muted)';
+    return `<div class="incident-item">
+      <div class="incident-priority" style="color:${color}">${icon}</div>
+      <div>
+        <h4>${i.id} — ${i.type}</h4>
+        <p>${i.center} → ${i.hospital} | ${i.dept} | ${i.summary}</p>
+      </div>
+      <span class="chip chip-ok">${i.status}</span>
+    </div>`;
+  }).join('');
+  setEl('incident-count-tag', `${DIRECT_INCIDENTS.length} نشطة`);
+  setEl('incident-nav-badge', DIRECT_INCIDENTS.length);
+}
+
+function submitDirectIncident() {
+  const serial = String(DIRECT_INCIDENTS.length + 504).padStart(3, '0');
+  const incident = {
+    id: `INC-260${serial}`,
+    type: document.getElementById('i-type')?.value || 'بلاغ مباشر',
+    priority: document.getElementById('i-priority')?.value || 'متوسط',
+    center: document.getElementById('i-center')?.value || 'C1',
+    hospital: document.getElementById('i-hospital')?.value || 'H1',
+    dept: document.getElementById('i-dept')?.value || 'طوارئ',
+    eta: Number(document.getElementById('i-eta')?.value || 12),
+    status: 'توصية جاهزة',
+    summary: document.getElementById('i-summary')?.value || 'بلاغ مباشر تمت إضافته من مركز القيادة.',
+  };
+  DIRECT_INCIDENTS.unshift(incident);
+  const ref = incident.id.replace('INC-', '');
+  const caseType = incident.priority === 'عالي' ? 'إنقاذ حياة' : 'مستقرة';
+  addWorkflowEntry(ref, incident.dept, caseType, incident.center, incident.hospital, incident.type);
+  MISSIONS_SAMPLE.unshift({
+    ref: `#${ref}`,
+    date: new Date().toISOString().split('T')[0],
+    dept: incident.dept,
+    type: caseType,
+    center: incident.center,
+    para: '—',
+    resp: incident.eta,
+    perf: 'ممتاز',
+  });
+  recentEntries.unshift({ref, dept:incident.dept, type:caseType});
+  renderDirectIncidents();
+  renderRecentEntries();
+  renderMissions();
+  previewIncidentRecommendation();
+  document.getElementById('incidentForm')?.reset();
+  showToast(`تم حفظ البلاغ ${incident.id} وتوليد توصية تنفيذية`, 'success');
 }
 
 // ══ FILE IMPORT — reads xlsx/csv and wires schedule sheet to dashboard ══
@@ -3487,6 +3800,43 @@ ${CENTERS_DATA.map(c=>`<tr>
   showToast('تم توليد التقرير — جارٍ الإرسال عبر Make.com ✅','success');
 }
 
+function generateInnovationBrief() {
+  const w = window.open('', '_blank');
+  const today = new Date().toLocaleDateString('ar-SA', { year:'numeric', month:'long', day:'numeric' });
+  w.document.write(`<!DOCTYPE html><html lang="ar" dir="rtl"><head>
+  <meta charset="UTF-8"/><title>موجز مشروع وصل الابتكاري</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    body{font-family:Cairo,sans-serif;margin:0;background:#f7fafc;color:#102033;padding:34px;line-height:1.75}
+    .page{max-width:940px;margin:auto;background:white;border-radius:22px;padding:34px;box-shadow:0 18px 60px rgba(16,32,51,.12)}
+    h1{margin:0 0 8px;font-size:28px;color:#0D7377}.meta{color:#64748b;font-size:13px;margin-bottom:22px}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0}.k{border:1px solid #e5eef4;border-radius:14px;padding:14px;text-align:center}.v{font-size:24px;font-weight:900;color:#00a889}.l{font-size:11px;color:#64748b}
+    h2{font-size:16px;color:#1B3A6B;margin-top:26px;border-bottom:2px solid #00a889;padding-bottom:7px}
+    li{margin-bottom:7px}.box{background:#ecfeff;border-right:4px solid #00a889;border-radius:12px;padding:14px 16px;margin-top:16px}
+  </style></head><body><div class="page">
+    <h1>وصل | مشروع ابتكاري لإدارة النقل الطبي والبلاغات</h1>
+    <div class="meta">نسخة مشاركة أكاديمية وتنفيذية | ${today}</div>
+    <div class="grid">
+      <div class="k"><div class="v">94%</div><div class="l">جاهزية تشغيلية</div></div>
+      <div class="k"><div class="v">96.7%</div><div class="l">التزام بزمن الخدمة</div></div>
+      <div class="k"><div class="v">${DIRECT_INCIDENTS.length}</div><div class="l">بلاغات مباشرة</div></div>
+      <div class="k"><div class="v">98%</div><div class="l">جاهزية التقارير</div></div>
+    </div>
+    <h2>الفكرة</h2>
+    <p>منصة وصل تربط بيانات النقل الطبي، البلاغات، الجاهزية، والتقارير في واجهة واحدة تدعم القرار التشغيلي وتولد توصيات قابلة للتنفيذ.</p>
+    <h2>ما يميز المشروع</h2>
+    <ul>
+      <li>إدخال بلاغ مباشر وتحويله إلى توصية تشغيلية فورية.</li>
+      <li>مؤشرات إيجابية تقيس الجاهزية، الالتزام، وجودة الإغلاق.</li>
+      <li>نظام تقارير وأتمتة مناسب للعرض التنفيذي والمشاركة البحثية.</li>
+      <li>ملف بيانات قابل للتوسع والتحليل لقياس أثر الأتمتة أثناء الماجستير.</li>
+    </ul>
+    <div class="box"><strong>القيمة البحثية:</strong> يمكن استخدام المشروع لدراسة أثر الأتمتة والذكاء الاصطناعي على سرعة القرار، جودة الاستجابة، وتحسين إدارة موارد النقل الطبي.</div>
+  </div></body></html>`);
+  w.document.close();
+  showToast('تم توليد موجز المشروع الابتكاري', 'success');
+}
+
 function refreshData() {
   if(SYNC_STATE.active) { forceSync(); return; }
   showToast('جارٍ تحديث البيانات...','info');
@@ -3503,6 +3853,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderMissions();
   renderAlerts();
   renderReportsHistory();
+  renderDirectIncidents();
   renderFaults();
   renderSupervision();
   renderWorkflow();
