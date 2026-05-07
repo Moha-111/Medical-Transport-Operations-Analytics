@@ -348,7 +348,7 @@ See [`DEPLOYMENT.md`](./DEPLOYMENT.md) for step-by-step setup instructions.
 
 ## Security Architecture
 
-### Current (Hackathon MVP)
+### Current (Innovation MVP)
 
 - No authentication server — login is purely role-based UI
 - No patient PII in the dataset (synthetic data only)
@@ -378,7 +378,7 @@ Phase 3: Compliance
 
 ## Scalability Notes
 
-The current architecture is intentionally simple for the hackathon MVP:
+The current architecture is intentionally simple for innovation validation and pilot-readiness review:
 
 | Constraint | Current | Production Path |
 |------------|---------|-----------------|
