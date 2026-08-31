@@ -1,0 +1,60 @@
+{
+  "name": "Medical Transport Ops Theme",
+  "dataColors": [
+    "#0B5394",
+    "#2E7D32",
+    "#F9A825",
+    "#C62828",
+    "#455A64",
+    "#00838F",
+    "#6A1B9A",
+    "#EF6C00"
+  ],
+  "background": "#F5F7FA",
+  "foreground": "#0B5394",
+  "tableAccent": "#0B5394",
+  "good": "#2E7D32",
+  "neutral": "#F9A825",
+  "bad": "#C62828",
+  "maximum": "#0B5394",
+  "center": "#F9A825",
+  "minimum": "#C62828",
+  "null": "#E0E0E0",
+  "textClasses": {
+    "title": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 18,
+      "color": "#0B5394"
+    },
+    "header": {
+      "fontFace": "Segoe UI",
+      "fontSize": 12,
+      "color": "#455A64"
+    },
+    "label": {
+      "fontFace": "Segoe UI",
+      "fontSize": 10,
+      "color": "#455A64"
+    },
+    "callout": {
+      "fontFace": "Segoe UI Bold",
+      "fontSize": 36,
+      "color": "#0B5394"
+    }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [{"color": {"solid": {"color": "#FFFFFF"}}, "transparency": 0}],
+        "border": [{"show": true, "color": {"solid": {"color": "#E0E0E0"}}, "radius": 6}],
+        "visualHeader": [{"show": false}]
+      }
+    },
+    "card": {
+      "*": {
+        "labels": [{"color": {"solid": {"color": "#0B5394"}}, "fontSize": 32, "fontFamily": "Segoe UI Bold"}],
+        "categoryLabels": [{"color": {"solid": {"color": "#455A64"}}, "fontSize": 11}]
+      }
+    }
+  }
+}
