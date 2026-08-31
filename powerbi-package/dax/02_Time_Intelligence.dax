@@ -1,0 +1,49 @@
+// ============================================================
+// TIME INTELLIGENCE MEASURES
+// Requires: DimDate marked as Date Table, related to FactOperations[Referral Date]
+// ============================================================
+
+Missions MTD =
+    TOTALMTD ( [Total Missions], DimDate[Date] )
+
+Missions QTD =
+    TOTALQTD ( [Total Missions], DimDate[Date] )
+
+Missions YTD =
+    TOTALYTD ( [Total Missions], DimDate[Date] )
+
+
+// -------- Prior period --------
+Missions Prev Month =
+    CALCULATE ( [Total Missions], DATEADD ( DimDate[Date], -1, MONTH ) )
+
+Missions Prev Year =
+    CALCULATE ( [Total Missions], SAMEPERIODLASTYEAR ( DimDate[Date] ) )
+
+MoM % =
+    DIVIDE ( [Total Missions] - [Missions Prev Month], [Missions Prev Month], 0 )
+
+
+// -------- Rolling averages (smooth noisy daily curves) --------
+Rolling 7d Missions =
+    CALCULATE (
+        [Total Missions],
+        DATESINPERIOD ( DimDate[Date], MAX ( DimDate[Date] ), -7, DAY )
+    )
+
+Rolling 30d Missions =
+    CALCULATE (
+        [Total Missions],
+        DATESINPERIOD ( DimDate[Date], MAX ( DimDate[Date] ), -30, DAY )
+    )
+
+Rolling 7d Avg Total Response =
+    CALCULATE (
+        [Avg Total Response (min)],
+        DATESINPERIOD ( DimDate[Date], MAX ( DimDate[Date] ), -7, DAY )
+    )
+
+
+// -------- Peak-hour flag (for heatmaps) --------
+Missions per Hour =
+    CALCULATE ( [Total Missions], ALLEXCEPT ( FactOperations, FactOperations[AcceptanceHour] ) )

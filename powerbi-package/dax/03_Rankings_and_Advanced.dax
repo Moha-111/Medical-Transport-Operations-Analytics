@@ -1,0 +1,83 @@
+// ============================================================
+// RANKINGS & ADVANCED MEASURES
+// ============================================================
+
+// -------- Center ranking by volume --------
+Center Rank (Volume) =
+    IF (
+        HASONEVALUE ( FactOperations[Center Name] ),
+        RANKX (
+            ALL ( FactOperations[Center Name] ),
+            CALCULATE ( [Total Missions] ),
+            ,
+            DESC,
+            DENSE
+        )
+    )
+
+Center Rank (Response) =
+    IF (
+        HASONEVALUE ( FactOperations[Center Name] ),
+        RANKX (
+            ALL ( FactOperations[Center Name] ),
+            CALCULATE ( [Avg Total Response (min)] ),
+            ,
+            ASC,        -- lower response is better
+            DENSE
+        )
+    )
+
+
+// -------- Paramedic ranking --------
+Paramedic Rank (Volume) =
+    IF (
+        HASONEVALUE ( FactOperations[Paramedic] ),
+        RANKX (
+            ALL ( FactOperations[Paramedic] ),
+            CALCULATE ( [Total Missions] ),
+            ,
+            DESC,
+            DENSE
+        )
+    )
+
+Paramedic Rank (On-Time) =
+    IF (
+        HASONEVALUE ( FactOperations[Paramedic] ),
+        RANKX (
+            ALL ( FactOperations[Paramedic] ),
+            CALCULATE ( [On-Time Rate] ),
+            ,
+            DESC,
+            DENSE
+        )
+    )
+
+
+// -------- KPI status label (for card conditional formatting) --------
+SLA Status Label =
+    VAR AvgResp = [Avg Total Response (min)]
+    VAR Target  = [Target Total Response]
+    RETURN
+        SWITCH (
+            TRUE (),
+            AvgResp <= Target,                "On Target",
+            AvgResp <= Target * 1.10,         "Warning",
+            "Critical"
+        )
+
+SLA Status Color =
+    SWITCH (
+        [SLA Status Label],
+        "On Target", "#2E7D32",
+        "Warning",   "#F9A825",
+        "Critical",  "#C62828"
+    )
+
+
+// -------- Dynamic titles --------
+Dynamic Page Title =
+    "Medical Transport Operations — "
+    & IF ( ISFILTERED ( DimDate[YearMonth] ),
+           CONCATENATEX ( VALUES ( DimDate[YearMonth] ), DimDate[YearMonth], ", " ),
+           "All Periods" )

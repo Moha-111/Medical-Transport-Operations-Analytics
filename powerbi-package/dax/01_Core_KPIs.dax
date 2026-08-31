@@ -1,0 +1,93 @@
+// ============================================================
+// CORE KPI MEASURES
+// Table: place these in a dedicated "_Measures" table
+// Convention: [Measure Name] = <expression>
+// ============================================================
+
+// -------- Volume --------
+Total Missions =
+    COUNTROWS ( FactOperations )
+
+Life-Saving Missions =
+    CALCULATE ( [Total Missions], FactOperations[Referral Type] = "Life-Saving" )
+
+Stable Missions =
+    CALCULATE ( [Total Missions], FactOperations[Referral Type] = "Stable" )
+
+Life-Saving % =
+    DIVIDE ( [Life-Saving Missions], [Total Missions], 0 )
+
+
+// -------- Response-time averages (minutes) --------
+Avg Dispatch (min) =
+    AVERAGE ( FactOperations[Dispatch Time (min)] )
+
+Avg Response (min) =
+    AVERAGE ( FactOperations[Response Time (min)] )
+
+Avg Travel (min) =
+    AVERAGE ( FactOperations[Travel Time (min)] )
+
+Avg Total Response (min) =
+    AVERAGE ( FactOperations[Total Response (min)] )
+
+Avg Mission Duration (min) =
+    AVERAGE ( FactOperations[Mission Duration (min)] )
+
+
+// -------- Percentiles (robust to outliers) --------
+P50 Total Response =
+    PERCENTILEX.INC ( FactOperations, FactOperations[Total Response (min)], 0.50 )
+
+P90 Total Response =
+    PERCENTILEX.INC ( FactOperations, FactOperations[Total Response (min)], 0.90 )
+
+P95 Total Response =
+    PERCENTILEX.INC ( FactOperations, FactOperations[Total Response (min)], 0.95 )
+
+
+// -------- Performance / SLA --------
+On-Time Missions =
+    CALCULATE ( [Total Missions], FactOperations[Performance Rating] = "Good" )
+
+Late Missions =
+    CALCULATE ( [Total Missions], FactOperations[Performance Rating] = "Late" )
+
+On-Time Rate =
+    DIVIDE ( [On-Time Missions], [Total Missions], 0 )
+
+Late Rate =
+    DIVIDE ( [Late Missions], [Total Missions], 0 )
+
+
+// -------- Target & gap (edit target as needed) --------
+Target Total Response =  60      -- SLA target in minutes; adjust to your policy
+
+Gap vs Target (min) =
+    [Avg Total Response (min)] - [Target Total Response]
+
+Missions Above SLA =
+    CALCULATE (
+        [Total Missions],
+        FILTER ( FactOperations, FactOperations[Total Response (min)] > [Target Total Response] )
+    )
+
+Above SLA % =
+    DIVIDE ( [Missions Above SLA], [Total Missions], 0 )
+
+
+// -------- Utilization proxies --------
+Active Paramedics =
+    DISTINCTCOUNT ( FactOperations[Paramedic] )
+
+Active Ambulances =
+    DISTINCTCOUNT ( FactOperations[Ambulance Code] )
+
+Active Centers =
+    DISTINCTCOUNT ( FactOperations[Center Name] )
+
+Missions per Paramedic =
+    DIVIDE ( [Total Missions], [Active Paramedics], 0 )
+
+Missions per Ambulance =
+    DIVIDE ( [Total Missions], [Active Ambulances], 0 )
