@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "وصل — Medical Transport Operations Analytics Platform",
   "scripts": {
+    "dev": "node server.js",
+    "build": "echo 'Build complete'",
+    "start": "node server.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -20,5 +23,8 @@
     "collectCoverageFrom": [
       "src/**/*.js"
     ]
+  },
+  "dependencies": {
+    "express": "^5.2.1"
   }
 }
