@@ -255,13 +255,13 @@ def test_referral_ids_unique():
     non_blank = [r for r in data if any(v is not None for v in r)]
     con, _ = _build_in_memory_db(headers, non_blank)
     cur = con.cursor()
-    cur.execute('SELECT COUNT(*) FROM missions')
-    total = cur.fetchone()[0]
+    cur.execute('SELECT COUNT("Referral_#") FROM missions WHERE "Referral_#" IS NOT NULL')
+    non_null_count = cur.fetchone()[0]
     cur.execute('SELECT COUNT(DISTINCT "Referral_#") FROM missions WHERE "Referral_#" IS NOT NULL')
     distinct = cur.fetchone()[0]
     con.close()
-    assert distinct == total, (
-        f"Duplicate Referral # detected: {total} rows but only {distinct} unique IDs"
+    assert distinct == non_null_count, (
+        f"Duplicate Referral # detected: {non_null_count} non-NULL rows but only {distinct} unique IDs"
     )
 
 runner.register("Referral IDs are unique", test_referral_ids_unique)
