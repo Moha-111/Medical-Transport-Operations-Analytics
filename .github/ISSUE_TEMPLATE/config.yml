@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: 🌐 Live Platform
+    url: https://moha-111.github.io/Medical-Transport-Operations-Analytics/
+    about: Try the live Wasl platform before reporting issues
+
+  - name: 💼 LinkedIn — Mohammad Alshehri
+    url: https://linkedin.com/in/mohammad-alshehri-b0a579388
+    about: For business inquiries, partnerships, or pilot programs
+
+  - name: 🔒 Security Vulnerability
+    url: https://github.com/Moha-111/Medical-Transport-Operations-Analytics/security/advisories/new
+    about: Report security vulnerabilities privately (never via public issues)

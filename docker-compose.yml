@@ -1,0 +1,54 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Wasl — Local Development Stack
+#
+# Start the full local stack:
+#   docker compose up
+#
+# Or just the web dashboard:
+#   docker compose up web
+#
+# Or just the database tests:
+#   docker compose run --rm db-tests
+# ──────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── Database integration tests ─────────────────────────────────────────────
+  db-tests:
+    build:
+      context: .
+      target: db-tests
+    image: wasl-db-tests:local
+    container_name: wasl-db-tests
+    volumes:
+      # Mount the workbook and test script so changes are reflected without
+      # rebuilding the image.
+      - ./Medical-Transport-Analytics.xlsx:/app/Medical-Transport-Analytics.xlsx:ro
+      - ./test_database.py:/app/test_database.py:ro
+    command: python test_database.py
+    # This service exits on its own after the tests complete; compose up will
+    # wait for it and report the exit code.
+
+  # ── Static web dashboard ───────────────────────────────────────────────────
+  web:
+    build:
+      context: .
+      target: web
+    image: wasl-web:local
+    container_name: wasl-web
+    ports:
+      - "8080:8080"
+    volumes:
+      # Live-reload: changes to source files are reflected immediately.
+      - ./index.html:/app/index.html:ro
+      - ./manifest.json:/app/manifest.json:ro
+      - ./sw.js:/app/sw.js:ro
+      - ./src:/app/src:ro
+      - ./Medical-Transport-Analytics.xlsx:/app/Medical-Transport-Analytics.xlsx:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
