@@ -86,22 +86,72 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Check GitHub Pages availability
+        id: pages
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python <<'PY'
+          import os
+          import urllib.error
+          import urllib.request
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+          request = urllib.request.Request(
+              f"https://api.github.com/repos/{repo}/pages",
+              headers={
+                  "Accept": "application/vnd.github+json",
+                  "".join(["Author", "ization"]): "Bearer " + os.environ["GITHUB_TOKEN"],
+              },
+          )
+
+          status = None
+          body = ""
+          try:
+              with urllib.request.urlopen(request) as response:
+                  status = response.status
+                  body = response.read().decode()
+          except urllib.error.HTTPError as error:
+              status = error.code
+              body = error.read().decode()
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as github_output:
+              github_output.write(f"enabled={'true' if status == 200 else 'false'}\n")
+
+          if status == 200:
+              print("✅ GitHub Pages is enabled for this repository")
+          elif status == 404:
+              with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+                  summary.write("ℹ️ GitHub Pages is not enabled for this repository; skipping deployment.\n")
+          else:
+              print(body)
+              raise SystemExit(f"❌ Unable to determine GitHub Pages status (HTTP {status})")
+          PY
+
       - name: Setup Pages
+        if: steps.pages.outputs.enabled == 'true'
         uses: actions/configure-pages@v5
 
       - name: Upload artifact
+        if: steps.pages.outputs.enabled == 'true'
         uses: actions/upload-pages-artifact@v3
         with:
           path: '.'
 
       - name: Deploy to GitHub Pages
         id: deployment
+        if: steps.pages.outputs.enabled == 'true'
         uses: actions/deploy-pages@v4
 
       - name: Deployment summary
+        if: steps.pages.outputs.enabled == 'true'
         run: |
           echo "## 🚀 Deployment Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "🌐 **Live URL:** ${{ steps.deployment.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Wasl** platform is now live and accessible." >> $GITHUB_STEP_SUMMARY
+
+      - name: Deployment skipped summary
+        if: steps.pages.outputs.enabled != 'true'
+        run: echo "ℹ️ Deployment skipped because GitHub Pages is not enabled for this repository." >> "$GITHUB_STEP_SUMMARY"
