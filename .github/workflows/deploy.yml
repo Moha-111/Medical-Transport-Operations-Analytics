@@ -86,9 +86,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check GitHub Pages availability
+      - name: Detect GitHub Pages configuration
         id: pages
         env:
+          GITHUB_API_URL: ${{ github.api_url }}
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           python <<'PY'
@@ -98,10 +99,11 @@ jobs:
 
           repo = os.environ["GITHUB_REPOSITORY"]
           request = urllib.request.Request(
-              f"https://api.github.com/repos/{repo}/pages",
+              f"{os.environ['GITHUB_API_URL']}/repos/{repo}/pages",
               headers={
                   "Accept": "application/vnd.github+json",
-                  "".join(["Author", "ization"]): "Bearer " + os.environ["GITHUB_TOKEN"],
+                  "Authorization": "Bearer " + os.environ["GITHUB_TOKEN"],
+                  "X-GitHub-Api-Version": "2022-11-28",
               },
           )
 
@@ -143,6 +145,13 @@ jobs:
         if: steps.pages.outputs.enabled == 'true'
         uses: actions/deploy-pages@v4
 
+      - name: Deployment skipped summary
+        if: steps.pages.outputs.enabled != 'true'
+        run: |
+          echo "## 🚫 Deployment Skipped" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "GitHub Pages is not enabled for this repository, so the deployment job exited without publishing." >> $GITHUB_STEP_SUMMARY
+
       - name: Deployment summary
         if: steps.pages.outputs.enabled == 'true'
         run: |
@@ -151,7 +160,3 @@ jobs:
           echo "🌐 **Live URL:** ${{ steps.deployment.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Wasl** platform is now live and accessible." >> $GITHUB_STEP_SUMMARY
-
-      - name: Deployment skipped summary
-        if: steps.pages.outputs.enabled != 'true'
-        run: echo "ℹ️ Deployment skipped because GitHub Pages is not enabled for this repository." >> "$GITHUB_STEP_SUMMARY"
