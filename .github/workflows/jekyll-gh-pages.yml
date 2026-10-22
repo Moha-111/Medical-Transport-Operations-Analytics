@@ -1,0 +1,106 @@
+# Sample workflow for building and deploying a Jekyll site to GitHub Pages
+name: Deploy Jekyll with GitHub Pages dependencies preinstalled
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ["main"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # Build job
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      pages_enabled: ${{ steps.pages.outputs.enabled }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Detect GitHub Pages configuration
+        id: pages
+        env:
+          GITHUB_API_URL: ${{ github.api_url }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python <<'PY'
+          import os
+          import urllib.error
+          import urllib.request
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+          request = urllib.request.Request(
+              f"{os.environ['GITHUB_API_URL']}/repos/{repo}/pages",
+              headers={
+                  "Accept": "application/vnd.github+json",
+                  "Authorization": "Bearer " + os.environ["GITHUB_TOKEN"],
+                  "X-GitHub-Api-Version": "2022-11-28",
+              },
+          )
+
+          status = None
+          body = ""
+          try:
+              with urllib.request.urlopen(request) as response:
+                  status = response.status
+                  body = response.read().decode()
+          except urllib.error.HTTPError as error:
+              status = error.code
+              body = error.read().decode()
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as github_output:
+              github_output.write(f"enabled={'true' if status == 200 else 'false'}\n")
+
+          if status == 200:
+              print("✅ GitHub Pages is enabled for this repository")
+          elif status == 404:
+              with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+                  summary.write("ℹ️ GitHub Pages is not enabled for this repository; skipping deployment.\n")
+          else:
+              print(body)
+              raise SystemExit(f"❌ Unable to determine GitHub Pages status (HTTP {status})")
+          PY
+      - name: Setup Pages
+        if: steps.pages.outputs.enabled == 'true'
+        uses: actions/configure-pages@v5
+      - name: Build with Jekyll
+        if: steps.pages.outputs.enabled == 'true'
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+      - name: Upload artifact
+        if: steps.pages.outputs.enabled == 'true'
+        uses: actions/upload-pages-artifact@v3
+      - name: Deployment skipped summary
+        if: steps.pages.outputs.enabled != 'true'
+        run: |
+          echo "## 🚫 Deployment Skipped" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "GitHub Pages is not enabled for this repository, so the Jekyll Pages workflow exited without publishing." >> $GITHUB_STEP_SUMMARY
+
+  # Deployment job
+  deploy:
+    needs: build
+    if: needs.build.outputs.pages_enabled == 'true'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

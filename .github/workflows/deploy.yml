@@ -89,25 +89,46 @@ jobs:
       - name: Detect GitHub Pages configuration
         id: pages
         env:
+          GITHUB_API_URL: ${{ github.api_url }}
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          set -euo pipefail
-          STATUS=$(curl -sS -o /tmp/pages-response.json -w "%{http_code}" \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "${{ github.api_url }}/repos/${{ github.repository }}/pages")
+          python <<'PY'
+          import os
+          import urllib.error
+          import urllib.request
 
-          if [ "$STATUS" = "200" ]; then
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-          elif [ "$STATUS" = "404" ]; then
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "ℹ️ GitHub Pages is not enabled for ${{ github.repository }}; skipping deployment."
-          else
-            echo "Unexpected response while checking GitHub Pages configuration (HTTP $STATUS)."
-            cat /tmp/pages-response.json
-            exit 1
-          fi
+          repo = os.environ["GITHUB_REPOSITORY"]
+          request = urllib.request.Request(
+              f"{os.environ['GITHUB_API_URL']}/repos/{repo}/pages",
+              headers={
+                  "Accept": "application/vnd.github+json",
+                  "Authorization": "Bearer " + os.environ["GITHUB_TOKEN"],
+                  "X-GitHub-Api-Version": "2022-11-28",
+              },
+          )
+
+          status = None
+          body = ""
+          try:
+              with urllib.request.urlopen(request) as response:
+                  status = response.status
+                  body = response.read().decode()
+          except urllib.error.HTTPError as error:
+              status = error.code
+              body = error.read().decode()
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as github_output:
+              github_output.write(f"enabled={'true' if status == 200 else 'false'}\n")
+
+          if status == 200:
+              print("✅ GitHub Pages is enabled for this repository")
+          elif status == 404:
+              with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+                  summary.write("ℹ️ GitHub Pages is not enabled for this repository; skipping deployment.\n")
+          else:
+              print(body)
+              raise SystemExit(f"❌ Unable to determine GitHub Pages status (HTTP {status})")
+          PY
 
       - name: Setup Pages
         if: steps.pages.outputs.enabled == 'true'
